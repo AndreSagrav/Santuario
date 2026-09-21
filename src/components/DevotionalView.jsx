@@ -271,23 +271,23 @@ REGLAS:
   };
 
   return (
-    <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '24px 24px 90px' }} className="animate-fade-in">
+    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: 'clamp(12px, 2.5vw, 24px) clamp(10px, 2vw, 20px) 90px' }} className="animate-fade-in">
       
       {/* =========================================================================
           1. BANNER SAGRADO DE IDENTIDAD & SELECTOR DE ESTADO DE ÁNIMO
          ========================================================================= */}
       <div className="sacred-panel" style={{ 
-        padding: '24px 32px', 
+        padding: 'clamp(14px, 2.5vw, 24px)', 
         marginBottom: '20px',
         display: 'flex',
         flexDirection: 'column',
         gap: '16px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <div style={{
-              width: '64px',
-              height: '64px',
+              width: 'clamp(44px, 6vw, 60px)',
+              height: 'clamp(44px, 6vw, 60px)',
               borderRadius: '50%',
               background: 'radial-gradient(circle, rgba(212,175,55,0.25) 0%, rgba(0,0,0,0.6) 80%)',
               border: '2px solid var(--gold-400)',
@@ -297,52 +297,63 @@ REGLAS:
               boxShadow: '0 0 25px rgba(212,175,55,0.3)',
               flexShrink: 0
             }}>
-              <Flame size={32} color="var(--gold-400)" />
+              <Flame size={28} color="var(--gold-400)" />
             </div>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                <span className="sacred-badge" style={{ fontSize: '0.74rem', padding: '2px 10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+                <span className="sacred-badge" style={{ fontSize: '0.72rem', padding: '2px 8px' }}>
                   ✦ ENCUENTRO SAGRADO DIARIO ✦
                 </span>
               </div>
-              <h1 className="font-cinzel gold-text-gradient" style={{ fontSize: '1.85rem', fontWeight: '800', margin: 0, letterSpacing: '0.04em' }}>
+              <h1 className="font-cinzel gold-text-gradient" style={{ fontSize: 'clamp(1.2rem, 3.5vw, 1.85rem)', fontWeight: '800', margin: 0, letterSpacing: '0.04em' }}>
                 SANTUARIO — ESPACIO DE INTIMIDAD
               </h1>
-              <p style={{ fontSize: '0.92rem', color: 'var(--text-muted)', margin: '4px 0 0' }}>
+              <p style={{ fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)', color: 'var(--text-muted)', margin: '3px 0 0' }}>
                 Acalla el ruido terrenal, alimenta tu espíritu con la Palabra viva y renueva tus fuerzas en Su presencia.
               </p>
             </div>
           </div>
 
-          {/* Selector de Ánimo Emocional */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.78rem', color: 'var(--gold-300)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          {/* Selector de Ánimo Emocional (Carrusel fluido en móvil, flex en escritorio) */}
+          <div style={{ width: '100%', maxWidth: '100%', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <span style={{ fontSize: '0.74rem', color: 'var(--gold-300)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
               Tu estado hoy:
             </span>
-            {EMOTIONS.map((emo) => (
-              <button
-                key={emo.id}
-                onClick={() => handleSelectEmotion(emo.id)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '7px 14px',
-                  borderRadius: '9999px',
-                  fontSize: '0.82rem',
-                  fontWeight: userEmotion === emo.id ? '800' : '500',
-                  border: userEmotion === emo.id ? '1.5px solid var(--gold-400)' : '1px solid rgba(255,255,255,0.08)',
-                  background: userEmotion === emo.id ? 'rgba(212,175,55,0.24)' : 'rgba(255,255,255,0.03)',
-                  color: userEmotion === emo.id ? '#ffffff' : 'var(--text-muted)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  boxShadow: userEmotion === emo.id ? '0 0 16px rgba(212,175,55,0.45)' : 'none'
-                }}
-              >
-                <span>{emo.icon}</span>
-                <span>{emo.label}</span>
-              </button>
-            ))}
+            <div className="no-scrollbar" style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px', 
+              overflowX: 'auto',
+              paddingBottom: '4px',
+              WebkitOverflowScrolling: 'touch'
+            }}>
+              {EMOTIONS.map((emo) => (
+                <button
+                  key={emo.id}
+                  onClick={() => handleSelectEmotion(emo.id)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '7px 14px',
+                    borderRadius: '9999px',
+                    fontSize: '0.82rem',
+                    fontWeight: userEmotion === emo.id ? '800' : '500',
+                    border: userEmotion === emo.id ? '1.5px solid var(--gold-400)' : '1px solid rgba(255,255,255,0.08)',
+                    background: userEmotion === emo.id ? 'rgba(212,175,55,0.24)' : 'rgba(255,255,255,0.03)',
+                    color: userEmotion === emo.id ? '#ffffff' : 'var(--text-muted)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                    boxShadow: userEmotion === emo.id ? '0 0 16px rgba(212,175,55,0.45)' : 'none'
+                  }}
+                >
+                  <span>{emo.icon}</span>
+                  <span>{emo.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -352,22 +363,22 @@ REGLAS:
             background: 'linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(10,13,20,0.85) 100%)',
             border: '1.5px solid var(--gold-400)',
             borderRadius: '14px',
-            padding: '16px 22px',
+            padding: 'clamp(12px, 2vw, 18px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             flexWrap: 'wrap',
-            gap: '16px',
+            gap: '14px',
             boxShadow: '0 4px 25px rgba(212,175,55,0.15)'
           }} className="animate-fade-in">
-            <div style={{ flex: '1 1 500px' }}>
+            <div style={{ flex: '1 1 340px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                 <span style={{ fontSize: '1.2rem' }}>{currentEmotion.icon}</span>
                 <span style={{ fontSize: '0.82rem', fontWeight: '800', color: 'var(--gold-400)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Ministración Inmediata para tu Alma • Estado: {currentEmotion.label}
                 </span>
               </div>
-              <div style={{ fontSize: '0.96rem', color: '#ffffff', fontStyle: 'italic', marginBottom: '4px', lineHeight: 1.5 }}>
+              <div style={{ fontSize: '0.94rem', color: '#ffffff', fontStyle: 'italic', marginBottom: '4px', lineHeight: 1.5 }}>
                 "{currentEmotion.verse}" <span style={{ color: 'var(--gold-300)', fontWeight: '700', fontStyle: 'normal', fontSize: '0.86rem' }}>({currentEmotion.ref})</span>
               </div>
               <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>
@@ -559,12 +570,8 @@ REGLAS:
           </div>
         </div>
 
-        {/* Rejilla Compacta y Elegante de los 7 Días de la Semana Activa */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', 
-          gap: '10px' 
-        }}>
+        {/* Rejilla Compacta y Elegante de los 7 Días de la Semana Activa (1 Fila Equilibrada en Desktop, Deslizable en Móvil) */}
+        <div className="weekly-days-grid">
           {weekDevotionals.map((item, idx) => {
             const isSelected = item.id === selectedDevoId;
             const isRecommendedForEmotion = currentEmotion && currentEmotion.targetDayIndex === idx;
@@ -575,7 +582,7 @@ REGLAS:
                 onClick={() => setSelectedDevoId(item.id)}
                 className={isSelected ? "sacred-panel-active" : "sacred-panel"}
                 style={{
-                  padding: '12px 14px',
+                  padding: '10px 12px',
                   borderRadius: '10px',
                   cursor: 'pointer',
                   textAlign: 'left',
@@ -594,7 +601,7 @@ REGLAS:
                   boxShadow: isSelected ? '0 0 16px rgba(212,175,55,0.3)' : 'none',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '6px',
+                  gap: '4px',
                   position: 'relative'
                 }}
               >
@@ -731,23 +738,24 @@ REGLAS:
       </div>
 
       {/* =========================================================================
-          5. SELECTOR DE PESTAÑAS DEL ESTUDIO (ELIMINA EL DESPLAZAMIENTO INFINITO)
+          5. SELECTOR DE PESTAÑAS DEL ESTUDIO (RESPONSIVO & COMPACTO)
          ========================================================================= */}
-      <div style={{
+      <div className="no-scrollbar" style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '10px',
+        gap: '8px',
         marginBottom: '20px',
         borderBottom: '1px solid var(--border-gold-subtle)',
         paddingBottom: '12px',
-        flexWrap: 'wrap'
+        overflowX: 'auto',
+        WebkitOverflowScrolling: 'touch'
       }}>
         <button
           onClick={() => setActiveDevoTab('revelation')}
           style={{
-            padding: '10px 20px',
+            padding: '9px 18px',
             borderRadius: '8px',
-            fontSize: '0.9rem',
+            fontSize: '0.86rem',
             fontWeight: activeDevoTab === 'revelation' ? '800' : '600',
             background: activeDevoTab === 'revelation' ? 'linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%)' : 'rgba(255,255,255,0.03)',
             color: activeDevoTab === 'revelation' ? '#07080c' : 'var(--text-muted)',
@@ -755,21 +763,23 @@ REGLAS:
             cursor: 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '7px',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
             transition: 'all 0.2s',
             boxShadow: activeDevoTab === 'revelation' ? '0 0 16px rgba(212,175,55,0.4)' : 'none'
           }}
         >
           <Flame size={16} />
-          <span>1. Luz & Exégesis Teológica</span>
+          <span>1. Luz & Exégesis</span>
         </button>
 
         <button
           onClick={() => setActiveDevoTab('prayer')}
           style={{
-            padding: '10px 20px',
+            padding: '9px 18px',
             borderRadius: '8px',
-            fontSize: '0.9rem',
+            fontSize: '0.86rem',
             fontWeight: activeDevoTab === 'prayer' ? '800' : '600',
             background: activeDevoTab === 'prayer' ? 'linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%)' : 'rgba(255,255,255,0.03)',
             color: activeDevoTab === 'prayer' ? '#07080c' : 'var(--text-muted)',
@@ -777,7 +787,9 @@ REGLAS:
             cursor: 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '7px',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
             transition: 'all 0.2s',
             boxShadow: activeDevoTab === 'prayer' ? '0 0 16px rgba(212,175,55,0.4)' : 'none'
           }}
@@ -789,9 +801,9 @@ REGLAS:
         <button
           onClick={() => setActiveDevoTab('journal')}
           style={{
-            padding: '10px 20px',
+            padding: '9px 18px',
             borderRadius: '8px',
-            fontSize: '0.9rem',
+            fontSize: '0.86rem',
             fontWeight: activeDevoTab === 'journal' ? '800' : '600',
             background: activeDevoTab === 'journal' ? 'linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%)' : 'rgba(255,255,255,0.03)',
             color: activeDevoTab === 'journal' ? '#07080c' : 'var(--text-muted)',
@@ -799,7 +811,9 @@ REGLAS:
             cursor: 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
+            gap: '7px',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
             transition: 'all 0.2s',
             boxShadow: activeDevoTab === 'journal' ? '0 0 16px rgba(212,175,55,0.4)' : 'none'
           }}

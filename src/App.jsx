@@ -15,6 +15,7 @@ import { SOUNDSCAPES_DATA } from './data/soundscapesData';
 import { supabase } from './services/supabaseClient';
 import { loadKeysFromCloud } from './services/cloudKeysService';
 import { pullFullStateFromSupabase, pushFullStateToSupabase } from './services/cloudSyncService';
+import { initSupabaseKeepAlive } from './services/supabaseKeepAlive';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('devotional');
@@ -55,7 +56,13 @@ export default function App() {
       if (user) syncUser(user);
     });
 
-    return () => subscription.unsubscribe();
+    // Iniciar Keep-Alive de Supabase
+    const cleanupKeepAlive = initSupabaseKeepAlive();
+
+    return () => {
+      subscription.unsubscribe();
+      if (cleanupKeepAlive) cleanupKeepAlive();
+    };
   }, []);
 
   // Toggle rápido de sonido ambiental sagrado

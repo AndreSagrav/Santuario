@@ -306,20 +306,80 @@ body {
 }
 
 /* ==========================================================================
-   ADAPTACIÓN MÓVIL NATIVA & ERGONOMÍA TÁCTIL DE PRIMER NIVEL
+   ADAPTACIÓN RESPONSIVA PROFESIONAL (MÓVIL, TABLET Y ESCRITORIO)
    ========================================================================== */
+
+/* Ocultar barra de scroll para carruseles táctiles horizontales */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Grilla responsiva del Muro de Oración */
+.prayer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .prayer-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .prayer-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+
+/* Grilla semanal de los 7 Días */
+.weekly-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 1100px) {
+  .weekly-days-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+}
+
+@media (max-width: 768px) {
+  .weekly-days-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 8px;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .weekly-days-grid > * {
+    scroll-snap-align: start;
+    flex: 0 0 140px;
+  }
+}
+
+/* Barra de navegación inferior móvil */
 .mobile-bottom-nav {
   display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   body {
-    /* Espacio para no tapar contenido con la barra inferior considerando muescas */
     padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   }
 
-  /* Ocultar el menú horizontal largo en pantallas de celular (usar MobileBottomNav) */
-  header nav,
+  /* Ocultar navbar de escritorio en tablets y móviles para evitar compresión excesiva */
   .navbar-desktop-nav {
     display: none !important;
   }
@@ -328,7 +388,7 @@ body {
     display: none !important;
   }
 
-  /* Barra táctil inferior nativa ergonómica con soporte de safe-area */
+  /* Mostrar barra táctil inferior */
   .mobile-bottom-nav {
     display: flex;
     position: fixed;
@@ -345,12 +405,10 @@ body {
     padding-right: max(4px, env(safe-area-inset-right));
   }
 
-  /* Modales a pantalla completa o bottom sheets en celular */
   .sacred-panel {
     border-radius: var(--radius-md);
   }
 
-  /* Ajuste de tipografía sagrada en móviles para evitar saltos desbordados */
   .font-scripture {
     font-size: clamp(1.2rem, 5vw, 1.85rem) !important;
   }
@@ -361,4 +419,5 @@ button, input, select, textarea {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
+
 

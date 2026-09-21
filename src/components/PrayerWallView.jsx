@@ -227,36 +227,46 @@ export default function PrayerWallView() {
   else if (activeTab === 'peticiones_especiales') currentItems = specialList;
 
   return (
-    <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '16px 16px 80px' }} className="animate-fade-in">
+    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: 'clamp(12px, 2.5vw, 24px) clamp(10px, 2vw, 20px) 90px' }} className="animate-fade-in">
       
       {/* =========================================================================
-          BARRA DE CONTROLES SUPERIOR EN UNA SOLA FILA
+          BARRA DE CONTROLES SUPERIOR (RESPONSIVA & ELEGANTE)
          ========================================================================= */}
       <div style={{
-        background: 'rgba(10, 13, 20, 0.95)',
-        border: '1px solid var(--gold-400)',
-        borderRadius: '10px',
-        padding: '12px 18px',
+        background: 'linear-gradient(135deg, rgba(16, 20, 31, 0.95) 0%, rgba(10, 13, 20, 0.95) 100%)',
+        border: '1px solid var(--border-gold-subtle)',
+        borderRadius: '14px',
+        padding: 'clamp(10px, 2vw, 16px) clamp(12px, 2.5vw, 20px)',
         marginBottom: '16px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: '12px'
+        gap: '12px',
+        boxShadow: '0 8px 30px rgba(0,0,0,0.4)'
       }}>
         {/* Lema sagrado directo */}
-        <div style={{ fontSize: '0.88rem', fontWeight: '800', color: 'var(--gold-200)', letterSpacing: '0.03em' }}>
-          MI MAYOR PROPÓSITO DEBE SER ANHELARTE CADA DÍA MÁS
+        <div style={{ 
+          fontSize: 'clamp(0.8rem, 2vw, 0.92rem)', 
+          fontWeight: '800', 
+          color: 'var(--gold-200)', 
+          letterSpacing: '0.04em',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <Sparkles size={16} color="var(--gold-400)" />
+          <span>MI MAYOR PROPÓSITO DEBE SER ANHELARTE CADA DÍA MÁS</span>
         </div>
 
-        {/* Botones de acción alineados juntos a la par */}
+        {/* Botones de acción alineados juntos */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           {/* Iniciar Música (432Hz) */}
           <button
             onClick={toggleWorshipMusic}
             style={{
-              padding: '7px 14px',
-              borderRadius: '7px',
+              padding: '8px 14px',
+              borderRadius: '8px',
               background: isWorshipMusicPlaying ? 'linear-gradient(135deg, #ffd700 0%, #d4af37 100%)' : 'rgba(212,175,55,0.12)',
               border: isWorshipMusicPlaying ? '1px solid #ffffff' : '1px solid var(--gold-400)',
               color: isWorshipMusicPlaying ? '#07080c' : 'var(--gold-200)',
@@ -265,7 +275,8 @@ export default function PrayerWallView() {
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '6px',
+              transition: 'all 0.2s'
             }}
             title="Música devocional 432 Hz"
           >
@@ -277,7 +288,7 @@ export default function PrayerWallView() {
           <button
             onClick={() => setIsAddingNew(!isAddingNew)}
             className="btn-gold"
-            style={{ padding: '7px 15px', fontSize: '0.8rem', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+            style={{ padding: '8px 16px', fontSize: '0.82rem', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
           >
             <Plus size={15} />
             <span>Agregar Petición con IA</span>
@@ -287,8 +298,8 @@ export default function PrayerWallView() {
           <button
             onClick={handleUncheckAll}
             style={{
-              padding: '7px 12px',
-              borderRadius: '7px',
+              padding: '8px 12px',
+              borderRadius: '8px',
               background: 'rgba(255,255,255,0.04)',
               border: '1px solid rgba(255,255,255,0.12)',
               color: 'var(--text-muted)',
@@ -330,11 +341,11 @@ export default function PrayerWallView() {
             <textarea
               value={inputRawText}
               onChange={(e) => setInputRawText(e.target.value)}
-              placeholder=""
+              placeholder="Escribe tu petición aquí..."
               style={{
                 width: '100%',
-                minHeight: '65px',
-                padding: '10px 14px',
+                minHeight: '75px',
+                padding: '12px 14px',
                 borderRadius: '8px',
                 background: 'rgba(0,0,0,0.6)',
                 border: '1px solid rgba(212,175,55,0.3)',
@@ -350,10 +361,10 @@ export default function PrayerWallView() {
                 type="text"
                 value={inputPerson}
                 onChange={(e) => setInputPerson(e.target.value)}
-                placeholder=""
+                placeholder="Nombre de la persona o motivo específico..."
                 style={{
                   width: '100%',
-                  padding: '8px 12px',
+                  padding: '10px 14px',
                   borderRadius: '7px',
                   background: 'rgba(0,0,0,0.6)',
                   border: '1px solid rgba(212,175,55,0.25)',
@@ -372,7 +383,7 @@ export default function PrayerWallView() {
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
                     style={{
-                      padding: '4px 10px',
+                      padding: '5px 12px',
                       borderRadius: '6px',
                       fontSize: '0.76rem',
                       fontWeight: selectedCategory === cat ? '800' : '500',
@@ -393,7 +404,7 @@ export default function PrayerWallView() {
                   onClick={handlePolishAndCategorize}
                   disabled={isPolishingWithAI || !inputRawText.trim()}
                   style={{
-                    padding: '6px 12px',
+                    padding: '7px 14px',
                     borderRadius: '6px',
                     background: 'rgba(212,175,55,0.15)',
                     border: '1px solid var(--gold-400)',
@@ -407,13 +418,13 @@ export default function PrayerWallView() {
                   }}
                 >
                   <Sparkles size={13} className={isPolishingWithAI ? "animate-spin" : ""} />
-                  <span>{isPolishingWithAI ? 'Perfeccionando con IA...' : 'Pulir con IA'}</span>
+                  <span>{isPolishingWithAI ? 'Perfeccionando...' : 'Pulir con IA'}</span>
                 </button>
 
                 <button
                   type="submit"
                   className="btn-gold"
-                  style={{ padding: '6px 16px', fontSize: '0.8rem', fontWeight: '800' }}
+                  style={{ padding: '7px 18px', fontSize: '0.82rem', fontWeight: '800' }}
                 >
                   Guardar
                 </button>
@@ -430,25 +441,32 @@ export default function PrayerWallView() {
       )}
 
       {/* =========================================================================
-          LAS 4 PESTAÑAS CANÓNICAS SUPERIORES
+          LAS 4 PESTAÑAS CANÓNICAS SUPERIORES (ADAPTABLES & DESLIZABLES EN MÓVIL)
          ========================================================================= */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
         flexWrap: 'wrap',
-        gap: '8px',
+        gap: '10px',
         marginBottom: '16px',
         borderBottom: '1.5px solid rgba(212,175,55,0.2)',
-        paddingBottom: '10px'
+        paddingBottom: '12px'
       }}>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <div className="no-scrollbar" style={{ 
+          display: 'flex', 
+          gap: '8px', 
+          overflowX: 'auto',
+          maxWidth: '100%',
+          paddingBottom: '4px',
+          WebkitOverflowScrolling: 'touch'
+        }}>
           {/* 1. Arrepentimiento */}
           <button
             onClick={() => setActiveTab('arrepentimiento')}
             style={{
               padding: '9px 16px',
-              borderRadius: '7px',
+              borderRadius: '8px',
               fontSize: '0.86rem',
               fontWeight: activeTab === 'arrepentimiento' ? '800' : '600',
               background: activeTab === 'arrepentimiento' ? 'linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%)' : 'rgba(255,255,255,0.03)',
@@ -457,13 +475,16 @@ export default function PrayerWallView() {
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '6px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              boxShadow: activeTab === 'arrepentimiento' ? '0 2px 14px rgba(212,175,55,0.35)' : 'none'
             }}
           >
             <span>1. Arrepentimiento</span>
             <span style={{
               fontSize: '0.72rem',
-              padding: '1px 6px',
+              padding: '2px 7px',
               borderRadius: '9999px',
               background: activeTab === 'arrepentimiento' ? 'rgba(0,0,0,0.3)' : 'rgba(212,175,55,0.18)',
               color: activeTab === 'arrepentimiento' ? '#ffffff' : 'var(--gold-300)',
@@ -478,7 +499,7 @@ export default function PrayerWallView() {
             onClick={() => setActiveTab('agradecimiento')}
             style={{
               padding: '9px 16px',
-              borderRadius: '7px',
+              borderRadius: '8px',
               fontSize: '0.86rem',
               fontWeight: activeTab === 'agradecimiento' ? '800' : '600',
               background: activeTab === 'agradecimiento' ? 'linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%)' : 'rgba(255,255,255,0.03)',
@@ -487,13 +508,16 @@ export default function PrayerWallView() {
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '6px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              boxShadow: activeTab === 'agradecimiento' ? '0 2px 14px rgba(212,175,55,0.35)' : 'none'
             }}
           >
             <span>2. Agradecimiento</span>
             <span style={{
               fontSize: '0.72rem',
-              padding: '1px 6px',
+              padding: '2px 7px',
               borderRadius: '9999px',
               background: activeTab === 'agradecimiento' ? 'rgba(0,0,0,0.3)' : 'rgba(212,175,55,0.18)',
               color: activeTab === 'agradecimiento' ? '#ffffff' : 'var(--gold-300)',
@@ -508,7 +532,7 @@ export default function PrayerWallView() {
             onClick={() => setActiveTab('peticiones')}
             style={{
               padding: '9px 16px',
-              borderRadius: '7px',
+              borderRadius: '8px',
               fontSize: '0.86rem',
               fontWeight: activeTab === 'peticiones' ? '800' : '600',
               background: activeTab === 'peticiones' ? 'linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%)' : 'rgba(255,255,255,0.03)',
@@ -517,13 +541,16 @@ export default function PrayerWallView() {
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '6px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              boxShadow: activeTab === 'peticiones' ? '0 2px 14px rgba(212,175,55,0.35)' : 'none'
             }}
           >
             <span>3. Peticiones</span>
             <span style={{
               fontSize: '0.72rem',
-              padding: '1px 6px',
+              padding: '2px 7px',
               borderRadius: '9999px',
               background: activeTab === 'peticiones' ? 'rgba(0,0,0,0.3)' : 'rgba(212,175,55,0.18)',
               color: activeTab === 'peticiones' ? '#ffffff' : 'var(--gold-300)',
@@ -538,7 +565,7 @@ export default function PrayerWallView() {
             onClick={() => setActiveTab('peticiones_especiales')}
             style={{
               padding: '9px 16px',
-              borderRadius: '7px',
+              borderRadius: '8px',
               fontSize: '0.86rem',
               fontWeight: activeTab === 'peticiones_especiales' ? '800' : '600',
               background: activeTab === 'peticiones_especiales' ? 'linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%)' : 'rgba(255,255,255,0.03)',
@@ -547,13 +574,16 @@ export default function PrayerWallView() {
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '6px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+              boxShadow: activeTab === 'peticiones_especiales' ? '0 2px 14px rgba(212,175,55,0.35)' : 'none'
             }}
           >
             <span>4. Peticiones Especiales</span>
             <span style={{
               fontSize: '0.72rem',
-              padding: '1px 6px',
+              padding: '2px 7px',
               borderRadius: '9999px',
               background: activeTab === 'peticiones_especiales' ? 'rgba(0,0,0,0.3)' : 'rgba(212,175,55,0.18)',
               color: activeTab === 'peticiones_especiales' ? '#ffffff' : 'var(--gold-300)',
@@ -569,16 +599,16 @@ export default function PrayerWallView() {
           <button
             onClick={handleClearCurrentCategory}
             style={{
-              padding: '6px 10px',
+              padding: '6px 12px',
               borderRadius: '6px',
-              background: 'transparent',
+              background: 'rgba(239, 68, 68, 0.08)',
               border: '1px solid rgba(239, 68, 68, 0.25)',
               color: '#f87171',
-              fontSize: '0.74rem',
+              fontSize: '0.76rem',
               cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '4px'
+              gap: '5px'
             }}
             title="Vaciar peticiones de esta sección"
           >
@@ -589,87 +619,97 @@ export default function PrayerWallView() {
       </div>
 
       {/* =========================================================================
-          BANNERS SAGRADOS POR CATEGORÍA
+          BANNERS SAGRADOS ELEGANTES (CRISTAL OBSIDIANA & REALCE DORADO)
          ========================================================================= */}
       {activeTab === 'arrepentimiento' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
-          <div style={{
-            background: 'linear-gradient(90deg, #d4af37 0%, #ffd700 50%, #d4af37 100%)',
-            color: '#07080c',
-            padding: '10px 16px',
-            borderRadius: '6px',
-            textAlign: 'center',
-            fontWeight: '900',
-            fontSize: '0.88rem',
-            letterSpacing: '0.03em'
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(15,20,32,0.92) 100%)',
+          border: '1px solid rgba(212,175,55,0.35)',
+          borderRadius: '12px',
+          padding: '14px 20px',
+          textAlign: 'center',
+          boxShadow: '0 6px 24px rgba(0,0,0,0.4)',
+          marginBottom: '16px'
+        }}>
+          <div className="font-cinzel" style={{
+            fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
+            fontWeight: '800',
+            color: 'var(--gold-200)',
+            letterSpacing: '0.04em'
           }}>
-            PERDONA MIS OFENSAS ASÍ COMO YO PERDONO A LOS QUE ME OFENDEN
+            ✦ PERDONA MIS OFENSAS ASÍ COMO YO PERDONO A LOS QUE ME OFENDEN ✦
           </div>
-          <div style={{
-            background: 'linear-gradient(90deg, #b8860b 0%, #d4af37 100%)',
-            color: '#07080c',
-            padding: '8px 16px',
-            borderRadius: '6px',
-            textAlign: 'center',
-            fontWeight: '900',
-            fontSize: '0.84rem',
-            letterSpacing: '0.03em'
-          }}>
-            DESEO DESPOJARME DE TODOS MIS ÍDOLOS
+          <div style={{ fontSize: '0.8rem', color: 'var(--gold-300)', marginTop: '4px', fontStyle: 'italic' }}>
+            Deseo despojarme de todos mis ídolos y consagrar mi corazón al Altísimo
           </div>
         </div>
       )}
 
       {activeTab === 'agradecimiento' && (
         <div style={{
-          background: 'linear-gradient(90deg, rgba(212,175,55,0.2) 0%, rgba(15,23,42,0.8) 100%)',
-          border: '1px solid var(--gold-400)',
-          padding: '10px 16px',
-          borderRadius: '6px',
+          background: 'linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(15,20,32,0.92) 100%)',
+          border: '1px solid rgba(212,175,55,0.35)',
+          borderRadius: '12px',
+          padding: '14px 20px',
           textAlign: 'center',
-          fontWeight: '800',
-          fontSize: '0.88rem',
-          color: 'var(--gold-200)',
-          marginBottom: '12px'
+          boxShadow: '0 6px 24px rgba(0,0,0,0.4)',
+          marginBottom: '16px'
         }}>
-          DAD GRACIAS EN TODO, PORQUE ESTA ES LA VOLUNTAD DE DIOS
+          <div className="font-cinzel" style={{
+            fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
+            fontWeight: '800',
+            color: 'var(--gold-200)',
+            letterSpacing: '0.04em'
+          }}>
+            ✦ DAD GRACIAS EN TODO, PORQUE ESTA ES LA VOLUNTAD DE DIOS ✦
+          </div>
         </div>
       )}
 
       {activeTab === 'peticiones' && (
         <div style={{
-          background: 'linear-gradient(90deg, rgba(212,175,55,0.2) 0%, rgba(15,23,42,0.8) 100%)',
-          border: '1px solid var(--gold-400)',
-          padding: '10px 16px',
-          borderRadius: '6px',
+          background: 'linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(15,20,32,0.92) 100%)',
+          border: '1px solid rgba(212,175,55,0.35)',
+          borderRadius: '12px',
+          padding: '14px 20px',
           textAlign: 'center',
-          fontWeight: '800',
-          fontSize: '0.88rem',
-          color: 'var(--gold-200)',
-          marginBottom: '12px'
+          boxShadow: '0 6px 24px rgba(0,0,0,0.4)',
+          marginBottom: '16px'
         }}>
-          PEDID, Y SE OS DARÁ; BUSCAD, Y HALLARÉIS; LLAMAD, Y SE OS ABRIRÁ
+          <div className="font-cinzel" style={{
+            fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
+            fontWeight: '800',
+            color: 'var(--gold-200)',
+            letterSpacing: '0.04em'
+          }}>
+            ✦ PEDID, Y SE OS DARÁ; BUSCAD, Y HALLARÉIS; LLAMAD, Y SE OS ABRIRÁ ✦
+          </div>
         </div>
       )}
 
       {activeTab === 'peticiones_especiales' && (
         <div style={{
-          background: 'linear-gradient(90deg, rgba(212,175,55,0.2) 0%, rgba(15,23,42,0.8) 100%)',
-          border: '1px solid var(--gold-400)',
-          padding: '10px 16px',
-          borderRadius: '6px',
+          background: 'linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(15,20,32,0.92) 100%)',
+          border: '1px solid rgba(212,175,55,0.35)',
+          borderRadius: '12px',
+          padding: '14px 20px',
           textAlign: 'center',
-          fontWeight: '800',
-          fontSize: '0.88rem',
-          color: 'var(--gold-200)',
-          marginBottom: '12px'
+          boxShadow: '0 6px 24px rgba(0,0,0,0.4)',
+          marginBottom: '16px'
         }}>
-          PETICIONES ESPECIALES: ORACIÓN POR PERSONAS Y NECESIDADES
+          <div className="font-cinzel" style={{
+            fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
+            fontWeight: '800',
+            color: 'var(--gold-200)',
+            letterSpacing: '0.04em'
+          }}>
+            ✦ PETICIONES ESPECIALES: CLAMOR INTERCESOR POR PERSONAS Y NECESIDADES ✦
+          </div>
         </div>
       )}
 
       {/* =========================================================================
-          CONTENIDO: LISTA EN FILAS AMPLIAS DE UNA SOLA COLUMNA
+          CONTENIDO: GRILLA RESPONSIVA DE TARJETAS SAGRADAS (1 COL MÓVIL, 2 TABLET, 3 ESCRITORIO)
          ========================================================================= */}
       {currentItems.length === 0 ? (
         <div style={{
@@ -677,10 +717,10 @@ export default function PrayerWallView() {
           padding: '48px 20px',
           background: 'rgba(10, 13, 20, 0.6)',
           border: '1px dashed rgba(212,175,55,0.25)',
-          borderRadius: '10px',
+          borderRadius: '14px',
           color: 'var(--text-muted)'
         }}>
-          <p style={{ margin: '0 0 10px', fontSize: '0.92rem' }}>
+          <p style={{ margin: '0 0 12px', fontSize: '0.95rem' }}>
             No hay peticiones en esta sección.
           </p>
           <button
@@ -692,109 +732,133 @@ export default function PrayerWallView() {
               else if (activeTab === 'peticiones_especiales') setSelectedCategory('Peticiones Especiales');
             }}
             className="btn-gold"
-            style={{ padding: '7px 16px', fontSize: '0.8rem', fontWeight: '800' }}
+            style={{ padding: '8px 18px', fontSize: '0.84rem', fontWeight: '800' }}
           >
-            <Plus size={14} />
-            <span>Agregar petición</span>
+            <Plus size={15} />
+            <span>Agregar primera petición</span>
           </button>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <div className="prayer-grid">
           {currentItems.map((item, idx) => {
             const isChecked = checkedIds.includes(item.id);
 
             return (
               <div
                 key={item.id}
+                onClick={() => handleToggleCheck(item.id)}
                 style={{
-                  background: isChecked ? 'rgba(10, 13, 20, 0.6)' : 'rgba(13, 17, 26, 0.95)',
-                  border: isChecked ? '1px solid rgba(74, 222, 128, 0.3)' : '1px solid rgba(212,175,55,0.22)',
-                  borderRadius: '8px',
-                  padding: '12px 18px',
+                  background: isChecked ? 'rgba(10, 13, 20, 0.65)' : 'rgba(14, 18, 28, 0.92)',
+                  border: isChecked ? '1px solid rgba(74, 222, 128, 0.35)' : '1px solid rgba(212,175,55,0.22)',
+                  borderRadius: '12px',
+                  padding: '14px 16px',
                   display: 'flex',
-                  alignItems: 'center',
+                  flexDirection: 'column',
                   justifyContent: 'space-between',
-                  gap: '14px',
-                  transition: 'all 0.2s',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-                  opacity: isChecked ? 0.75 : 1
+                  gap: '12px',
+                  transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                  boxShadow: isChecked ? 'none' : '0 4px 16px rgba(0,0,0,0.3)',
+                  opacity: isChecked ? 0.72 : 1,
+                  cursor: 'pointer',
+                  position: 'relative'
                 }}
               >
-                {/* Texto de la petición */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                  <span style={{ fontSize: '0.82rem', color: 'var(--gold-400)', fontWeight: '800', width: '20px', flexShrink: 0 }}>
-                    {idx + 1}.
+                {/* Cabecera de la tarjeta: Número y persona si aplica */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                  <span style={{ 
+                    fontSize: '0.74rem', 
+                    color: isChecked ? '#4ade80' : 'var(--gold-400)', 
+                    fontWeight: '800',
+                    background: isChecked ? 'rgba(74,222,128,0.1)' : 'rgba(212,175,55,0.12)',
+                    padding: '2px 8px',
+                    borderRadius: '6px',
+                    border: isChecked ? '1px solid rgba(74,222,128,0.25)' : '1px solid rgba(212,175,55,0.2)'
+                  }}>
+                    #{idx + 1}
                   </span>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, minWidth: 0 }}>
-                    {item.person && (
-                      <span style={{
-                        fontSize: '0.74rem',
-                        fontWeight: '800',
-                        color: '#07080c',
-                        background: 'var(--gold-400)',
-                        padding: '1px 6px',
-                        borderRadius: '4px',
-                        width: 'fit-content'
-                      }}>
-                        {item.person}
-                      </span>
-                    )}
+                  {item.person && (
                     <span style={{
-                      fontSize: '0.94rem',
-                      color: isChecked ? '#94a3b8' : '#ffffff',
-                      fontWeight: '500',
-                      lineHeight: 1.4,
-                      textDecoration: isChecked ? 'line-through' : 'none'
+                      fontSize: '0.72rem',
+                      fontWeight: '800',
+                      color: '#07080c',
+                      background: 'var(--gold-400)',
+                      padding: '2px 8px',
+                      borderRadius: '5px'
                     }}>
-                      {item.text}
+                      {item.person}
                     </span>
-                  </div>
+                  )}
                 </div>
 
-                {/* Botones de acción a la derecha: Solo el Check y el icono de Eliminar */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                  {/* BOTÓN CHECK: ÚNICAMENTE EL CHECK, SIN TEXTO 'YA ORÉ' */}
-                  <button
-                    onClick={(e) => handleToggleCheck(item.id, e)}
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      background: isChecked ? 'rgba(74, 222, 128, 0.25)' : 'rgba(212,175,55,0.12)',
-                      border: isChecked ? '1.5px solid #4ade80' : '1.5px solid var(--gold-400)',
-                      color: isChecked ? '#4ade80' : 'var(--gold-200)',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s'
-                    }}
-                    title={isChecked ? "Desmarcar" : "Marcar con check"}
-                  >
-                    <Check size={16} strokeWidth={2.6} />
-                  </button>
+                {/* Texto de la petición */}
+                <div style={{ 
+                  fontSize: '0.94rem',
+                  color: isChecked ? '#94a3b8' : '#ffffff',
+                  fontWeight: '500',
+                  lineHeight: 1.5,
+                  textDecoration: isChecked ? 'line-through' : 'none',
+                  flex: 1
+                }}>
+                  {item.text}
+                </div>
 
-                  {/* BOTÓN ELIMINAR PETICIÓN */}
-                  <button
-                    onClick={(e) => handleDeleteItem(activeTab, item.id, e)}
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: '50%',
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1px solid rgba(239, 68, 68, 0.25)',
-                      color: '#f87171',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s'
-                    }}
-                    title="Eliminar esta petición"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                {/* Pie de la tarjeta: Estado y Botones de acción */}
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between', 
+                  gap: '8px',
+                  borderTop: '1px solid rgba(255,255,255,0.06)',
+                  paddingTop: '10px'
+                }}>
+                  <span style={{ fontSize: '0.74rem', color: isChecked ? '#4ade80' : 'var(--text-dim)', fontWeight: '600' }}>
+                    {isChecked ? '✓ Oración completada' : 'En intercesión'}
+                  </span>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={(e) => e.stopPropagation()}>
+                    {/* BOTÓN CHECK */}
+                    <button
+                      onClick={(e) => handleToggleCheck(item.id, e)}
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        background: isChecked ? 'rgba(74, 222, 128, 0.25)' : 'rgba(212,175,55,0.12)',
+                        border: isChecked ? '1.5px solid #4ade80' : '1.5px solid var(--gold-400)',
+                        color: isChecked ? '#4ade80' : 'var(--gold-200)',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s'
+                      }}
+                      title={isChecked ? "Desmarcar" : "Marcar con check"}
+                    >
+                      <Check size={16} strokeWidth={2.6} />
+                    </button>
+
+                    {/* BOTÓN ELIMINAR */}
+                    <button
+                      onClick={(e) => handleDeleteItem(activeTab, item.id, e)}
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        background: 'rgba(255,255,255,0.04)',
+                        border: '1px solid rgba(239, 68, 68, 0.25)',
+                        color: '#f87171',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s'
+                      }}
+                      title="Eliminar esta petición"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
 
               </div>

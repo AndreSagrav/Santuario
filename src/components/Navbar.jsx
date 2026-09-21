@@ -47,12 +47,12 @@ export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSound
 
   const DEFAULT_NAV_ITEMS = [
     { id: 'devotional', label: 'Devocional', fullLabel: 'Altar & Devocional', icon: Flame },
-    { id: 'bible', label: 'Palabra & Versiones', fullLabel: 'Palabra & Versiones', icon: BookOpen },
+    { id: 'bible', label: 'Palabra', fullLabel: 'Palabra & Multi-Versiones', icon: BookOpen },
     { id: 'dictionary', label: 'Diccionario', fullLabel: 'Diccionario Bíblico Académico', icon: BookMarked },
-    { id: 'atlas', label: 'Atlas & Mapas', fullLabel: 'Atlas Bíblico & Concordancia', icon: Compass },
-    { id: 'ruaj', label: 'Ruaj (Mentor)', fullLabel: 'Ruaj (Mentor Teológico AI)', icon: Sparkles },
-    { id: 'music', label: 'Soundscape', fullLabel: 'Soundscape Sacro', icon: Music },
-    { id: 'prayers', label: 'Muro de Oración', fullLabel: 'Muro de Oración & Comunión', icon: HeartHandshake }
+    { id: 'atlas', label: 'Atlas', fullLabel: 'Atlas Bíblico & Concordancia', icon: Compass },
+    { id: 'ruaj', label: 'Ruaj IA', fullLabel: 'Ruaj (Mentor Teológico AI)', icon: Sparkles },
+    { id: 'music', label: 'Música', fullLabel: 'Soundscape Sacro (432Hz)', icon: Music },
+    { id: 'prayers', label: 'Muro', fullLabel: 'Muro de Oración & Comunión', icon: HeartHandshake }
   ];
 
   const [navItems, setNavItems] = useState(() => {
@@ -313,11 +313,11 @@ export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSound
           <button
             onClick={toggleZenMode}
             className="btn-gold"
-            style={{ padding: '8px 14px', fontSize: '0.84rem', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}
+            style={{ padding: '7px 12px', fontSize: '0.8rem', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}
             title="Entrar en Modo Santuario Inmersivo a pantalla completa"
           >
             <Maximize2 size={15} />
-            <span className="hide-on-mobile">Modo Inmersión</span>
+            <span className="hide-on-mobile">Modo Zen</span>
           </button>
         </div>
       </div>
