@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Minimize2, Volume2, VolumeX, Sparkles, Feather } from 'lucide-react';
 import { DEVOTIONALS_DATA } from '../data/devotionalsData';
+import logoImg from '../assets/santuario-logo.jpg';
 
 export default function SanctuaryZenMode({ onClose, isSoundPlaying, toggleSound }) {
   const [breathPhase, setBreathPhase] = useState("Inhala Su Presencia...");
@@ -47,7 +48,7 @@ export default function SanctuaryZenMode({ onClose, isSoundPlaying, toggleSound 
             border: '1.5px solid var(--gold-400)',
             boxShadow: '0 0 16px rgba(212,175,55,0.4)'
           }}>
-            <img src="/santuario-logo.jpg" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={logoImg} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
           <div>
             <div className="sacred-badge" style={{ padding: '2px 8px', fontSize: '0.72rem' }}>SANTUARIO EN SILENCIO</div>
@@ -112,7 +113,7 @@ export default function SanctuaryZenMode({ onClose, isSoundPlaying, toggleSound 
             boxShadow: '0 0 25px rgba(212,175,55,0.5)',
             marginBottom: '10px'
           }}>
-            <img src="/santuario-logo.jpg" alt="Santuario Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={logoImg} alt="Santuario Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
           <div style={{ position: 'relative', zIndex: 2, textAlign: 'center', color: 'var(--gold-200)', fontSize: '0.86rem', fontWeight: '600', textShadow: '0 2px 10px rgba(0,0,0,0.9)' }}>
             {breathPhase}

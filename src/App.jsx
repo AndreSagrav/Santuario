@@ -13,6 +13,7 @@ import BiblicalDictionaryView from './components/BiblicalDictionaryView';
 import { sacredAudio } from './services/sacredAudioEngine';
 import { SOUNDSCAPES_DATA } from './data/soundscapesData';
 import { supabase } from './services/supabaseClient';
+import { loadKeysFromCloud } from './services/cloudKeysService';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('devotional');
@@ -30,14 +31,17 @@ export default function App() {
   // Pasaje inicial para lector de biblia
   const [targetPassageId, setTargetPassageId] = useState(null);
 
-  // Escuchar estado de autenticación en Supabase
+  // Escuchar estado de autenticación en Supabase y sincronizar API keys
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setCurrentUser(user || null);
+      if (user) loadKeysFromCloud(user);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setCurrentUser(session?.user || null);
+      const user = session?.user || null;
+      setCurrentUser(user);
+      if (user) loadKeysFromCloud(user);
     });
 
     return () => subscription.unsubscribe();

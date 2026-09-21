@@ -385,7 +385,7 @@ export default function PrayerWallView() {
                   }}
                 >
                   <Sparkles size={13} className={isPolishingWithAI ? "animate-spin" : ""} />
-                  <span>{isPolishingWithAI ? 'Pulidadando...' : 'Pulir con IA'}</span>
+                  <span>{isPolishingWithAI ? 'Perfeccionando con IA...' : 'Pulir con IA'}</span>
                 </button>
 
                 <button

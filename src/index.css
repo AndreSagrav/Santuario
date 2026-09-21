@@ -306,7 +306,7 @@ body {
 }
 
 /* ==========================================================================
-   ADAPTACIÓN MÓVIL NATIVA & GOOGLE PLAY STORE (BOTTOM NAVIGATION)
+   ADAPTACIÓN MÓVIL NATIVA & ERGONOMÍA TÁCTIL DE PRIMER NIVEL
    ========================================================================== */
 .mobile-bottom-nav {
   display: none;
@@ -314,29 +314,51 @@ body {
 
 @media (max-width: 768px) {
   body {
-    padding-bottom: 70px; /* Espacio para no tapar contenido con la barra inferior */
+    /* Espacio para no tapar contenido con la barra inferior considerando muescas */
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   }
 
-  /* Ocultar el menú superior largo en pantallas de celular */
-  header nav {
+  /* Ocultar el menú horizontal largo en pantallas de celular (usar MobileBottomNav) */
+  header nav,
+  .navbar-desktop-nav {
     display: none !important;
   }
 
-  /* Mostrar la barra táctil inferior nativa de Play Store */
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  /* Barra táctil inferior nativa ergonómica con soporte de safe-area */
   .mobile-bottom-nav {
     display: flex;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 64px;
-    background: rgba(8, 9, 14, 0.94);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-top: 1px solid rgba(212, 175, 55, 0.25);
-    box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.6);
+    background: rgba(7, 8, 12, 0.96);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border-top: 1px solid rgba(212, 175, 55, 0.22);
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.75);
     z-index: 9999;
-    padding: 0 8px;
+    padding-left: max(4px, env(safe-area-inset-left));
+    padding-right: max(4px, env(safe-area-inset-right));
   }
+
+  /* Modales a pantalla completa o bottom sheets en celular */
+  .sacred-panel {
+    border-radius: var(--radius-md);
+  }
+
+  /* Ajuste de tipografía sagrada en móviles para evitar saltos desbordados */
+  .font-scripture {
+    font-size: clamp(1.2rem, 5vw, 1.85rem) !important;
+  }
+}
+
+/* Optimización táctil global */
+button, input, select, textarea {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 

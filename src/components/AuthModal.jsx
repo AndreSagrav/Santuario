@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { User, Mail, Lock, LogIn, LogOut, CheckCircle, X, Shield, Sparkles } from 'lucide-react';
+import logoImg from '../assets/santuario-logo.jpg';
 
 export default function AuthModal({ isOpen, onClose, user, onAuthChange }) {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -171,7 +172,7 @@ export default function AuthModal({ isOpen, onClose, user, onAuthChange }) {
                 margin: '0 auto 12px',
                 boxShadow: '0 0 22px rgba(212,175,55,0.45)'
               }}>
-                <img src="/santuario-logo.jpg" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={logoImg} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <h3 className="font-cinzel gold-text-gradient" style={{ fontSize: '1.45rem', fontWeight: '800' }}>
                 {isSignUp ? 'Crear Cuenta en Santuario' : 'Bienvenido a tu Santuario'}

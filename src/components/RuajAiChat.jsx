@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { askRuajAI } from '../services/aiService';
 import SacredContentRenderer from '../utils/sacredFormatter';
+import logoImg from '../assets/santuario-logo.jpg';
 
 const SUGGESTED_QUESTIONS = [
   "¿Cuál es el significado hebreo/griego original y contexto de este pasaje?",
@@ -162,7 +163,7 @@ ${currentContext?.passage ? `*Actualmente meditando en: **${currentContext.passa
           margin: '0 auto 16px',
           background: '#07080c'
         }}>
-          <img src="/santuario-logo.jpg" alt="Ruaj Mentor Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={logoImg} alt="Ruaj Mentor Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
         <h2 className="font-cinzel gold-text-gradient" style={{ fontSize: '2.2rem', fontWeight: '800' }}>
           RUAJ — Mentor Bíblico & Consejero Espiritual

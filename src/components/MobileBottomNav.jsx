@@ -1,10 +1,11 @@
 import React from 'react';
-import { Flame, BookOpen, Sparkles, Music, HeartHandshake, Compass } from 'lucide-react';
+import { Flame, BookOpen, Sparkles, Music, HeartHandshake, Compass, BookMarked } from 'lucide-react';
 
 export default function MobileBottomNav({ activeTab, setActiveTab }) {
   const tabs = [
     { id: 'devotional', label: 'Altar', icon: Flame },
     { id: 'bible', label: 'Palabra', icon: BookOpen },
+    { id: 'dictionary', label: 'Dicc', icon: BookMarked },
     { id: 'atlas', label: 'Atlas', icon: Compass },
     { id: 'ruaj', label: 'Ruaj', icon: Sparkles },
     { id: 'music', label: 'Música', icon: Music },
@@ -12,7 +13,10 @@ export default function MobileBottomNav({ activeTab, setActiveTab }) {
   ];
 
   return (
-    <div className="mobile-bottom-nav">
+    <div className="mobile-bottom-nav" style={{
+      paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      minHeight: 'calc(60px + env(safe-area-inset-bottom, 0px))'
+    }}>
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = activeTab === tab.id;

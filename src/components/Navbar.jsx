@@ -14,19 +14,28 @@ import {
   BookMarked
 } from 'lucide-react';
 import { getStoredApiKey, saveApiKey } from '../services/aiService';
+import { getAllApiKeys, saveAndSyncAllApiKeys } from '../services/cloudKeysService';
+import logoImg from '../assets/santuario-logo.jpg';
 
 export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSoundPlaying, toggleSound, currentUser, onOpenAuthModal }) {
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
-  const [apiKeyInput, setApiKeyInput] = useState(getStoredApiKey());
+  const [apiKeys, setApiKeys] = useState(() => getAllApiKeys());
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [syncStatus, setSyncStatus] = useState('');
 
-  const handleSaveKey = () => {
-    saveApiKey(apiKeyInput);
+  const handleOpenKeyModal = () => {
+    setApiKeys(getAllApiKeys());
+    setShowApiKeyModal(true);
+  };
+
+  const handleSaveKeys = async () => {
+    const res = await saveAndSyncAllApiKeys(apiKeys, currentUser);
     setSavedSuccess(true);
+    setSyncStatus(res.syncedToCloud ? '¡Sincronizado en la nube con tu cuenta!' : 'Guardado en este dispositivo.');
     setTimeout(() => {
       setSavedSuccess(false);
       setShowApiKeyModal(false);
-    }, 1200);
+    }, 1400);
   };
 
   const [draggedItemId, setDraggedItemId] = useState(null);
@@ -127,7 +136,7 @@ export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSound
             flexShrink: 0
           }}>
             <img 
-              src="/santuario-logo.jpg" 
+              src={logoImg} 
               alt="Santuario Logo" 
               style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
             />
@@ -143,7 +152,7 @@ export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSound
         </div>
 
         {/* Pestañas Principales (Fluido, espacioso, 100% visible sin ningún corte ni scroll) */}
-        <nav style={{ 
+        <nav className="navbar-desktop-nav" style={{ 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center',
@@ -222,20 +231,20 @@ export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSound
             {isSoundPlaying ? <Volume2 size={16} /> : <VolumeX size={16} />}
           </button>
 
-          {/* Configurar Gemini API Key */}
+          {/* Configurar Gemini / Multi-Provider API Keys */}
           <button
-            onClick={() => setShowApiKeyModal(true)}
-            title="Configuración de Servicios Teológicos (Opcional)"
+            onClick={handleOpenKeyModal}
+            title="Configuración de Servicios Teológicos & APIs en la Nube"
             style={{
-              width: '35px',
-              height: '35px',
+              width: '36px',
+              height: '36px',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               background: 'rgba(255,255,255,0.05)',
               border: '1px solid var(--border-gold-subtle)',
-              color: apiKeyInput ? 'var(--gold-300)' : 'var(--text-muted)',
+              color: (apiKeys.gemini || apiKeys.groq || apiKeys.openrouter || apiKeys.nvidia) ? 'var(--gold-300)' : 'var(--text-muted)',
               cursor: 'pointer'
             }}
           >
@@ -268,59 +277,134 @@ export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSound
           <button
             onClick={toggleZenMode}
             className="btn-gold"
-            style={{ padding: '8px 18px', fontSize: '0.84rem', whiteSpace: 'nowrap' }}
+            style={{ padding: '8px 14px', fontSize: '0.84rem', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}
             title="Entrar en Modo Santuario Inmersivo a pantalla completa"
           >
             <Maximize2 size={15} />
-            <span>Modo Inmersión</span>
+            <span className="hide-on-mobile">Modo Inmersión</span>
           </button>
         </div>
       </div>
 
-      {/* Modal de Configuración Teológica */}
+      {/* Modal de Configuración Teológica Multi-Proveedor & Sincronización en la Nube */}
       {showApiKeyModal && (
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(0,0,0,0.8)',
-          backdropFilter: 'blur(8px)',
+          background: 'rgba(0,0,0,0.85)',
+          backdropFilter: 'blur(10px)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 9999,
           padding: '20px'
         }}>
-          <div className="sacred-panel animate-fade-in" style={{ maxWidth: '480px', width: '100%', padding: '28px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-              <div style={{ padding: '8px', borderRadius: '50%', background: 'rgba(212,175,55,0.15)', color: 'var(--gold-400)' }}>
-                <Key size={22} />
-              </div>
-              <div>
-                <h3 className="font-cinzel gold-text-gradient" style={{ fontSize: '1.2rem', fontWeight: '700' }}>
-                  Servidor Teológico
-                </h3>
-                <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                  Profundiza las consultas y la revelación del pasaje
-                </p>
+          <div className="sacred-panel animate-fade-in" style={{ maxWidth: '540px', width: '100%', maxHeight: '90vh', overflowY: 'auto', padding: '26px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ padding: '8px', borderRadius: '50%', background: 'rgba(212,175,55,0.15)', color: 'var(--gold-400)' }}>
+                  <Key size={22} />
+                </div>
+                <div>
+                  <h3 className="font-cinzel gold-text-gradient" style={{ fontSize: '1.25rem', fontWeight: '700' }}>
+                    Conexión Teológica & APIs
+                  </h3>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    Acceso desde cualquier dispositivo y motor multi-proveedor
+                  </p>
+                </div>
               </div>
             </div>
 
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginBottom: '16px', lineHeight: '1.5' }}>
-              Santuario cuenta con un <strong>motor teológico local integrado</strong> que funciona inmediatamente sin costo. Si deseas conectar una clave de ampliación de consultas, puedes ingresarla a continuación:
-            </p>
+            {/* Banner de Sincronización en la Nube */}
+            <div style={{
+              padding: '10px 14px',
+              borderRadius: '10px',
+              background: currentUser ? 'rgba(34, 197, 94, 0.1)' : 'rgba(212, 175, 55, 0.08)',
+              border: currentUser ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid rgba(212, 175, 55, 0.25)',
+              marginBottom: '18px',
+              fontSize: '0.82rem',
+              lineHeight: '1.4'
+            }}>
+              {currentUser ? (
+                <div style={{ color: '#86efac', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>☁️</span>
+                  <span><strong>Sincronización en la Nube Activa:</strong> Tus claves se guardan en tu cuenta segura ({currentUser.email}) y estarán listas en cualquier dispositivo al iniciar sesión.</span>
+                </div>
+              ) : (
+                <div style={{ color: 'var(--gold-300)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>💡</span>
+                  <span>Las claves se guardarán en este navegador. <button onClick={() => { setShowApiKeyModal(false); onOpenAuthModal(); }} style={{ background: 'none', border: 'none', color: '#fff', textDecoration: 'underline', cursor: 'pointer', fontWeight: 'bold' }}>Inicia sesión</button> para usarlas desde cualquier celular o equipo automáticamente.</span>
+                </div>
+              )}
+            </div>
 
-            <input
-              type="password"
-              placeholder="AIzaSy..."
-              className="sacred-input"
-              value={apiKeyInput}
-              onChange={(e) => setApiKeyInput(e.target.value)}
-              style={{ marginBottom: '18px' }}
-            />
+            {/* Formulario de Proveedores */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '18px' }}>
+              {/* Google Gemini */}
+              <div>
+                <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: '600', color: 'var(--gold-300)', marginBottom: '4px' }}>
+                  <span>Google Gemini (3.x Flash / Pro)</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Recomendado</span>
+                </label>
+                <input
+                  type="password"
+                  placeholder="AIzaSy..."
+                  className="sacred-input"
+                  value={apiKeys.gemini || ''}
+                  onChange={(e) => setApiKeys(prev => ({ ...prev, gemini: e.target.value }))}
+                />
+              </div>
+
+              {/* Groq */}
+              <div>
+                <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: '600', color: 'var(--gold-300)', marginBottom: '4px' }}>
+                  <span>Groq Cloud (LPU Ultra-Rápido)</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>gsk_...</span>
+                </label>
+                <input
+                  type="password"
+                  placeholder="gsk_..."
+                  className="sacred-input"
+                  value={apiKeys.groq || ''}
+                  onChange={(e) => setApiKeys(prev => ({ ...prev, groq: e.target.value }))}
+                />
+              </div>
+
+              {/* OpenRouter */}
+              <div>
+                <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: '600', color: 'var(--gold-300)', marginBottom: '4px' }}>
+                  <span>OpenRouter (Catálogo Multi-Modelo)</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>sk-or-v1-...</span>
+                </label>
+                <input
+                  type="password"
+                  placeholder="sk-or-v1-..."
+                  className="sacred-input"
+                  value={apiKeys.openrouter || ''}
+                  onChange={(e) => setApiKeys(prev => ({ ...prev, openrouter: e.target.value }))}
+                />
+              </div>
+
+              {/* NVIDIA NIM */}
+              <div>
+                <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: '600', color: 'var(--gold-300)', marginBottom: '4px' }}>
+                  <span>NVIDIA NIM</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>nvapi-...</span>
+                </label>
+                <input
+                  type="password"
+                  placeholder="nvapi-..."
+                  className="sacred-input"
+                  value={apiKeys.nvidia || ''}
+                  onChange={(e) => setApiKeys(prev => ({ ...prev, nvidia: e.target.value }))}
+                />
+              </div>
+            </div>
 
             {savedSuccess && (
-              <div style={{ color: '#4ade80', fontSize: '0.85rem', marginBottom: '12px', textAlign: 'center' }}>
-                ✓ Clave guardada con éxito en tu dispositivo.
+              <div style={{ color: '#4ade80', fontSize: '0.86rem', marginBottom: '14px', textAlign: 'center', background: 'rgba(34, 197, 94, 0.15)', padding: '8px', borderRadius: '8px', border: '1px solid rgba(34,197,94,0.3)' }}>
+                ✓ {syncStatus || 'Claves guardadas exitosamente.'}
               </div>
             )}
 
@@ -333,9 +417,9 @@ export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSound
               </button>
               <button 
                 className="btn-gold" 
-                onClick={handleSaveKey}
+                onClick={handleSaveKeys}
               >
-                Guardar Conexión
+                Guardar & Sincronizar
               </button>
             </div>
           </div>
