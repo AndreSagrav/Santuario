@@ -369,14 +369,27 @@ body {
   }
 }
 
-/* Barra de navegación inferior móvil */
+/* Barra de navegación inferior móvil: Activa permanentemente en pantallas <= 1024px */
 .mobile-bottom-nav {
-  display: none;
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: 64px !important;
+  z-index: 999999 !important;
+  display: flex !important;
 }
 
-@media (max-width: 960px) {
+@media (min-width: 1025px) {
+  .mobile-bottom-nav {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1024px) {
   body {
-    padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: 78px !important;
   }
 
   /* Ocultar navbar de escritorio en tablets y móviles para evitar compresión excesiva */
@@ -386,17 +399,6 @@ body {
 
   .hide-on-mobile {
     display: none !important;
-  }
-
-  /* Barra táctil inferior permanentemente fija a la pantalla */
-  .mobile-bottom-nav {
-    display: flex !important;
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100vw !important;
-    z-index: 99999 !important;
   }
 
   .sacred-panel {

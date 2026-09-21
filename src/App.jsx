@@ -161,12 +161,6 @@ export default function App() {
         )}
       </main>
 
-      {/* Barra de Navegación Inferior Táctil (Móvil / Google Play Store) */}
-      <MobileBottomNav
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
-
       {/* Modal de Autenticación y Cuenta Segura */}
       <AuthModal
         isOpen={isAuthModalOpen}
@@ -206,6 +200,12 @@ export default function App() {
           </div>
         </div>
       </footer>
+
+      {/* Barra de Navegación Inferior Táctil (Móvil / Google Play Store) */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
 
     </div>
   );

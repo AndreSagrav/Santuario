@@ -1,14 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+import React from 'react';
 import { Flame, BookOpen, Sparkles, Music, HeartHandshake, Compass, BookMarked } from 'lucide-react';
 
 export default function MobileBottomNav({ activeTab, setActiveTab }) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const tabs = [
     { id: 'devotional', label: 'Altar', icon: Flame },
     { id: 'bible', label: 'Palabra', icon: BookOpen },
@@ -19,7 +12,7 @@ export default function MobileBottomNav({ activeTab, setActiveTab }) {
     { id: 'prayers', label: 'Muro', icon: HeartHandshake }
   ];
 
-  const navContent = (
+  return (
     <nav 
       className="mobile-bottom-nav" 
       aria-label="Navegación móvil sagrada"
@@ -29,21 +22,21 @@ export default function MobileBottomNav({ activeTab, setActiveTab }) {
         left: 0,
         right: 0,
         width: '100%',
-        maxWidth: '100vw',
-        zIndex: 99999,
-        background: 'rgba(8, 10, 16, 0.98)',
-        backdropFilter: 'blur(30px)',
-        WebkitBackdropFilter: 'blur(30px)',
-        borderTop: '1px solid rgba(212, 175, 55, 0.28)',
-        boxShadow: '0 -6px 35px rgba(0, 0, 0, 0.9)',
-        paddingBottom: 'env(safe-area-inset-bottom, 8px)',
-        minHeight: 'calc(62px + env(safe-area-inset-bottom, 0px))',
-        transform: 'translateZ(0)',
-        WebkitTransform: 'translateZ(0)',
+        height: '64px',
+        zIndex: 999999,
+        background: '#07080c',
+        backgroundColor: 'rgba(7, 8, 12, 0.98)',
+        backdropFilter: 'blur(28px)',
+        WebkitBackdropFilter: 'blur(28px)',
+        borderTop: '1.5px solid rgba(212, 175, 55, 0.35)',
+        boxShadow: '0 -4px 30px rgba(0, 0, 0, 0.95)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        margin: 0,
+        touchAction: 'manipulation'
       }}
     >
       {tabs.map((tab) => {
@@ -58,19 +51,19 @@ export default function MobileBottomNav({ activeTab, setActiveTab }) {
             }}
             style={{
               flex: 1,
+              height: '100%',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '4px',
+              gap: '3px',
               background: 'transparent',
               border: 'none',
-              padding: '8px 2px',
+              padding: '6px 2px',
               color: isActive ? 'var(--gold-300)' : 'var(--text-muted)',
               cursor: 'pointer',
               transition: 'all 0.15s ease',
-              position: 'relative',
-              touchAction: 'manipulation'
+              position: 'relative'
             }}
           >
             {isActive && (
@@ -85,12 +78,12 @@ export default function MobileBottomNav({ activeTab, setActiveTab }) {
               }} />
             )}
             <div style={{
-              padding: '4px',
+              padding: '3px',
               borderRadius: '50%',
-              background: isActive ? 'rgba(212,175,55,0.2)' : 'transparent',
+              background: isActive ? 'rgba(212,175,55,0.22)' : 'transparent',
               transition: 'background 0.2s'
             }}>
-              <Icon size={20} color={isActive ? 'var(--gold-300)' : 'currentColor'} />
+              <Icon size={19} color={isActive ? 'var(--gold-300)' : 'currentColor'} />
             </div>
             <span style={{
               fontSize: '0.68rem',
@@ -105,7 +98,4 @@ export default function MobileBottomNav({ activeTab, setActiveTab }) {
       })}
     </nav>
   );
-
-  if (!mounted || typeof document === 'undefined') return null;
-  return createPortal(navContent, document.body);
 }
