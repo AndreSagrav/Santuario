@@ -14,6 +14,7 @@ import { sacredAudio } from './services/sacredAudioEngine';
 import { SOUNDSCAPES_DATA } from './data/soundscapesData';
 import { supabase } from './services/supabaseClient';
 import { loadKeysFromCloud } from './services/cloudKeysService';
+import { pullFullStateFromSupabase, pushFullStateToSupabase } from './services/cloudSyncService';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('devotional');
@@ -31,17 +32,27 @@ export default function App() {
   // Pasaje inicial para lector de biblia
   const [targetPassageId, setTargetPassageId] = useState(null);
 
-  // Escuchar estado de autenticación en Supabase y sincronizar API keys
+  // Escuchar estado de autenticación en Supabase y sincronizar TODO el Santuario
   useEffect(() => {
+    const syncUser = async (user) => {
+      if (!user) return;
+      loadKeysFromCloud(user);
+      const pulled = await pullFullStateFromSupabase(user);
+      // Si el usuario en la nube aún no tiene datos (primer inicio), respaldar datos locales a la nube
+      if (!pulled && !user.user_metadata?.santuario_cloud_state) {
+        await pushFullStateToSupabase(user);
+      }
+    };
+
     supabase.auth.getUser().then(({ data: { user } }) => {
       setCurrentUser(user || null);
-      if (user) loadKeysFromCloud(user);
+      if (user) syncUser(user);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const user = session?.user || null;
       setCurrentUser(user);
-      if (user) loadKeysFromCloud(user);
+      if (user) syncUser(user);
     });
 
     return () => subscription.unsubscribe();

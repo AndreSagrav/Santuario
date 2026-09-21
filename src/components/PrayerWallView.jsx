@@ -19,6 +19,7 @@ import {
 import { enhanceAndClassifyPrayer } from '../services/aiService';
 import { sacredAudio } from '../services/sacredAudioEngine';
 import { SOUNDSCAPES_DATA } from '../data/soundscapesData';
+import { triggerAutoCloudSync } from '../services/cloudSyncService';
 
 export default function PrayerWallView() {
   // Las 4 Categorías canónicas exclusivas del usuario:
@@ -63,26 +64,47 @@ export default function PrayerWallView() {
   const [isPolishingWithAI, setIsPolishingWithAI] = useState(false);
   const [polishingFeedback, setPolishingFeedback] = useState('');
 
-  // Sincronización en LocalStorage
+  // Sincronización en LocalStorage y Supabase Cloud
   useEffect(() => {
     localStorage.setItem("santuario_prayer_rep_v7", JSON.stringify(repentanceList));
+    triggerAutoCloudSync();
   }, [repentanceList]);
 
   useEffect(() => {
     localStorage.setItem("santuario_prayer_grat_v7", JSON.stringify(gratitudeList));
+    triggerAutoCloudSync();
   }, [gratitudeList]);
 
   useEffect(() => {
     localStorage.setItem("santuario_prayer_pet_v7", JSON.stringify(petitionsList));
+    triggerAutoCloudSync();
   }, [petitionsList]);
 
   useEffect(() => {
     localStorage.setItem("santuario_prayer_spec_v7", JSON.stringify(specialList));
+    triggerAutoCloudSync();
   }, [specialList]);
 
   useEffect(() => {
     localStorage.setItem("santuario_checked_prayer_ids_v7", JSON.stringify(checkedIds));
+    triggerAutoCloudSync();
   }, [checkedIds]);
+
+  // Escuchar cuando Supabase descarga los datos en este u otro dispositivo
+  useEffect(() => {
+    const handleCloudSync = (e) => {
+      const cloud = e.detail;
+      if (cloud && cloud.prayers) {
+        if (cloud.prayers.repentance) setRepentanceList(cloud.prayers.repentance);
+        if (cloud.prayers.gratitude) setGratitudeList(cloud.prayers.gratitude);
+        if (cloud.prayers.petitions) setPetitionsList(cloud.prayers.petitions);
+        if (cloud.prayers.special) setSpecialList(cloud.prayers.special);
+        if (Array.isArray(cloud.prayers.checkedIds)) setCheckedIds(cloud.prayers.checkedIds);
+      }
+    };
+    window.addEventListener('santuario-cloud-synced', handleCloudSync);
+    return () => window.removeEventListener('santuario-cloud-synced', handleCloudSync);
+  }, []);
 
   // Reproducción musical de fondo (432 Hz)
   const toggleWorshipMusic = () => {

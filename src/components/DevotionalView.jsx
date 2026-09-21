@@ -19,6 +19,7 @@ import {
 import { WEEKS_DATA, DEVOTIONALS_DATA, getCurrentWeekIndex } from '../data/devotionalsData';
 import { BIBLES_DATA } from '../data/biblesData';
 import { generateCustomPrayer, askRuajAI } from '../services/aiService';
+import { triggerAutoCloudSync } from '../services/cloudSyncService';
 import SacredContentRenderer from '../utils/sacredFormatter';
 
 const EMOTIONS = [
@@ -125,9 +126,31 @@ export default function DevotionalView({ onOpenBible, onConsultAI }) {
     setCustomPrayer(null);
   }, [devo?.id]);
 
+  // Escuchar sincronización universal desde Supabase
+  useEffect(() => {
+    const handleCloudSync = (e) => {
+      const cloud = e.detail;
+      if (cloud) {
+        if (cloud.customWeeks && Array.isArray(cloud.customWeeks)) {
+          setAllWeeks([...WEEKS_DATA, ...cloud.customWeeks]);
+        }
+        if (cloud.activeWeek) {
+          setActiveWeekId(cloud.activeWeek);
+        }
+        if (devo && cloud.journalEntries && cloud.journalEntries[`journal_${devo.id}`]) {
+          const ans = cloud.journalEntries[`journal_${devo.id}`];
+          setJournalAnswers(typeof ans === 'string' ? JSON.parse(ans) : ans);
+        }
+      }
+    };
+    window.addEventListener('santuario-cloud-synced', handleCloudSync);
+    return () => window.removeEventListener('santuario-cloud-synced', handleCloudSync);
+  }, [devo?.id]);
+
   const handleSelectWeek = (weekId) => {
     setActiveWeekId(weekId);
     localStorage.setItem('santuario_active_week', weekId);
+    triggerAutoCloudSync(1200);
     const targetW = allWeeks.find(w => w.id === weekId) || allWeeks[0];
     if (targetW && targetW.days.length > 0) {
       setSelectedDevoId(targetW.days[0].id);
@@ -152,6 +175,7 @@ export default function DevotionalView({ onOpenBible, onConsultAI }) {
 
   const handleSaveJournal = () => {
     localStorage.setItem(`journal_${devo.id}`, JSON.stringify(journalAnswers));
+    triggerAutoCloudSync();
     setIsSavedPrompt(true);
     setTimeout(() => setIsSavedPrompt(false), 2000);
   };
@@ -222,6 +246,7 @@ REGLAS:
         localStorage.setItem('santuario_custom_weeks', JSON.stringify(customOnly));
         setActiveWeekId(parsed.id);
         localStorage.setItem('santuario_active_week', parsed.id);
+        triggerAutoCloudSync();
         setSelectedDevoId(parsed.days[0].id);
         setIsNewWeekModalOpen(false);
         setAiWeekTopic('');
@@ -918,7 +943,7 @@ REGLAS:
             </button>
             {isSavedPrompt && (
               <span style={{ fontSize: '0.86rem', color: '#4ade80', fontWeight: '600' }}>
-                ✓ Guardado localmente
+                ✓ Guardado en tu Diario & Nube Supabase
               </span>
             )}
           </div>

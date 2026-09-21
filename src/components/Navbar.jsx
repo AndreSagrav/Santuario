@@ -11,10 +11,12 @@ import {
   VolumeX,
   User,
   Compass,
-  BookMarked
+  BookMarked,
+  Cloud
 } from 'lucide-react';
 import { getStoredApiKey, saveApiKey } from '../services/aiService';
 import { getAllApiKeys, saveAndSyncAllApiKeys } from '../services/cloudKeysService';
+import { pushFullStateToSupabase } from '../services/cloudSyncService';
 import logoImg from '../assets/santuario-logo.jpg';
 
 export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSoundPlaying, toggleSound, currentUser, onOpenAuthModal }) {
@@ -22,6 +24,8 @@ export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSound
   const [apiKeys, setApiKeys] = useState(() => getAllApiKeys());
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [syncStatus, setSyncStatus] = useState('');
+  const [isManualSyncing, setIsManualSyncing] = useState(false);
+  const [manualSyncMsg, setManualSyncMsg] = useState('');
 
   const handleOpenKeyModal = () => {
     setApiKeys(getAllApiKeys());
@@ -272,6 +276,38 @@ export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSound
             <User size={14} />
             <span>{currentUser ? currentUser.email.split('@')[0] : "Acceder"}</span>
           </button>
+
+          {/* Indicador y Botón de Sincronización Nube Universal (Supabase) */}
+          {currentUser && (
+            <button
+              onClick={async () => {
+                setIsManualSyncing(true);
+                const res = await pushFullStateToSupabase(currentUser);
+                setManualSyncMsg(res.success ? '¡Sincronizado!' : 'Error');
+                setTimeout(() => {
+                  setIsManualSyncing(false);
+                  setManualSyncMsg('');
+                }, 1500);
+              }}
+              title="Sincronización Inmediata con Supabase: Pulsa para enviar tu estado actual a tu Tablet, Celular o Computadora"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '6px 11px',
+                borderRadius: 'var(--radius-full)',
+                background: 'rgba(34, 197, 94, 0.12)',
+                border: '1px solid rgba(34, 197, 94, 0.35)',
+                color: '#4ade80',
+                fontSize: '0.78rem',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              <Cloud size={14} className={isManualSyncing ? "animate-spin" : ""} />
+              <span className="hide-on-mobile">{manualSyncMsg || (isManualSyncing ? 'Guardando...' : 'Nube Activa')}</span>
+            </button>
+          )}
 
           {/* Modo Santuario Inmersivo (Zen) */}
           <button
