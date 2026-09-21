@@ -374,9 +374,9 @@ body {
   display: none;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   body {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
   }
 
   /* Ocultar navbar de escritorio en tablets y móviles para evitar compresión excesiva */
@@ -388,21 +388,15 @@ body {
     display: none !important;
   }
 
-  /* Mostrar barra táctil inferior */
+  /* Barra táctil inferior permanentemente fija a la pantalla */
   .mobile-bottom-nav {
-    display: flex;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(7, 8, 12, 0.96);
-    backdrop-filter: blur(28px);
-    -webkit-backdrop-filter: blur(28px);
-    border-top: 1px solid rgba(212, 175, 55, 0.22);
-    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.75);
-    z-index: 9999;
-    padding-left: max(4px, env(safe-area-inset-left));
-    padding-right: max(4px, env(safe-area-inset-right));
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100vw !important;
+    z-index: 99999 !important;
   }
 
   .sacred-panel {
