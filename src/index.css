@@ -1,0 +1,342 @@
+/* ==========================================================================
+   SANTUARIO AI - DESIGN SYSTEM & SACRED LUXURY STYLES (PURE VANILLA CSS)
+   ========================================================================== */
+
+:root {
+  --gold-100: #fff9e6;
+  --gold-200: #faeab0;
+  --gold-300: #f2d675;
+  --gold-400: #e5bd3a;
+  --gold-500: #d4af37;
+  --gold-600: #ab861c;
+  --gold-700: #7a5d0e;
+  --gold-gradient: linear-gradient(135deg, #f2d675 0%, #d4af37 50%, #ab861c 100%);
+  
+  --obsidian-950: #06070a;
+  --obsidian-900: #0b0d14;
+  --obsidian-850: #10131e;
+  --obsidian-800: #171c2b;
+  --obsidian-700: #23293e;
+  
+  --surface-glass: rgba(16, 20, 31, 0.78);
+  --surface-glass-active: rgba(26, 32, 51, 0.9);
+  --border-gold-subtle: rgba(212, 175, 55, 0.16);
+  --border-gold-prominent: rgba(212, 175, 55, 0.45);
+  
+  --text-main: #f0f2f8;
+  --text-muted: #9aa2ba;
+  --text-dim: #68718a;
+  
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+  
+  --font-serif-title: 'Cinzel', serif;
+  --font-serif-scripture: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--obsidian-950);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(212, 175, 55, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 10% 40%, rgba(70, 50, 120, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Tipografías Sagradas */
+.font-cinzel {
+  font-family: var(--font-serif-title);
+  letter-spacing: 0.06em;
+}
+
+.font-scripture {
+  font-family: var(--font-serif-scripture);
+  letter-spacing: 0.01em;
+}
+
+/* Gradientes de Texto Dorado */
+.gold-text-gradient {
+  background: linear-gradient(135deg, #fffbee 0%, #e8cf78 40%, #b8912e 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.silver-text-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #d1d5db 60%, #9ca3af 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Cristales y Superficies Sagradas */
+.sacred-panel {
+  background: var(--surface-glass);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-gold-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 40px -10px rgba(0, 0, 0, 0.6), 0 0 25px -5px rgba(212, 175, 55, 0.04);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sacred-panel:hover {
+  border-color: rgba(212, 175, 55, 0.28);
+  box-shadow: 0 16px 45px -8px rgba(0, 0, 0, 0.7), 0 0 30px rgba(212, 175, 55, 0.08);
+}
+
+.sacred-panel-active {
+  background: var(--surface-glass-active);
+  border-color: var(--border-gold-prominent);
+  box-shadow: 0 0 35px rgba(212, 175, 55, 0.16), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+
+/* Botones Celestiales */
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%);
+  color: #0b0c10;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(212, 175, 55, 0.35);
+  transition: all 0.25s ease;
+}
+
+.btn-gold:hover {
+  background: linear-gradient(135deg, #faeab0 0%, #c49925 100%);
+  box-shadow: 0 6px 26px rgba(212, 175, 55, 0.55);
+  transform: translateY(-2px);
+}
+
+.btn-gold:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 10px 18px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-gold-subtle);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: rgba(212, 175, 55, 0.35);
+  color: var(--gold-200);
+}
+
+.btn-secondary.active {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: var(--gold-400);
+  color: var(--gold-200);
+}
+
+/* Badges y Píldoras */
+.sacred-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: var(--radius-full);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--gold-300);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Partículas flotantes de luz celestial */
+.celestial-particles-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  background: radial-gradient(circle, rgba(255, 235, 170, 0.8) 0%, rgba(212, 175, 55, 0) 70%);
+  border-radius: 50%;
+  animation: floatUpward 18s linear infinite;
+  opacity: 0.45;
+}
+
+@keyframes floatUpward {
+  0% {
+    transform: translateY(105vh) scale(0.6);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.6;
+  }
+  80% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-10vh) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Versículo en Resalte */
+.scripture-quote-box {
+  position: relative;
+  padding: 28px 32px;
+  background: linear-gradient(135deg, rgba(25, 30, 48, 0.65) 0%, rgba(14, 17, 26, 0.8) 100%);
+  border-left: 3px solid var(--gold-400);
+  border-radius: var(--radius-md);
+  margin: 20px 0;
+}
+
+.scripture-quote-box::before {
+  content: "“";
+  position: absolute;
+  top: 6px;
+  left: 14px;
+  font-family: var(--font-serif-title);
+  font-size: 4rem;
+  color: rgba(212, 175, 55, 0.15);
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Pulsación de Aliento Sagrado */
+@keyframes holyPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: 0.85;
+  }
+}
+
+.holy-glow-circle {
+  animation: holyPulse 6s infinite ease-in-out;
+}
+
+/* Animación sutil de entrada */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Estilo de inputs */
+.sacred-input, .sacred-textarea {
+  width: 100%;
+  background: rgba(11, 13, 20, 0.75);
+  border: 1px solid var(--border-gold-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.sacred-input:focus, .sacred-textarea:focus {
+  border-color: var(--gold-400);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+}
+
+.sacred-textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* Scrollbars doradas */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: var(--obsidian-950);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.6);
+}
+
+/* ==========================================================================
+   ADAPTACIÓN MÓVIL NATIVA & GOOGLE PLAY STORE (BOTTOM NAVIGATION)
+   ========================================================================== */
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 70px; /* Espacio para no tapar contenido con la barra inferior */
+  }
+
+  /* Ocultar el menú superior largo en pantallas de celular */
+  header nav {
+    display: none !important;
+  }
+
+  /* Mostrar la barra táctil inferior nativa de Play Store */
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: rgba(8, 9, 14, 0.94);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(212, 175, 55, 0.25);
+    box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    padding: 0 8px;
+  }
+}
+
