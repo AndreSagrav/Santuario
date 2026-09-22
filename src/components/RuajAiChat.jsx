@@ -125,7 +125,8 @@ ${currentContext?.passage ? `*Actualmente meditando en: **${currentContext.passa
       const response = await askRuajAI({
         question: query,
         passage: currentContext?.passage,
-        mood: currentContext?.mood
+        mood: currentContext?.mood,
+        isChat: true
       });
 
       setMessages((prev) => [...prev, { role: 'assistant', text: response }]);
@@ -250,7 +251,7 @@ ${currentContext?.passage ? `*Actualmente meditando en: **${currentContext.passa
                 {isUser ? (
                   <p style={{ margin: 0 }}>{msg.text}</p>
                 ) : (
-                  <SacredContentRenderer content={msg.text} />
+                  <SacredContentRenderer content={msg.text} multiColumn={false} chatMode={true} />
                 )}
 
                 {!isUser && (

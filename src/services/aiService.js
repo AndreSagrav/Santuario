@@ -11,36 +11,40 @@ const STORAGE_KEYS = {
   NVIDIA: "santuario_theology_nvidia_key"
 };
 
-// Modelos Gemini 3.x (Generación 2026 de Máxima Cuota Gratuita y Precisión)
+import { generateOfflineTheologicalResponse } from './offlineTheologyEngine.js';
+
+// Modelos Gemini Oficiales y Activos
 const GEMINI_MODELS = [
-  "gemini-3.5-flash-lite",              // Titular: Máxima velocidad sub-segundo y cuota generosa
-  "gemini-3.1-flash-lite",              // Respaldo 1: Alta concurrencia y disponibilidad continua
-  "gemini-3.6-flash",                   // Respaldo 2: Modelo oficial sustituto de 2.5 Flash
-  "gemini-3.8-flash",                   // Vanguardia 3.8
-  "gemini-3.7-flash",                   // Vanguardia 3.7
-  "gemini-3.5-flash",                   // Insignia 3.5
-  "gemini-flash-latest",                // Puntero dinámico a la versión Flash más reciente
-  "gemini-3.1-pro-preview"              // Razonamiento profundo Pro
+  "gemini-2.5-flash",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash",
+  "gemini-1.5-pro",
+  "gemini-2.5-pro",
+  "gemini-2.0-flash-lite"
 ];
 
-// Modelos Groq (Inferencia en LPU a ultra alta velocidad)
+// Modelos Groq Oficiales y Activos
 const GROQ_MODELS = [
-  "openai/gpt-oss-120b",
-  "openai/gpt-oss-20b",
-  "qwen/qwen3.8-27b",
-  "groq/compound-mini"
+  "llama-3.3-70b-versatile",
+  "llama-3.1-8b-instant",
+  "mixtral-8x7b-32768",
+  "gemma2-9b-it"
 ];
 
-// Modelos OpenRouter (Catálogo de Razonamiento Amplio)
+// Modelos OpenRouter Oficiales y Activos
 const OPENROUTER_MODELS = [
   "meta-llama/llama-3.3-70b-instruct",
-  "google/gemini-3.8-flash"
+  "google/gemini-2.0-flash-001",
+  "deepseek/deepseek-chat",
+  "qwen/qwen-2.5-72b-instruct",
+  "mistralai/mistral-small-24b-instruct-2501"
 ];
 
-// Modelos NVIDIA NIM
+// Modelos NVIDIA NIM Oficiales y Activos
 const NVIDIA_MODELS = [
-  "deepseek-ai/deepseek-v4-flash-0731",
-  "google/gemma-3-12b-it"
+  "meta/llama-3.3-70b-instruct",
+  "meta/llama-3.1-8b-instruct",
+  "mistralai/mistral-large-2-instruct"
 ];
 
 // ============================================================================
@@ -80,28 +84,8 @@ export const getApiKeyPool = () => {
 };
 
 // ============================================================================
-// BASE LOCAL INFALIBLE (FALLBACK RESILIENTE OFFLINE)
+// CONECTORES DE INFERENCIA ESTRICTA (TEMPERATURA 0.2 + BLINDAJE FACTUAL)
 // ============================================================================
-const LOCAL_THEOLOGY_ENGINE = {
-  ansiedad: {
-    title: "Venciendo la Ansiedad y el Afán",
-    biblicalTruth: "La ansiedad intenta que vivas en un futuro que aún no existe y donde olvidas que Dios ya está presente. En Filipenses 4:6, el apóstol Pablo enseña que la 'oración con acción de gracias' es el mecanismo de entrega de cargas.",
-    greekHebrewInsight: "La palabra griega 'Merimnao' (afán, Strong G3308) se compone de 'merizo' (dividir) y 'nous' (mente). La ansiedad divide tu paz interior. La solución bíblica es 'Eirene' (Strong G1515) — la paz que restaura la integridad.",
-    practicalAdvice: "1. No luches contra el pensamiento en solitario; exteriorízalo en oración escrita.\n2. Identifica si te estás preocupando por lo que está fuera de tu círculo de control.\n3. Practica 3 minutos de respiración profunda inhalando la promesa de Dios y exhalando el temor."
-  },
-  proposito: {
-    title: "Dirección, Propósito y Voluntad de Dios",
-    biblicalTruth: "El propósito bíblico no es un destino geográfico ni un puesto laboral específico, sino una postura de intimidad y fidelidad diaria (Romanos 8:28, Proverbios 3:5-6).",
-    greekHebrewInsight: "En Proverbios 3:6, 'Él enderezará tus veredas', la palabra hebrea es 'Yashar' (Strong H3474), que significa despejar las piedras del camino para que no tropieces mientras caminas en obediencia.",
-    practicalAdvice: "Dios rara vez ilumina 10 kilómetros por adelantado; su Palabra es 'lámpara a mis pies' (Salmo 119:105), ilumina el siguiente paso inmediato. Obedece en lo poco hoy."
-  },
-  perdon: {
-    title: "Sanidad del Corazón y el Poder del Perdón",
-    biblicalTruth: "El perdón no es justificar la falta del otro ni fingir que no dolió; es cancelar la deuda para que esa herida no sea una prisión espiritual en tu vida (Efesios 4:32).",
-    greekHebrewInsight: "El término griego para perdonar es 'Aphiemi' (Strong G863), que significa literalmente 'soltar, despedir, remitir deuda'. Perdonar es dejar ir al prisionero, solo para descubrir que el prisionero eras tú.",
-    practicalAdvice: "El perdón es una decisión de la voluntad, no una emoción instantánea. Comienza bendiciendo en privado a quien te hirió."
-  }
-};
 
 // ============================================================================
 // CONECTORES DE INFERENCIA ESTRICTA (TEMPERATURA 0.2 + BLINDAJE FACTUAL)
@@ -266,8 +250,25 @@ async function executeMultiProviderCascade({ prompt, useSearch = true }) {
 // FUNCIONES PÚBLICAS DE CONSULTA TEOLÓGICA Y ORACIÓN
 // ============================================================================
 
-export async function askRuajAI({ question, passage, mood }) {
-  const prompt = `Actúa como un erudito bíblico y mentor espiritual de máxima rigurosidad histórica, lingüística y teológica.
+export async function askRuajAI({ question, passage, mood, isChat = false }) {
+  const prompt = isChat
+    ? `Eres Ruaj, un mentor bíblico, compañero de estudio y consejero espiritual cálido, reverente y de máxima rigurosidad histórica, lingüística y teológica.
+El usuario te escribe la siguiente consulta en el chat:
+"${question}"
+
+${passage ? `Contexto del pasaje activo en el lector: ${passage.book} ${passage.chapter || ''} ${passage.title ? `("${passage.title}")` : ''}` : ''}
+${mood ? `Estado de ánimo / enfoque: ${mood}` : ''}
+
+INSTRUCCIONES CLAVE DE RESPUESTA EN CHAT:
+1. Responde de forma directa, conversacional y personal en el chat.
+2. Cumple RIGUROSAMENTE todas las instrucciones que el usuario te haya indicado sobre:
+   - Versión bíblica solicitada (por ejemplo, si pide NVI, incluye el texto bíblico completo en versión NVI dividido en versos numerados).
+   - Tono y estilo (por ejemplo, si pide narrativa en primera persona plural "nosotros", lenguaje amigable, sencillo y emotivo sin términos sintéticos o fabricados, hazlo exactamente así).
+   - Contexto histórico y lingüístico real comprobado (raíces hebreas o griegas verdaderas con su concordancia Strong).
+   - Reflexión y aplicaciones prácticas para el creyente de hoy.
+3. No uses formatos de documentos burocráticos ni cajas rígidas si el usuario solicitó una conversación íntima en el chat.
+4. Cero alucinaciones: Cita el texto bíblico con precisión milimétrica y no inventes frases ni hechos.`
+    : `Actúa como un erudito bíblico y mentor espiritual de máxima rigurosidad histórica, lingüística y teológica.
 
 NORMAS DE VERACIDAD FACTUAL Y COMPROBACIÓN ESTRICTA:
 1. Comprueba cada raíz etimológica en hebreo o griego contra la numeración del Diccionario Strong (ej. Hxxxx para hebreo, Gxxxx para griego) y los manuscritos bíblicos masoréticos y Textus Receptus.
@@ -280,39 +281,21 @@ Estado interior del buscador: ${mood || 'Reflexivo'}.
 Inquietud o pregunta: "${question}".
 
 REGLA VISUAL DE FORMATO:
-- NO uses símbolos de markdown: PROHIBIDO usar asteriscos (* o **), numerales (### o ####), guiones bajos (_) o viñetas de asterisco (* ).
+- NO uses símbolos de markdown toscos como asteriscos (* o **), numerales (###) o guiones bajos (_).
 - Escribe títulos de sección en prosa limpia.
-- Cita los términos hebreos/griegos y números Strong directamente en el texto. La interfaz aplicará la tipografía y medallas visuales de oro automáticamente.
+- Cita los términos hebreos/griegos y números Strong directamente en el texto.
 
 Estructura tu respuesta en 3 secciones claras:
 1. Luz Teológica & Raíces Comprobadas: Exégesis rigurosa, contexto histórico del autor y destinatarios, y análisis de la raíz en hebreo/griego original con su número de concordancia Strong verificado (ejemplo: Hxxxx o Gxxxx).
-2. Aplicación Pastoral al Corazón: Cómo encarnar esta verdad bíblica con sabiduría práctica, sin legalismos y con gracia.
-3. Oración Guiada: Una oración solemne, íntima y anclada firmemente en la promesa de las Escrituras.`;
+2. Aplicación Pastoral al Corazón: Sabiduría práctica para el creyente de hoy.
+3. Oración Guiada: Una oración solemne y anclada en la promesa bíblica.`;
 
   const remoteResult = await executeMultiProviderCascade({ prompt, useSearch: true });
   if (remoteResult) return remoteResult;
 
-  // Fallback local en caso de desconexión absoluta
-  await new Promise(res => setTimeout(res, 400));
-  const lowerQ = question.toLowerCase();
-  let topic = "ansiedad";
-  if (lowerQ.includes("proposito") || lowerQ.includes("futuro") || lowerQ.includes("decision") || lowerQ.includes("trabajo") || lowerQ.includes("direccion")) {
-    topic = "proposito";
-  } else if (lowerQ.includes("perdon") || lowerQ.includes("culpa") || lowerQ.includes("ofensa") || lowerQ.includes("dolor") || lowerQ.includes("herida")) {
-    topic = "perdon";
-  }
-
-  const insight = LOCAL_THEOLOGY_ENGINE[topic];
-  return `1. Luz Teológica & Raíces Sagradas
-${insight.biblicalTruth}
-
-Raíz Original Comprobada: ${insight.greekHebrewInsight}
-
-2. Aplicación Pastoral al Corazón (${mood ? `Sintiendo: ${mood}` : "Caminando en Fe"})
-${insight.practicalAdvice}
-
-3. Oración Guiada de Intimidad
-Padre Bueno, me rindo delante de tu majestad en este momento sagrado. Reconozco que tu sabiduría sobrepasa mis límites humanos y que en Cristo todas mis preguntas encuentran reposo. Te entrego mi mente y mis emociones; afirmo mi corazón en tu fidelidad inquebrantable y decido dar el siguiente paso en fe. En el glorioso nombre de Jesús, amén.`;
+  // Fallback teológico contextual de alta fidelidad cuando no hay claves remotas
+  await new Promise(res => setTimeout(res, 300));
+  return generateOfflineTheologicalResponse({ question, passage, mood, isChat });
 }
 
 export async function generateCustomPrayer({ need, emotion, devotionTitle }) {

@@ -214,8 +214,11 @@ export function renderFormattedSpan(text, keyPrefix = '') {
  * organizando el contenido en tarjetas editoriales distribuidas en una rejilla
  * multi-columna panorámica (cero apelotamiento en una sola columna).
  */
-export default function SacredContentRenderer({ content, className = '', multiColumn = true }) {
+export default function SacredContentRenderer({ content, className = '', multiColumn = true, chatMode = false }) {
   if (!content) return null;
+
+  // En modo chat, forzar siempre columna única fluida
+  const isMulti = multiColumn && !chatMode;
 
   // Normalizar saltos de línea (Windows \r\n a \n)
   const normalized = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
@@ -234,7 +237,9 @@ export default function SacredContentRenderer({ content, className = '', multiCo
     if (!line) return;
 
     // Detectar si es un encabezado principal
-    const isHeader = /^#{1,6}\s+/.test(line) || /^(\d\.\s*[*_]*[A-ZÁÉÍÓÚ📖🏛️📜🗺️🕊️✨Scale])/.test(line);
+    const isHeader = /^#{1,6}\s+/.test(line) || 
+      /^✦\s+/.test(line) || 
+      (!chatMode && /^(\d\.\s*[*_]*[A-ZÁÉÍÓÚ📖🏛️📜🗺️🕊️✨Scale])/.test(line));
 
     if (isHeader) {
       if (currentSection.title || currentSection.items.length > 0) {
@@ -243,13 +248,14 @@ export default function SacredContentRenderer({ content, className = '', multiCo
       
       const cleanTitle = line
         .replace(/^#{1,6}\s+/, '')
+        .replace(/^✦\s+/, '')
         .replace(/^\d\.\s+/, '')
         .replace(/[*#`_~]/g, '')
         .trim();
 
-      // Extraer badge numérico si existe (ej. "1.", "2.")
+      // Extraer badge numérico solo si no es modo chat
       const numMatch = line.match(/^(\d)\./);
-      const badge = numMatch ? `Dimensión ${numMatch[1]}` : 'Análisis';
+      const badge = !chatMode && numMatch ? `Dimensión ${numMatch[1]}` : (!chatMode ? 'Análisis' : '');
 
       currentSection = {
         title: cleanTitle,
@@ -377,8 +383,8 @@ export default function SacredContentRenderer({ content, className = '', multiCo
     );
   };
 
-  // Si hay más de una sección y multiColumn es true, desplegamos una Rejilla Multi-Columna Amplia
-  if (multiColumn && sections.length > 1) {
+  // Si hay más de una sección y isMulti es true, desplegamos una Rejilla Multi-Columna Amplia
+  if (isMulti && sections.length > 1) {
     return (
       <div 
         className={`sacred-rendered-grid ${className}`}
