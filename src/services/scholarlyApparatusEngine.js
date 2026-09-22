@@ -3,7 +3,7 @@
 // Cobertura exegética e histórica rigurosa para los 66 libros del canon bíblico
 // ============================================================================
 
-import { CANONICAL_BOOKS } from '../data/canonicalBooks';
+import { CANONICAL_BOOKS } from '../data/canonicalBooks.js';
 
 /**
  * Clasifica cualquier libro en su corpus teológico e histórico
