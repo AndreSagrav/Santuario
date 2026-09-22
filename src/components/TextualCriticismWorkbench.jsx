@@ -18,17 +18,70 @@ import {
  * Estación de Crítica Textual Rigurosa:
  * 1. Cotejo de testigos primarios (𝔐 Masorético, 𝔔 Qumrán, 𝔊 LXX, 𝔖 Peshitta, 𝔙 Vulgata).
  * 2. Aparato de variantes críticas formales.
- * 3. Contraste histórico-crítico secular (Sitz im Leben, Formgeschichte).
- * 4. Estratificación Literaria & Fuentes Documentales (Compendio y Fracciones J, E, P, D y Toledot).
+ * 4. Estratificación Literaria & Fuentes Documentales (Compendio y Fracciones J, E, P, D y Anales).
  */
 
-export default function TextualCriticismWorkbench({ verseRef = 'Génesis 1:1' }) {
-  const isGenesis = verseRef.toLowerCase().includes('génesis') || verseRef.toLowerCase().includes('genesis');
-  const [selectedWitnessSiglum, setSelectedWitnessSiglum] = useState('𝔐');
-  const [viewTab, setViewTab] = useState(isGenesis ? 'literary_sources' : 'witnesses'); // 'literary_sources' | 'witnesses' | 'variants' | 'secular_critical'
+export default function TextualCriticismWorkbench({ verseRef = 'Génesis 1:1', verseContext = null }) {
+  const normRef = (verseRef || '').toLowerCase();
+  const isChronicles = normRef.includes('crónica') || normRef.includes('cronica');
+  const isGenesis = normRef.includes('génesis') || normRef.includes('genesis');
+  const isPsalms = normRef.includes('salmo');
+  const isNT = normRef.includes('mateo') || normRef.includes('juan') || normRef.includes('romanos') || normRef.includes('hechos') || normRef.includes('corintios') || normRef.includes('apocalipsis');
 
-  // Testigos primarios adaptados según el pasaje
-  const witnesses = isGenesis ? [
+  const [selectedWitnessSiglum, setSelectedWitnessSiglum] = useState('𝔐');
+  const [viewTab, setViewTab] = useState(isChronicles || isGenesis ? 'literary_sources' : 'witnesses'); // 'literary_sources' | 'witnesses' | 'variants' | 'secular_critical'
+
+  // Testigos de 1 Crónicas
+  const chroniclesWitnesses = [
+    {
+      siglum: '𝔐',
+      name: 'Texto Masorético (Codex Leningradensis B19A)',
+      date: '1008 d.C. (Folio 340r)',
+      language: 'Hebreo Bíblico consonántico con niqud y te\'amim',
+      transcription: 'וְאֵלֶּה הַבָּאִים אֶל־דָּוִיד לְצִקְלַג עֹוד עָצוּר מִפְּנֵי שָׁאוּל בֶּן־קִישׁ וְהֵמָּה בַּגִּבּוֹרִים עֹזְרֵי הַמִּלְחָמָה',
+      translation: '«Y estos son los que vinieron a David en Siclag, estando él aún desterrado por causa de Saúl hijo de Cis; y eran de los valientes ayudadores en la guerra»',
+      notes: 'Texto base oficial de la BHS. Preserva el registro minucioso de los valientes (gibbôrê ḥayil) de las doce tribus que consagraron sus armas al futuro rey de Israel.'
+    },
+    {
+      siglum: '𝔔',
+      name: 'Rollos del Mar Muerto (Qumrán 4QChr / 4QSam)',
+      date: 'c. 150 – 50 a.C. (Cueva 4 de Qumrán)',
+      language: 'Hebreo paleo-consonántico cuadrangular',
+      transcription: 'ואלה הבאים אל דויד לצקלג... עזרי המלחמה',
+      translation: '«W\'elleh hab-ba\'im \'el Dawid l-Tsiqlag... \'ozre ham-milḥamah»',
+      notes: 'Manuscritos de Qumrán que confirman la grafía arcaica de David (דויד con yod plena) y demuestran la fidelidad ininterrumpida de las listas militares mil años antes de los masoretas.'
+    },
+    {
+      siglum: '𝔊 (LXX)',
+      name: 'Septuaginta Griega (Codex Vaticanus B - 1 Paralipomenon)',
+      date: 'c. 200 – 150 a.C. (Alejandría)',
+      language: 'Griego Koiné alejandrino',
+      transcription: 'Καὶ οὗτοι οἱ ἐλθόντες πρὸς Δαυιδ εἰς Σεκελακ ἔτι συνεχόμενος... βοηθοῦντες ἐν πολέμῳ',
+      translation: '«Y estos los que vinieron a David a Sekelak cuando aún estaba retenido... ayudando en la guerra»',
+      notes: 'Transcribe el topónimo צִקְלַג como Σεκελακ (Sekelak) y vierte «ayudadores en la batalla» como βοηθοῦντες ἐν πολέμῳ.'
+    },
+    {
+      siglum: '𝔖',
+      name: 'Peshitta Siríaca (Manuscrito Ambrosiano B.21)',
+      date: 'siglo IV d.C.',
+      language: 'Siríaco oriental clásico',
+      transcription: 'ܘܗܠܝܢ ܕܐܬܘ ܠܘܬ ܕܘܝܕ ܠܨܩܠܓ... ܡܥܕܪ̈ܢܐ ܒܩܪܒܐ',
+      translation: '«W-hallēn d-\'etaw lwat Dawid l-Tsiqlag... m\'adrāne b-qarbā»',
+      notes: 'Fiel traducción directa de códices paleohebreos, preservando con precisión los nombres de los capitanes de Judá, Gad, Benjamín y Manasés.'
+    },
+    {
+      siglum: '𝔙',
+      name: 'Vulgata Latina (San Jerónimo)',
+      date: 'c. 390 – 405 d.C. (Traducido en Belén iuxta Hebraeos)',
+      language: 'Latín bíblico clásico',
+      transcription: 'Haec quoque venerunt ad David in Siceleg cum adhuc fugeret Saul filium Cis... viri fortissimi et optimi pugnatores',
+      translation: '«Estos también vinieron a David a Siceleg cuando aún huía de Saúl hijo de Cis... varones fuertísimos y óptimos combatientes»',
+      notes: 'Jerónimo tradujo directamente de la verdad hebraica empleando la expresión "optimi pugnatores" para reflejar el heroísmo consagrado de los guerreros.'
+    }
+  ];
+
+  // Testigos de Génesis
+  const genesisWitnesses = [
     {
       siglum: '𝔐',
       name: 'Texto Masorético (Codex Leningradensis B19A)',
@@ -74,7 +127,10 @@ export default function TextualCriticismWorkbench({ verseRef = 'Génesis 1:1' })
       translation: '«En el principio creó Dios el cielo y la tierra»',
       notes: 'Jerónimo empleó conscientemente "creavit" (crear ex nihilo) en vez de "fecit" (hacer), preservando la singularidad teológica del verbo hebreo bara.'
     }
-  ] : [
+  ];
+
+  // Testigos de Salmos
+  const psalmsWitnesses = [
     {
       siglum: '𝔐',
       name: 'Texto Masorético (Codex Leningradensis B19A)',
@@ -122,29 +178,106 @@ export default function TextualCriticismWorkbench({ verseRef = 'Génesis 1:1' })
     }
   ];
 
+  // Testigos del Nuevo Testamento
+  const ntWitnesses = [
+    {
+      siglum: '𝔓',
+      name: 'Papiro Chester Beatty / Bodmer (𝔓46 / 𝔓66 / 𝔓75)',
+      date: 'c. 175 – 225 d.C.',
+      language: 'Griego Koiné uncial sobre papiro',
+      transcription: 'Texto primitivo en scriptio continua sin espacios ni acentos',
+      translation: '«Lectura preservada en los papiros cristianos más antiguos»',
+      notes: 'Testigos directos de la época de persecución romana previa a la legalización constantiniana.'
+    },
+    {
+      siglum: 'א (01)',
+      name: 'Codex Sinaiticus (Biblioteca Británica)',
+      date: 'c. 330 – 360 d.C. (Monte Sinaí)',
+      language: 'Griego Koiné en cuatro columnas por página',
+      transcription: 'Texto uncial alejandrino de gran pureza textual',
+      translation: '«El manuscrito bíblico completo más antiguo del mundo»',
+      notes: 'Base fundamental del aparato crítico de Nestle-Aland (NA28).'
+    },
+    {
+      siglum: 'B (03)',
+      name: 'Codex Vaticanus (Biblioteca Apostólica Vaticana)',
+      date: 'c. 325 – 350 d.C.',
+      language: 'Griego Koiné en tres columnas',
+      transcription: 'Máximo exponente del tipo textual alejandrino',
+      translation: '«Autoridad primordial en la crítica textual del Nuevo Testamento»',
+      notes: 'Considerado por Westcott y Hort como el testigo más fidedigno del texto original apostólico.'
+    },
+    {
+      siglum: 'TR',
+      name: 'Textus Receptus (Erasmo de Rotterdam / Estienne)',
+      date: '1516 / 1550 d.C.',
+      language: 'Griego de tradición bizantina mayoritaria',
+      transcription: 'Base del texto estándar de la Reforma Protestante',
+      translation: '«Texto Recibido que sirvió de base para la Biblia Reina-Valera (1569/1602/1960)»',
+      notes: 'Tradición bizantina leída litúrgicamente en la iglesia oriental durante más de un milenio.'
+    },
+    {
+      siglum: '𝔙',
+      name: 'Vulgata Latina Novum Testamentum (San Jerónimo)',
+      date: '382 d.C. (Encargo del Papa Dámaso I)',
+      language: 'Latín bíblico eclesiástico',
+      transcription: 'Revisión minuciosa de los antiguos códices de la Vetus Latina',
+      translation: '«Texto normativo oficial de Occidente durante toda la Edad Media»',
+      notes: 'Jerónimo cotejó manuscritos griegos antiguos de Cesarea para depurar las lecturas occidentales corruptas.'
+    }
+  ];
+
+  // Testigos primarios adaptados según el pasaje
+  const witnesses = isChronicles 
+    ? chroniclesWitnesses 
+    : (isGenesis ? genesisWitnesses : (isNT ? ntWitnesses : (isPsalms ? psalmsWitnesses : chroniclesWitnesses)));
+
   const selectedWitness = witnesses.find(w => w.siglum === selectedWitnessSiglum) || witnesses[0];
 
-  // Variantes textuales
-  const variants = isGenesis ? [
+  // Variantes textuales adaptadas
+  const chroniclesVariants = [
+    {
+      locus: '1 Crónicas 12:1 - Topónimo Siclag (צִקְלַג)',
+      masoretic: 'צִקְלַג (Tsiqlag - con Tsade enfática inicial y Qof)',
+      witnesses: '𝔐, 𝔔 (צקלג) | 𝔊 (Σεκελακ / Sekelak) | 𝔙 (Siceleg)',
+      analysis: 'Variación fonética en la transliteración griega y latina del fonema enfático semítico Tsade (צ). Todos los testigos coinciden en el enclave geográfico del Néguev bíblico donde David organizó a sus valientes.'
+    },
+    {
+      locus: '1 Crónicas 12:2 - Arqueros ambidiestros (מַיְמִינִים וּמַשְׂמִאלִים)',
+      masoretic: 'נֹשְׁקֵי קֶשֶׁת מַיְמִינִים וּמַשְׂמִאלִים בָּאֲבָנִים וּבַחִצִּים בַּקָּשֶׁת',
+      witnesses: '𝔐 unánime con LXX: δεξιολάβοι καὶ ἀριστεροί (diestros de ambas manos)',
+      analysis: 'Elogio militar singular de la guardia de honor benjamita: combatientes de élite adiestrados para disparar flechas y arrojar piedras con la honda indistintamente con la diestra o con la zurda.'
+    },
+    {
+      locus: '1 Crónicas 12:38 - «Con corazón íntegro» (בְּלֵב שָׁלֵם)',
+      masoretic: 'בְּלֵב שָׁלֵם בָּאוּ חֶבְרוֹנָה לְהַמְלִיךְ אֶת־דָּוִיד',
+      witnesses: '𝔐 (בְּלֵב שָׁלֵם) | 𝔊: ἐν ψυχῇ εἰρηνικῇ («con alma pacífica») | 𝔙: corde perfecto',
+      analysis: 'La Septuaginta relaciona la raíz semítica שלם (Shalem: íntegro, cabal) con paz (Shalom), mientras que la Vulgata y el Texto Masorético destacan la consagración indivisa del corazón hacia el pacto davídico.'
+    }
+  ];
+
+  const genesisVariants = [
     {
       locus: 'Génesis 1:1 - Vocalización de בְּרֵאשִׁית (Bereshit)',
       masoretic: 'בְּרֵאשִׁית (Estado constructo morfológico sin artículo determinativo)',
       witnesses: '𝔐 vs Comentaristas Medievales (Rashi, Ibn Ezra) & Bereshit Rabba',
-      analysis: 'Debate sintáctico fundamental: Si Bereshit está en estado absoluto significa «En el principio creó Dios...» (creación absoluta del cosmos ex nihilo). Si se vocaliza en estado constructo significa «En el comienzo del crear de Dios los cielos y la tierra, cuando la tierra era tohu va-bohu... dijo Dios: Sea la luz». La LXX (Ἐν ἀρχῇ) y la Vulgata apoyan unívocamente la lectura absoluta clásica.'
+      analysis: 'Debate sintáctico fundamental: Si Bereshit está en estado absoluto significa «En el principio creó Dios...» (creación absoluta del cosmos ex nihilo). Si se vocaliza en estado constructo significa «En el comienzo del crear de Dios los cielos y la tierra... dijo Dios: Sea la luz». La LXX (Ἐν ἀρχῇ) y la Vulgata apoyan unívocamente la lectura absoluta clásica.'
     },
     {
       locus: 'Génesis 1:2 - Significado de ר֣וּחַ אֱלֹהִ֔ים (Ruaj Elohim)',
       masoretic: 'וְר֣וּחַ אֱלֹהִ֔ים מְרַחֶ֖פֶת עַל־פְּנֵ֥י הַמָּֽיִם',
       witnesses: '𝔐: "El Espíritu de Dios" | Crítica Filológica Comparada (Ugarítico / Acadio)',
-      analysis: 'En la erudición laica e histórico-crítica, la frase puede traducirse como «un viento impetuoso/tormentoso de Dios» (usando Elohim como superlativo semítico de poder colosal, como en "montañas de Dios"). No obstante, el participio מְרַחֶפֶת (merajéfet: empollar, sobrevolar con ternura protectora, cf. Dt 32:11) respalda la acción vivificadora del Espíritu Santo en la tradición canónica judeocristiana.'
+      analysis: 'En la erudición comparada, la frase puede traducirse como «un viento impetuoso de Dios». No obstante, el participio מְרַחֶפֶת (merajéfet: sobrevolar con ternura protectora, cf. Dt 32:11) respalda la acción vivificadora del Espíritu Santo en la tradición canónica judeocristiana.'
     },
     {
       locus: 'Génesis 1:26 - Plural «Hagamos al ser humano» (נַֽעֲשֶׂ֥ה אָדָ֛ם)',
       masoretic: 'נַֽעֲשֶׂ֥ה אָדָ֛ם בְּצַלְמֵ֖נוּ כִּדְמוּתֵ֑נוּ (Na\'asé \'Adam betzalmenu)',
       witnesses: '𝔐, 𝔔, 𝔊, 𝔙 (Plural unánime en todos los códices)',
-      analysis: 'Ningún manuscrito tiene variante en singular. La crítica laica postula que Dios se dirige a su "Corte Celestial" o consejo divino de ángeles/hijos de Dios (bene ha-elohim, cf. Job 38:7, 1 Reyes 22:19). La teología cristiana histórica ve aquí una revelación implícita de la comunión Trinitaria.'
+      analysis: 'Ningún manuscrito tiene variante en singular. La teología histórica ve aquí una revelación precursora de la comunión Trinitaria, mientras la crítica secular lo interpreta como un plural deliberativo en la corte celestial.'
     }
-  ] : [
+  ];
+
+  const psalmsVariants = [
     {
       locus: 'Salmo 23:1a - Término YHWH',
       masoretic: 'יְהוָה (Adonay con qere perpetuum)',
@@ -158,6 +291,10 @@ export default function TextualCriticismWorkbench({ verseRef = 'Génesis 1:1' })
       analysis: 'Divergencia morfofuncional entre el hebreo (predicado nominal) y el griego alejandrino (verbalizado en presente durativo).'
     }
   ];
+
+  const variants = isChronicles
+    ? chroniclesVariants
+    : (isGenesis ? genesisVariants : (isPsalms ? psalmsVariants : chroniclesVariants));
 
   return (
     <div style={{
@@ -213,7 +350,7 @@ export default function TextualCriticismWorkbench({ verseRef = 'Génesis 1:1' })
             }}
           >
             <GitBranch size={13} />
-            <span>Fuentes & Compendio (J, E, P)</span>
+            <span>{isChronicles ? 'Fuentes & Anales (Esdras/David)' : (isGenesis ? 'Fuentes & Compendio (J, E, P)' : 'Estratificación de Fuentes')}</span>
           </button>
 
           <button
@@ -267,10 +404,64 @@ export default function TextualCriticismWorkbench({ verseRef = 'Génesis 1:1' })
       </div>
 
       {/* =========================================================================
-          VISTA 1: ESTRATIFICACIÓN LITERARIA & FUENTES (HIPÓTESIS DOCUMENTAL)
+          VISTA 1: ESTRATIFICACIÓN LITERARIA & FUENTES (HIPÓTESIS DOCUMENTAL / ANALES)
          ========================================================================= */}
       {viewTab === 'literary_sources' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        isChronicles ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(212,175,55,0.12) 0%, rgba(15,23,42,0.6) 100%)',
+              border: '1px solid rgba(212,175,55,0.3)',
+              borderRadius: '10px',
+              padding: '16px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Puzzle size={18} color="var(--gold-400)" />
+                <span className="font-cinzel" style={{ fontSize: '1rem', fontWeight: '800', color: 'var(--gold-200)' }}>
+                  1 Crónicas: Historiografía Sacerdotal & Fuentes del Reino
+                </span>
+              </div>
+              <p style={{ fontSize: '0.88rem', color: '#e2e8f0', lineHeight: 1.65, margin: 0 }}>
+                A diferencia de los libros proféticos o poéticos, el autor de 1 Crónicas (tradicionalmente asociado a Esdras el escriba, c. 450 a.C.) cita explícitamente sus 
+                <strong> fuentes documentales de archivo real y profético</strong> para tejer la unificación del pacto davídico y el culto del Segundo Templo.
+              </p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px' }}>
+              <div style={{ background: 'rgba(11, 14, 22, 0.95)', border: '1px solid rgba(212,175,55,0.35)', borderRadius: '10px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: '800', color: 'var(--gold-400)', background: 'rgba(212,175,55,0.15)', padding: '3px 10px', borderRadius: '4px', alignSelf: 'flex-start' }}>
+                  ARCHIVOS REALES (1 Crón 27:24)
+                </span>
+                <h5 style={{ margin: '4px 0 0', fontSize: '1rem', color: '#ffffff' }}>
+                  Las Crónicas del Rey David & Registros Militares de Siclag
+                </h5>
+                <ul style={{ fontSize: '0.84rem', color: '#cbd5e1', lineHeight: 1.65, margin: 0, paddingLeft: '18px' }}>
+                  <li><strong>Contenido:</strong> Registros minuciosos de los arqueros y honderos ambidiestros de Saúl que se unieron a David en Siclag (1 Crón 12:1-22).</li>
+                  <li><strong>Naturaleza:</strong> Archivos militares de leva y vasallaje redactados originalmente durante la clandestinidad de David.</li>
+                  <li><strong>Propósito Teológico:</strong> Mostrar que la bendición reposaba sobre David aun antes de ostentar la corona pública en Jerusalén.</li>
+                </ul>
+              </div>
+
+              <div style={{ background: 'rgba(11, 14, 22, 0.95)', border: '1px solid rgba(59, 130, 246, 0.35)', borderRadius: '10px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <span style={{ fontSize: '0.78rem', fontWeight: '800', color: '#60a5fa', background: 'rgba(59,130,246,0.15)', padding: '3px 10px', borderRadius: '4px', alignSelf: 'flex-start' }}>
+                  ARCHIVOS PROFÉTICOS (1 Crón 29:29)
+                </span>
+                <h5 style={{ margin: '4px 0 0', fontSize: '1rem', color: '#ffffff' }}>
+                  Libros de Samuel Vidente, Natán Profeta y Gad Vidente
+                </h5>
+                <ul style={{ fontSize: '0.84rem', color: '#cbd5e1', lineHeight: 1.65, margin: 0, paddingLeft: '18px' }}>
+                  <li><strong>Contenido:</strong> Registro de los hechos de David, primeros y postreros, y las palabras del pacto divino.</li>
+                  <li><strong>Gad Vidente:</strong> Profeta personal de David en el desierto y testigo directo de la asamblea de Hebrón (1 Crón 12:38-40).</li>
+                  <li><strong>Sitz im Leben:</strong> Provee a los repatriados persas un modelo de restauración: reedificar el culto con gozo y unanimidad sagrada.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           {/* Banner Académico Introductorio */}
           <div style={{
@@ -441,6 +632,7 @@ export default function TextualCriticismWorkbench({ verseRef = 'Génesis 1:1' })
           </div>
 
         </div>
+        )
       )}
 
       {/* =========================================================================

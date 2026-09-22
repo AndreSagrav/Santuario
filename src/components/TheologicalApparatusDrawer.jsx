@@ -24,6 +24,7 @@ import SacredContentRenderer from '../utils/sacredFormatter';
 import TextualCriticismWorkbench from './TextualCriticismWorkbench';
 import SacredGeographyMap from './SacredGeographyMap';
 import HistoricalTimelineViewer from './HistoricalTimelineViewer';
+import { getBookCorpus } from '../services/scholarlyApparatusEngine';
 
 export default function TheologicalApparatusDrawer({ 
   isOpen, 
@@ -40,6 +41,8 @@ export default function TheologicalApparatusDrawer({
   const displayRef = verseContext?.verseRange 
     ? `${verseContext.book} ${verseContext.chapter}:${verseContext.verseRange}`
     : `${verseContext?.book} ${verseContext?.chapter}:${verseContext?.verseNum}`;
+
+  const corpus = getBookCorpus(verseContext?.book || '');
 
   useEffect(() => {
     if (isOpen && verseContext) {
@@ -76,16 +79,201 @@ export default function TheologicalApparatusDrawer({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Extraer secciones específicas del texto devuelto por la IA
+  // Extraer secciones específicas del texto devuelto por la IA o motor exegético
   const getSectionContent = (sectionNum) => {
     if (!apparatusContent) return '';
-    const regex = new RegExp(`(?:^|\\n)\\s*${sectionNum}\\.\\s*([^\\n]+)([\\s\\S]*?)(?=(?:\\n\\s*\\d+\\.\\s*[^\\n]+)|$)`, 'i');
+    const regex = new RegExp(`(?:^|\\n)\\s*(?:#+\\s*)?${sectionNum}\\.?\\s*([^\\n]+)([\\s\\S]*?)(?=(?:\\n\\s*(?:#+\\s*)?\\d+\\.?\\s*[^\\n]+)|$)`, 'i');
     const match = apparatusContent.match(regex);
     if (match) {
       return `${match[1]}\n${match[2]}`.trim();
     }
+    const sectionKeywords = [
+      '',
+      ['exégesis', 'morfología', 'lingüística'],
+      ['contexto histórico', 'ane', 'sociocultural', 'trasfondo'],
+      ['crítica textual', 'manuscritos', 'códice', 'variantes'],
+      ['geografía', 'topografía', 'orografía', 'clima'],
+      ['hermenéutica', 'pacto', 'cristológico', 'cristología']
+    ];
+    const keywords = sectionKeywords[sectionNum];
+    if (keywords) {
+      for (const kw of keywords) {
+        const kwRegex = new RegExp(`(?:^|\\n)\\s*(?:#+\\s*)?([^\\n]*${kw}[^\\n]*)([\\s\\S]*?)(?=(?:\\n\\s*(?:#+\\s*)?\\d+\\.?\\s*[^\\n]+)|$)`, 'i');
+        const kwMatch = apparatusContent.match(kwRegex);
+        if (kwMatch) return `${kwMatch[1]}\n${kwMatch[2]}`.trim();
+      }
+    }
     return '';
   };
+
+  // Generador de tarjetas de lenguas originales adaptadas al libro y pasaje activo
+  const getOriginalCards = () => {
+    if (corpus.isOldTestament) {
+      if (corpus.book.includes('Crónicas')) {
+        return {
+          primaryTitle: 'Texto Masorético (Codex Leningradensis B19A):',
+          primaryText: 'דִּבְרֵי הַיָּמִים • עֹזְרֵי הַמִּלְחָמָה בְּצִקְלַג',
+          primaryTranslit: "Dibrê Hay-yamîm • 'ozrê ham-milḥamah b-Tsiqlag",
+          secondaryTitle: 'Septuaginta Griega (1 Paralipómenos LXX):',
+          secondaryText: 'Καὶ οὗτοι οἱ ἐλθόντες εἰς Σεκελακ • βοηθοῦντες ἐν πολέμῳ',
+          secondaryTranslit: 'Kai houtoi hoi elthontes eis Sekelak • boēthountes en polemō',
+          morphologyItems: [
+            { term: 'עֹזְרֵי (H5828)', note: "Part. activo plural constr. Qal de 'azar: «ayudadores leales en la batalla»." },
+            { term: 'גִּבּוֹרִים (H1368)', note: 'Sustantivo masc. plural: guerreros valientes de probada virtud moral y militar.' },
+            { term: 'צִקְלַג (H6860)', note: 'Topónimo del Néguev bíblico donde David consolidó la unificación del reino.' }
+          ]
+        };
+      }
+      if (corpus.book.includes('Génesis')) {
+        return {
+          primaryTitle: 'Texto Masorético (BHS):',
+          primaryText: 'בְּרֵאשִׁית בָּרָא אֱלֹהִים אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ',
+          primaryTranslit: "Bereshit bara Elohim 'et hashamayim w'et ha'aretz",
+          secondaryTitle: 'Septuaginta Griega (Génesis LXX):',
+          secondaryText: 'Ἐν ἀρχῇ ἐποίησεν ὁ θεὸς τὸν οὐρανὸν καὶ τὴν γῆν',
+          secondaryTranslit: 'En archē epoiēsen ho theos ton ouranon kai tēn gēn',
+          morphologyItems: [
+            { term: 'בָּרָא (H1254)', note: 'Perfecto Qal 3ms: crear ex nihilo; sujeto exclusivo divino.' },
+            { term: 'אֱלֹהִים (H430)', note: 'Plural de majestad creadora con verbo en singular.' },
+            { term: 'בְּרֵאשִׁית (H7225)', note: 'Sustantivo constructo: en el origen primordial ordenado.' }
+          ]
+        };
+      }
+      if (corpus.book.includes('Salmo')) {
+        return {
+          primaryTitle: 'Texto Masorético Tiberiense (BHS):',
+          primaryText: 'יְהוָה רֹעִי לֹא אֶחְסָר',
+          primaryTranslit: "YHVH ro'i lo 'eḥsar",
+          secondaryTitle: 'Septuaginta Griega (Salmos LXX):',
+          secondaryText: 'κύριος ποιμαίνει με καὶ οὐδέν με ὑστερήσει',
+          secondaryTranslit: 'Kyrios poimainei me kai ouden me hysterēsei',
+          morphologyItems: [
+            { term: 'רֹעִי (H7462)', note: 'Participio activo Qal con sufijo 1s: «pastoreándome de continuo».' },
+            { term: 'לֹא אֶחְסָר (H2637)', note: 'Partícula de negación absoluta más imperfecto Qal: provisión inquebrantable.' },
+            { term: 'יְהוָה (H3068)', note: 'Tetragrámaton del Dios del pacto eterno.' }
+          ]
+        };
+      }
+      return {
+        primaryTitle: 'Texto Masorético (Codex Leningradensis B19A):',
+        primaryText: 'כֹּה אָמַר יְהוָה • תּוֹרַת יְהוָה תְּמִימָה',
+        primaryTranslit: "Koh 'amar YHVH • Torat YHVH temimah",
+        secondaryTitle: 'Septuaginta Griega (LXX Alejandrina):',
+        secondaryText: 'ὁ νόμος τοῦ κυρίου ἄμωμος • ἐπιστρέφων ψυχάς',
+        secondaryTranslit: 'Ho nomos tou kyriou amōmos',
+        morphologyItems: [
+          { term: 'יְהוָה (H3068)', note: 'Nombre propio sagrado inefable de Dios revelado en el pacto.' },
+          { term: 'חֶסֶד (H2617)', note: 'Gracia, amor firme e incondicional de pacto.' },
+          { term: 'שָׁלוֹם (H7965)', note: 'Integridad cósmica, justicia y armonía integral.' }
+        ]
+      };
+    } else {
+      return {
+        primaryTitle: 'Novum Testamentum Graece (NA28 / Textus Receptus):',
+        primaryText: 'χάρις ὑμῖν καὶ εἰρήνη ἀπὸ θεοῦ πατρὸς ἡμῶν',
+        primaryTranslit: 'Charis hymin kai eirēnē apo theou patros hēmōn',
+        secondaryTitle: 'Vulgata Latina (San Jerónimo):',
+        secondaryText: 'Gratia vobis et pax a Deo Patre et Domino Iesu Christo',
+        secondaryTranslit: 'Vulgata Clementina / Stuttgart',
+        morphologyItems: [
+          { term: 'χάρις (G5485)', note: 'Favor y gracia inmerecida otorgada libremente por Dios.' },
+          { term: 'πίστις (G4102)', note: 'Fe activa, lealtad perseverante y entrega incondicional a Cristo.' },
+          { term: 'εἰρήνη (G1515)', note: 'Paz mesiánica reconciliadora sellada en la cruz.' }
+        ]
+      };
+    }
+  };
+
+  // Generador de tarjetas de pacto cristocéntrico
+  const getCovenantCards = () => {
+    if (corpus.book.includes('Crónicas')) {
+      return [
+        {
+          badge: 'Pacto Davídico (1 Crón 17 / 2 Sam 7)',
+          color: 'var(--gold-400)',
+          bg: 'rgba(212,175,55,0.06)',
+          border: 'rgba(212,175,55,0.25)',
+          text: 'La concentración de las 12 tribus en torno a David en Hebrón sella la promesa del trono eterno. David unifica la adoración cúltica y el sacerdocio como preparación para la edificación del Templo.'
+        },
+        {
+          badge: 'Cumplimiento Mesiánico en Cristo',
+          color: '#93c5fd',
+          bg: 'rgba(59,130,246,0.06)',
+          border: 'rgba(147,197,253,0.25)',
+          text: 'Jesucristo, el Hijo de David definitivo, congrega a los valientes de la fe de toda tribu, lengua y nación, derribando los poderes de las tinieblas y reinando con justicia inmutable.'
+        },
+        {
+          badge: 'Discernimiento de los Tiempos',
+          color: '#4ade80',
+          bg: 'rgba(74,222,128,0.06)',
+          border: 'rgba(74,222,128,0.25)',
+          text: 'Como los sabios de Isacar «entendidos en los tiempos para saber lo que Israel debía hacer» (1 Crón 12:32), la iglesia discierne la soberanía del Rey Jesús en la historia.'
+        }
+      ];
+    }
+    if (corpus.book.includes('Salmo')) {
+      return [
+        {
+          badge: 'Pacto Davídico',
+          color: 'var(--gold-400)',
+          bg: 'rgba(212,175,55,0.06)',
+          border: 'rgba(212,175,55,0.25)',
+          text: 'El rey David se despoja de su manto real para declararse oveja y siervo de YHWH, el verdadero pastor de Israel.'
+        },
+        {
+          badge: 'Cumplimiento Mesiánico',
+          color: '#93c5fd',
+          bg: 'rgba(59,130,246,0.06)',
+          border: 'rgba(147,197,253,0.25)',
+          text: 'Jesús sella Ezequiel 34: «Yo soy el buen pastor; el buen pastor su vida da por las ovejas» (Jn 10:11).'
+        },
+        {
+          badge: 'Pacto Eterno (Hebreos 13:20)',
+          color: '#f472b6',
+          bg: 'rgba(244,114,182,0.06)',
+          border: 'rgba(244,114,182,0.25)',
+          text: '«El Dios de paz que resucitó de los muertos a nuestro Señor Jesucristo, el gran pastor de las ovejas por la sangre del pacto eterno».'
+        }
+      ];
+    }
+    if (corpus.isOldTestament) {
+      return [
+        {
+          badge: 'Pacto de Redención & Promesa',
+          color: 'var(--gold-400)',
+          bg: 'rgba(212,175,55,0.06)',
+          border: 'rgba(212,175,55,0.25)',
+          text: `El pasaje de ${verseContext.book} se inserta en el despliegue progresivo del pacto de Dios con su pueblo escogido, preservando la línea de la promesa redentora.`
+        },
+        {
+          badge: 'Cumplimiento Tipológico en Cristo',
+          color: '#93c5fd',
+          bg: 'rgba(59,130,246,0.06)',
+          border: 'rgba(147,197,253,0.25)',
+          text: 'Toda la Escritura hebrea encuentra su «Sí y Amén» en Cristo Jesús (2 Cor 1:20), quien personifica y culmina las promesas hechas a los padres.'
+        }
+      ];
+    }
+    return [
+      {
+        badge: 'El Nuevo Pacto Consumado',
+        color: 'var(--gold-400)',
+        bg: 'rgba(212,175,55,0.06)',
+        border: 'rgba(212,175,55,0.25)',
+        text: 'Sellado en la sangre de Jesús para justificación eterna, trayendo comunión directa y acceso confiado ante el trono de la gracia.'
+      },
+      {
+        badge: 'Esperanza Escatológica & Victoria',
+        color: '#93c5fd',
+        bg: 'rgba(59,130,246,0.06)',
+        border: 'rgba(147,197,253,0.25)',
+        text: 'La proclamación de la resurrección confirma que la muerte y el pecado han sido vencidos, anticipando los cielos nuevos y la tierra nueva.'
+      }
+    ];
+  };
+
+  const origCards = getOriginalCards();
+  const covCards = getCovenantCards();
 
   if (!isOpen || !verseContext) return null;
 
@@ -426,19 +614,19 @@ export default function TheologicalApparatusDrawer({
                       {/* Tarjetas de Idiomas Originales */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', marginBottom: '16px' }}>
                         <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(212,175,55,0.15)' }}>
-                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Texto Masorético (BHS):</span>
-                          <div style={{ fontFamily: "'SBL Hebrew', serif", fontSize: '1.35rem', color: '#fef08a', direction: 'rtl', marginTop: '4px' }}>
-                            יְהוָה רֹעִי לֹא אֶחְסָר
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{origCards.primaryTitle}</span>
+                          <div style={{ fontFamily: corpus.isOldTestament ? "'SBL Hebrew', serif" : "'SBL Greek', serif", fontSize: '1.35rem', color: '#fef08a', direction: corpus.isOldTestament ? 'rtl' : 'ltr', marginTop: '4px' }}>
+                            {origCards.primaryText}
                           </div>
-                          <span style={{ fontSize: '0.76rem', color: '#cbd5e1' }}>YHVH ro'i lo 'eḥsar</span>
+                          <span style={{ fontSize: '0.76rem', color: '#cbd5e1' }}>{origCards.primaryTranslit}</span>
                         </div>
 
                         <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(212,175,55,0.15)' }}>
-                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Septuaginta Griega (LXX):</span>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{origCards.secondaryTitle}</span>
                           <div style={{ fontFamily: "'SBL Greek', serif", fontSize: '1.15rem', color: '#fef08a', marginTop: '4px' }}>
-                            κύριος ποιμαίνει με καὶ οὐδέν με ὑστερήσει
+                            {origCards.secondaryText}
                           </div>
-                          <span style={{ fontSize: '0.76rem', color: '#cbd5e1' }}>kyrios poimainei me</span>
+                          <span style={{ fontSize: '0.76rem', color: '#cbd5e1' }}>{origCards.secondaryTranslit}</span>
                         </div>
                       </div>
 
@@ -446,15 +634,18 @@ export default function TheologicalApparatusDrawer({
                         <SacredContentRenderer content={getSectionContent(1)} multiColumn={true} />
                       ) : (
                         <div style={{ fontSize: '0.88rem', color: '#cbd5e1', lineHeight: 1.6 }}>
-                          • <strong>רֹעִי (H7462):</strong> Participio activo Qal con sufijo pronominal de 1ª persona singular. Acción continua: <em>«pastoreándome permanentemente»</em>.<br />
-                          • <strong>לֹא אֶחְסָר (H2637):</strong> Partícula de negación absoluta más imperfecto Qal. Connota seguridad irrevocable en la provisión del pacto.
+                          {origCards.morphologyItems.map((item, idx) => (
+                            <div key={idx} style={{ marginBottom: '4px' }}>
+                              • <strong>{item.term}:</strong> {item.note}
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>
 
                     {/* Dimensión 3: Crítica Textual Real */}
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <TextualCriticismWorkbench verseRef={displayRef} />
+                      <TextualCriticismWorkbench verseRef={displayRef} verseContext={verseContext} />
                     </div>
 
                   </div>
@@ -464,12 +655,12 @@ export default function TheologicalApparatusDrawer({
                     
                     {/* Dimensión 4: Geografía Sagrada & Topografía */}
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <SacredGeographyMap />
+                      <SacredGeographyMap bookName={verseContext.book} verseRef={displayRef} />
                     </div>
 
                     {/* Dimensión 2: Contexto Histórico & ANE (Línea de Tiempo) */}
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <HistoricalTimelineViewer />
+                      <HistoricalTimelineViewer bookName={verseContext.book} verseRef={displayRef} />
                     </div>
 
                     {/* Dimensión 5: Teología del Pacto */}
@@ -488,18 +679,14 @@ export default function TheologicalApparatusDrawer({
                       </div>
 
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px', marginBottom: '12px' }}>
-                        <div style={{ background: 'rgba(212,175,55,0.05)', padding: '12px 14px', borderRadius: '8px', border: '1px solid rgba(212,175,55,0.18)' }}>
-                          <span style={{ fontSize: '0.72rem', color: 'var(--gold-400)', fontWeight: '700', textTransform: 'uppercase' }}>Pacto Davídico</span>
-                          <p style={{ fontSize: '0.84rem', color: '#e2e8f0', margin: '4px 0 0', lineHeight: 1.5 }}>
-                            El rey David se despoja de su manto real para declararse oveja y siervo de YHWH, el verdadero pastor de Israel.
-                          </p>
-                        </div>
-                        <div style={{ background: 'rgba(59,130,246,0.05)', padding: '12px 14px', borderRadius: '8px', border: '1px solid rgba(147,197,253,0.22)' }}>
-                          <span style={{ fontSize: '0.72rem', color: '#93c5fd', fontWeight: '700', textTransform: 'uppercase' }}>Cumplimiento Mesiánico</span>
-                          <p style={{ fontSize: '0.84rem', color: '#e2e8f0', margin: '4px 0 0', lineHeight: 1.5 }}>
-                            Jesús sella Ezequiel 34: <em>«Yo soy el buen pastor; el buen pastor su vida da por las ovejas»</em> (Jn 10:11).
-                          </p>
-                        </div>
+                        {covCards.map((card, idx) => (
+                          <div key={idx} style={{ background: card.bg, padding: '12px 14px', borderRadius: '8px', border: `1px solid ${card.border}` }}>
+                            <span style={{ fontSize: '0.72rem', color: card.color, fontWeight: '700', textTransform: 'uppercase' }}>{card.badge}</span>
+                            <p style={{ fontSize: '0.84rem', color: '#e2e8f0', margin: '4px 0 0', lineHeight: 1.5 }}>
+                              {card.text}
+                            </p>
+                          </div>
+                        ))}
                       </div>
 
                       {getSectionContent(5) && (
@@ -524,41 +711,43 @@ export default function TheologicalApparatusDrawer({
                     gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
                     gap: '16px'
                   }}>
-                    {/* Columna A: Texto Masorético */}
+                    {/* Columna A: Texto Masorético / Original Primario */}
                     <div style={{ background: 'rgba(10, 13, 20, 0.85)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '12px', padding: '20px' }}>
                       <span style={{ fontSize: '0.72rem', color: 'var(--gold-400)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                        Texto Masorético Tiberiense (𝔐)
+                        {origCards.primaryTitle}
                       </span>
-                      <div style={{ fontFamily: "'SBL Hebrew', serif", fontSize: '1.6rem', color: '#fef08a', direction: 'rtl', margin: '10px 0' }}>
-                        יְהוָה רֹעִי לֹא אֶחְסָר
+                      <div style={{ fontFamily: corpus.isOldTestament ? "'SBL Hebrew', serif" : "'SBL Greek', serif", fontSize: '1.45rem', color: '#fef08a', direction: corpus.isOldTestament ? 'rtl' : 'ltr', margin: '10px 0' }}>
+                        {origCards.primaryText}
                       </div>
                       <p style={{ fontSize: '0.84rem', color: '#cbd5e1', lineHeight: 1.6, margin: 0 }}>
-                        Vocalización tiberiense con cantilaciones te'amim. Códice de Leningrado B19A (folio 212r).
+                        {origCards.primaryTranslit}
                       </p>
                     </div>
 
-                    {/* Columna B: Septuaginta Griega */}
+                    {/* Columna B: Septuaginta Griega / Versión Secundaria */}
                     <div style={{ background: 'rgba(10, 13, 20, 0.85)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '12px', padding: '20px' }}>
                       <span style={{ fontSize: '0.72rem', color: '#93c5fd', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                        Septuaginta Alejandrina (𝔊)
+                        {origCards.secondaryTitle}
                       </span>
-                      <div style={{ fontFamily: "'SBL Greek', serif", fontSize: '1.35rem', color: '#fef08a', margin: '10px 0' }}>
-                        κύριος ποιμαίνει με καὶ οὐδέν με ὑστερήσει
+                      <div style={{ fontFamily: "'SBL Greek', serif", fontSize: '1.25rem', color: '#fef08a', margin: '10px 0' }}>
+                        {origCards.secondaryText}
                       </div>
                       <p style={{ fontSize: '0.84rem', color: '#cbd5e1', lineHeight: 1.6, margin: 0 }}>
-                        Codex Vaticanus B. El presente indicativo ποιμαίνει subraya pastoreo durativo continuo.
+                        {origCards.secondaryTranslit}
                       </p>
                     </div>
 
                     {/* Columna C: Morfosintaxis Clave */}
                     <div style={{ background: 'rgba(10, 13, 20, 0.85)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '12px', padding: '20px' }}>
                       <span style={{ fontSize: '0.72rem', color: '#4ade80', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                        Lemas & Raíces Fuertes
+                        Lemas & Raíces Fuertes ({verseContext.book})
                       </span>
                       <div style={{ fontSize: '0.86rem', color: '#e2e8f0', marginTop: '10px', lineHeight: 1.7 }}>
-                        • <strong>רֹעִי:</strong> Lema רָעָה (H7462) • Part. act. Qal c/ sufijo 1s.<br />
-                        • <strong>לֹא אֶחְסָר:</strong> Lema חָסֵר (H2637) • Imperfecto Qal 1s.<br />
-                        • <strong>יְהוָה:</strong> Tetragrámaton (H3068) • Nombre propio del pacto.
+                        {origCards.morphologyItems.map((item, idx) => (
+                          <div key={idx} style={{ marginBottom: '6px' }}>
+                            • <strong>{item.term}:</strong> {item.note}
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -579,36 +768,17 @@ export default function TheologicalApparatusDrawer({
                  ========================================================================= */}
               {activeDimension === 'history' && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(460px, 1fr))', gap: '24px', alignItems: 'start' }}>
-                  <HistoricalTimelineViewer />
+                  <HistoricalTimelineViewer bookName={verseContext.book} verseRef={displayRef} />
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <div style={{ background: 'rgba(10, 13, 20, 0.85)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '12px', padding: '24px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', borderBottom: '1px solid rgba(212,175,55,0.18)', paddingBottom: '10px' }}>
                         <Landmark size={18} color="var(--gold-400)" />
                         <h4 className="font-cinzel gold-text-gradient" style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800' }}>
-                          Trasfondo Sociocultural del Antiguo Cercano Oriente (ANE)
+                          Contexto Histórico & Arqueológico ({verseContext.book})
                         </h4>
                       </div>
                       
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px', marginBottom: '16px' }}>
-                        <div style={{ background: 'rgba(212,175,55,0.04)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(212,175,55,0.15)' }}>
-                          <span style={{ fontSize: '0.74rem', color: 'var(--gold-300)', fontWeight: '700', textTransform: 'uppercase' }}>
-                            Subversión Monárquica
-                          </span>
-                          <p style={{ fontSize: '0.84rem', color: '#e2e8f0', margin: '4px 0 0', lineHeight: 1.5 }}>
-                            En Babilonia y Egipto, el título «pastor» pertenecía exclusivamente a reyes déspotas como Hammurabi. El Salmista subvierte este modelo: ningún tirano humano pastorea a Israel; YHWH es el único soberano.
-                          </p>
-                        </div>
-                        <div style={{ background: 'rgba(212,175,55,0.04)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(212,175,55,0.15)' }}>
-                          <span style={{ fontSize: '0.74rem', color: 'var(--gold-300)', fontWeight: '700', textTransform: 'uppercase' }}>
-                            Leyes de Hospitalidad Beduina
-                          </span>
-                          <p style={{ fontSize: '0.84rem', color: '#e2e8f0', margin: '4px 0 0', lineHeight: 1.5 }}>
-                            En el desierto de Judea, un anfitrión que unge la cabeza de un forastero y llena su copa asume la protección armada incondicional del huésped frente a cualquier perseguidor.
-                          </p>
-                        </div>
-                      </div>
-
                       {getSectionContent(2) && (
                         <SacredContentRenderer content={getSectionContent(2)} multiColumn={true} />
                       )}
@@ -622,7 +792,7 @@ export default function TheologicalApparatusDrawer({
                  ========================================================================= */}
               {activeDimension === 'textual' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  <TextualCriticismWorkbench verseRef={displayRef} />
+                  <TextualCriticismWorkbench verseRef={displayRef} verseContext={verseContext} />
                   {getSectionContent(3) && (
                     <SacredContentRenderer content={getSectionContent(3)} multiColumn={true} />
                   )}
@@ -634,29 +804,14 @@ export default function TheologicalApparatusDrawer({
                  ========================================================================= */}
               {activeDimension === 'geography' && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(460px, 1fr))', gap: '24px', alignItems: 'start' }}>
-                  <SacredGeographyMap />
+                  <SacredGeographyMap bookName={verseContext.book} verseRef={displayRef} />
                   
                   <div style={{ background: 'rgba(10, 13, 20, 0.85)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '12px', padding: '24px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', borderBottom: '1px solid rgba(212,175,55,0.18)', paddingBottom: '10px' }}>
                       <Compass size={18} color="var(--gold-400)" />
                       <h4 className="font-cinzel gold-text-gradient" style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800' }}>
-                        Orografía, Hidrología & Clima de Judea
+                        Geografía Teológica & Relieve ({verseContext.book})
                       </h4>
-                    </div>
-
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px', marginBottom: '16px' }}>
-                      <div style={{ background: 'rgba(212,175,55,0.04)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(212,175,55,0.15)' }}>
-                        <span style={{ fontSize: '0.74rem', color: 'var(--gold-300)', fontWeight: '700', textTransform: 'uppercase' }}>Aguas de Reposo (Mê Menujót)</span>
-                        <p style={{ fontSize: '0.84rem', color: '#e2e8f0', margin: '4px 0 0', lineHeight: 1.5 }}>
-                          Las ovejas de Judá temen las corrientes rápidas por el peso de su lana; el pastor busca remansos tranquilos alimentados por los manantiales de En-Gedi o Ein Feshkha.
-                        </p>
-                      </div>
-                      <div style={{ background: 'rgba(212,175,55,0.04)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(212,175,55,0.15)' }}>
-                        <span style={{ fontSize: '0.74rem', color: 'var(--gold-300)', fontWeight: '700', textTransform: 'uppercase' }}>Valle de Sombras (Ge-Tsalmáwet)</span>
-                        <p style={{ fontSize: '0.84rem', color: '#e2e8f0', margin: '4px 0 0', lineHeight: 1.5 }}>
-                          Cañones de arenisca calcárea en Wadi Qelt donde los acantilados de más de 200 metros bloquean la luz solar directa, propiciando emboscadas de hienas y chacales.
-                        </p>
-                      </div>
                     </div>
 
                     {getSectionContent(4) && (
@@ -676,32 +831,16 @@ export default function TheologicalApparatusDrawer({
                     gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
                     gap: '16px'
                   }}>
-                    <div style={{ background: 'rgba(212,175,55,0.06)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(212,175,55,0.25)' }}>
-                      <span style={{ fontSize: '0.76rem', color: 'var(--gold-400)', fontWeight: '700', textTransform: 'uppercase' }}>
-                        Pacto Davídico (2 Samuel 7)
-                      </span>
-                      <p style={{ fontSize: '0.86rem', color: '#e2e8f0', margin: '6px 0 0', lineHeight: 1.6 }}>
-                        David, el ungido en Belén, reconoce que su trono terrenal es provisional. El Señor Dios es el pastor eterno de cuyo linaje saldrá el pastor mesiánico anunciado por los profetas.
-                      </p>
-                    </div>
-
-                    <div style={{ background: 'rgba(59,130,246,0.06)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(147,197,253,0.25)' }}>
-                      <span style={{ fontSize: '0.76rem', color: '#93c5fd', fontWeight: '700', textTransform: 'uppercase' }}>
-                        Cumplimiento Mesiánico (Juan 10:11)
-                      </span>
-                      <p style={{ fontSize: '0.86rem', color: '#e2e8f0', margin: '6px 0 0', lineHeight: 1.6 }}>
-                        Jesús proclama <em>«Ego eimi ho poimēn ho kalos»</em> (Yo Soy el Buen Pastor). La profecía de Ezequiel 34 se cumple: Dios en carne que no huye ante los lobos, sino que entrega su vida.
-                      </p>
-                    </div>
-
-                    <div style={{ background: 'rgba(244,114,182,0.06)', padding: '18px', borderRadius: '12px', border: '1px solid rgba(244,114,182,0.25)' }}>
-                      <span style={{ fontSize: '0.76rem', color: '#f472b6', fontWeight: '700', textTransform: 'uppercase' }}>
-                        Sello del Pacto Eterno (Hebreos 13:20)
-                      </span>
-                      <p style={{ fontSize: '0.86rem', color: '#e2e8f0', margin: '6px 0 0', lineHeight: 1.6 }}>
-                        «Y el Dios de paz que resucitó de los muertos a nuestro Señor Jesucristo, el gran pastor de las ovejas, por la sangre del pacto eterno, os haga aptos en toda obra buena».
-                      </p>
-                    </div>
+                    {covCards.map((card, idx) => (
+                      <div key={idx} style={{ background: card.bg, padding: '18px', borderRadius: '12px', border: `1px solid ${card.border}` }}>
+                        <span style={{ fontSize: '0.76rem', color: card.color, fontWeight: '700', textTransform: 'uppercase' }}>
+                          {card.badge}
+                        </span>
+                        <p style={{ fontSize: '0.86rem', color: '#e2e8f0', margin: '6px 0 0', lineHeight: 1.6 }}>
+                          {card.text}
+                        </p>
+                      </div>
+                    ))}
                   </div>
 
                   {getSectionContent(5) && (

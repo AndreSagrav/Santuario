@@ -64,8 +64,40 @@ const TIMELINE_ERAS = [
   }
 ];
 
-export default function HistoricalTimelineViewer() {
-  const [selectedEra, setSelectedEra] = useState(TIMELINE_ERAS[2]); // Monarquía por defecto
+export default function HistoricalTimelineViewer({ bookName = '', verseRef = '' }) {
+  const isChronicles = (bookName && bookName.toLowerCase().includes('crónica')) || (verseRef && verseRef.toLowerCase().includes('crónica'));
+  const isGenesis = (bookName && bookName.toLowerCase().includes('génesis')) || (verseRef && verseRef.toLowerCase().includes('génesis'));
+  const isNT = (bookName && (bookName.toLowerCase().includes('mateo') || bookName.toLowerCase().includes('juan') || bookName.toLowerCase().includes('romanos') || bookName.toLowerCase().includes('hechos') || bookName.toLowerCase().includes('apocalipsis')));
+
+  // Adaptar eras al libro activo
+  const eras = TIMELINE_ERAS.map(era => {
+    let relevance = era.relevanceToPassage;
+    if (isChronicles) {
+      if (era.id === 'iron1') {
+        relevance = 'David y sus valientes se refugian en Siclag (1 Crónicas 12:1-22). Guerreros diestros de Benjamín y capitanes de Gad desafían a Saúl para unirse al ungido de Dios.';
+      } else if (era.id === 'monarchy') {
+        relevance = 'Asamblea unánime en Hebrón: «vinieron con corazón íntegro para hacer rey a David sobre todo Israel» (1 Crónicas 12:38), sellando la unificación nacional bajo el pacto davídico.';
+      } else if (era.id === 'divided_exile') {
+        relevance = 'El cronista reflexiona sobre el exilio babilónico como consecuencia de quebrantar el pacto que se había jurado con fidelidad en los días de David.';
+      } else if (era.id === 'persian_hellenistic') {
+        relevance = 'Momento histórico de redacción final de 1 y 2 Crónicas (c. 450 a.C. bajo dominio persa): los anales de los valientes de David inspiran a los repatriados de Esdras a reconstruir el Templo y el culto.';
+      } else if (era.id === 'roman_second_temple') {
+        relevance = 'Jesucristo nace del linaje davídico registrado en las genealogías sacerdotales de Crónicas, confirmando el reinado eterno prometido.';
+      }
+    } else if (isGenesis) {
+      if (era.id === 'bronze') {
+        relevance = 'Horizonte de los patriarcas (Abraham, Isaac y Jacob) y orígenes cósmicos revelados a Moisés para fundar la identidad monoteísta del pueblo escogido.';
+      }
+    } else if (isNT) {
+      if (era.id === 'roman_second_temple') {
+        relevance = 'Cumplimiento pleno del Nuevo Pacto: la encarnación, cruz, resurrección de Cristo y la expansión del evangelio apostólico por el Imperio Romano.';
+      }
+    }
+    return { ...era, relevanceToPassage: relevance };
+  });
+
+  const defaultEraIndex = isChronicles ? 2 : (isNT ? 5 : (isGenesis ? 0 : 2));
+  const [selectedEra, setSelectedEra] = useState(eras[defaultEraIndex]);
 
   return (
     <div style={{

@@ -49,7 +49,7 @@ const SITES_DATA = [
     climate: 'Mediterráneo semiárido montañoso, vientos del oeste procedentes del Mediterráneo',
     archaeology: 'Manantial de Gihón, sistema de túneles cananeos del siglo XVIII a.C., Muro de Nehemías y Ciudad de David (Ophel).',
     secularNote: 'Eje estratégico entre las tribus del norte (Israel) y las tribus del sur (Judá). Conquistada por David a los jebuseos para establecer una capital neutral.',
-    exegeticalConnection: 'El Salmo culmina en la morada del templo o santuario: «y en la casa de Jehová moraré por largos días». La geografía del templo como cima cósmica de seguridad perpetua.',
+    exegeticalConnection: 'Centro neurálgico del culto y de la casa de David: «en la casa de Jehová moraré por largos días». La geografía del monte Sion como cima cósmica de pacto, santuario y presencia divina perpetua.',
     coords: { x: 44, y: 42 }
   },
   {
@@ -62,11 +62,38 @@ const SITES_DATA = [
     secularNote: 'Frontera natural de refugio para fugitivos políticos, ermitaños esenios y pastores seminómadas. Territorio de supervivencia biológica estricta.',
     exegeticalConnection: 'En este entorno donde la hierba se agota en pocas semanas, solo un pastor experimentado conoce los senderos seguros («me guiará por sendas de justicia por amor de su nombre») para evitar despeñaderos mortales.',
     coords: { x: 55, y: 62 }
+  },
+  {
+    id: 'siclag',
+    name: 'Siclag en el Néguev (Base Militar de David)',
+    hebrew: 'צִקְלַג (Tsiqlag)',
+    elevation: '+150 m sobre el nivel del mar',
+    climate: 'Estepario semiárido del Néguev occidental, precipitaciones escasas (c. 200 mm/año)',
+    archaeology: 'Identificada comúnmente con Khirbet el-Ra\'i o Tel Sera. Estratos con cerámica filistea bicroma y sellos reales del Hierro I.',
+    secularNote: 'Ciudad fronteriza cedida a David por Aquis, rey filisteo de Gat (1 Sam 27:6). Punto de encuentro estratégico fuera del alcance de Saúl.',
+    exegeticalConnection: 'Epicentro histórico de 1 Crónicas 12:1-22: aquí se congregaron los valientes arqueros y honderos ambidiestros de Benjamín y los caudillos de Gad para jurar lealtad a David.',
+    coords: { x: 22, y: 76 }
+  },
+  {
+    id: 'hebron',
+    name: 'Hebrón (Ciudad de Pacto & Coronación)',
+    hebrew: 'חֶבְרוֹן (Jevrón / Quiriat-arba)',
+    elevation: '+927 m (Punto más alto de los montes de Judá)',
+    climate: 'Mediterráneo de montaña templado, nieves ocasionales en invierno, terrazas con viñas y granados',
+    archaeology: 'Tel Rumeida, murallas ciclópeas del Bronce Medio y la Cueva de Macpela (santuario herodiano monumental).',
+    secularNote: 'Antigua capital sacerdotal de Judá durante los primeros 7 años del reinado davídico antes de la conquista de Jerusalén.',
+    exegeticalConnection: 'Cumplimiento de 1 Crónicas 12:38: cientos de miles de guerreros acudieron a Hebrón con «un corazón perfecto para hacer rey a David», celebrando con banquetes sagrados.',
+    coords: { x: 38, y: 64 }
   }
 ];
 
-export default function SacredGeographyMap() {
-  const [selectedSite, setSelectedSite] = useState(SITES_DATA[0]);
+export default function SacredGeographyMap({ bookName = '', verseRef = '' }) {
+  const isChronicles = (bookName && bookName.toLowerCase().includes('crónica')) || (verseRef && verseRef.toLowerCase().includes('crónica'));
+  const initialSite = isChronicles 
+    ? (SITES_DATA.find(s => s.id === 'siclag') || SITES_DATA[0])
+    : SITES_DATA[0];
+
+  const [selectedSite, setSelectedSite] = useState(initialSite);
 
   return (
     <div style={{
