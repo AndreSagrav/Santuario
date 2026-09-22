@@ -13,15 +13,49 @@ const STORAGE_KEYS = {
 
 import { generateOfflineTheologicalResponse } from './offlineTheologyEngine.js';
 
-// Modelos Gemini Oficiales y Activos
+// Modelos Gemini Oficiales y Activos de Respaldo Estático
 const GEMINI_MODELS = [
   "gemini-2.5-flash",
-  "gemini-2.0-flash",
-  "gemini-1.5-flash",
-  "gemini-1.5-pro",
+  "gemini-2.5-flash-lite",
+  "gemini-3.5-flash",
+  "gemini-3.1-flash-lite",
   "gemini-2.5-pro",
-  "gemini-2.0-flash-lite"
+  "gemini-flash-latest",
+  "gemini-2.0-flash",
+  "gemini-1.5-flash"
 ];
+
+let cachedGeminiModels = null;
+async function getLiveGeminiModels(key) {
+  if (cachedGeminiModels && cachedGeminiModels.length > 0) {
+    return cachedGeminiModels;
+  }
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.models && Array.isArray(data.models)) {
+        const available = data.models
+          .filter(m => m.supportedGenerationMethods?.includes("generateContent"))
+          .map(m => m.name.replace(/^models\//, ''))
+          .sort((a, b) => {
+            const aFlash = a.includes('flash');
+            const bFlash = b.includes('flash');
+            if (aFlash && !bFlash) return -1;
+            if (!aFlash && bFlash) return 1;
+            return 0;
+          });
+        if (available.length > 0) {
+          cachedGeminiModels = available;
+          return available;
+        }
+      }
+    }
+  } catch (e) {
+    // Continuar con fallback estático
+  }
+  return GEMINI_MODELS;
+}
 
 // Modelos Groq Oficiales y Activos
 const GROQ_MODELS = [
@@ -30,6 +64,34 @@ const GROQ_MODELS = [
   "mixtral-8x7b-32768",
   "gemma2-9b-it"
 ];
+
+let cachedGroqModels = null;
+async function getLiveGroqModels(key) {
+  if (cachedGroqModels && cachedGroqModels.length > 0) {
+    return cachedGroqModels;
+  }
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/models", {
+      headers: { "Authorization": `Bearer ${key}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.data && Array.isArray(data.data)) {
+        const models = data.data
+          .map(m => m.id)
+          .filter(id => id && !id.includes("whisper") && !id.includes("guard"))
+          .sort((a, b) => (b.includes("70b") || b.includes("versatile") ? 1 : -1));
+        if (models.length > 0) {
+          cachedGroqModels = models;
+          return models;
+        }
+      }
+    }
+  } catch (e) {
+    // Continuar con fallback
+  }
+  return GROQ_MODELS;
+}
 
 // Modelos OpenRouter Oficiales y Activos
 const OPENROUTER_MODELS = [
@@ -192,17 +254,19 @@ async function callOpenAICompatible({ endpoint, key, model, prompt, extraHeaders
 async function executeMultiProviderCascade({ prompt, useSearch = true }) {
   const keys = getProviderKeys();
 
-  // Nivel 1: Google Gemini 3.x (Con Google Search Grounding y Temperatura 0.2)
+  // Nivel 1: Google Gemini (Detección dinámica en vivo según la API Key del usuario)
   if (keys.gemini) {
-    for (const model of GEMINI_MODELS) {
+    const activeModels = await getLiveGeminiModels(keys.gemini);
+    for (const model of activeModels) {
       const result = await callGemini(keys.gemini, model, prompt, useSearch);
       if (result) return result;
     }
   }
 
-  // Nivel 2: GroqCloud (Ultra alta velocidad en LPU con Temperatura 0.2)
+  // Nivel 2: GroqCloud (Detección dinámica en vivo de modelos en LPU)
   if (keys.groq) {
-    for (const model of GROQ_MODELS) {
+    const activeModels = await getLiveGroqModels(keys.groq);
+    for (const model of activeModels) {
       const result = await callOpenAICompatible({
         endpoint: "https://api.groq.com/openai/v1/chat/completions",
         key: keys.groq,
