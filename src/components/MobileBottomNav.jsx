@@ -2,6 +2,39 @@ import React from 'react';
 import { Flame, BookOpen, Sparkles, Music, HeartHandshake, Compass, BookMarked } from 'lucide-react';
 
 export default function MobileBottomNav({ activeTab, setActiveTab }) {
+  const [navTop, setNavTop] = React.useState(null);
+
+  React.useEffect(() => {
+    const updatePosition = () => {
+      if (typeof window !== 'undefined') {
+        const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        setNavTop(`${vh - 64}px`);
+      }
+    };
+
+    updatePosition();
+
+    if (typeof window !== 'undefined') {
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', updatePosition);
+        window.visualViewport.addEventListener('scroll', updatePosition);
+      }
+      window.addEventListener('resize', updatePosition);
+      window.addEventListener('orientationchange', updatePosition);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        if (window.visualViewport) {
+          window.visualViewport.removeEventListener('resize', updatePosition);
+          window.visualViewport.removeEventListener('scroll', updatePosition);
+        }
+        window.removeEventListener('resize', updatePosition);
+        window.removeEventListener('orientationchange', updatePosition);
+      }
+    };
+  }, []);
+
   const tabs = [
     { id: 'devotional', label: 'Altar', icon: Flame },
     { id: 'bible', label: 'Palabra', icon: BookOpen },
@@ -18,10 +51,12 @@ export default function MobileBottomNav({ activeTab, setActiveTab }) {
       aria-label="Navegación móvil sagrada"
       style={{
         position: 'fixed',
-        bottom: 0,
+        top: navTop || 'calc(100dvh - 64px)',
+        bottom: 'auto',
         left: 0,
         right: 0,
-        width: '100%',
+        width: '100vw',
+        maxWidth: '100vw',
         height: '64px',
         zIndex: 999999,
         background: '#07080c',
