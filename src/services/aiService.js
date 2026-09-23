@@ -13,16 +13,14 @@ const STORAGE_KEYS = {
 
 import { generateOfflineTheologicalResponse } from './offlineTheologyEngine.js';
 
-// Modelos Gemini Oficiales y Activos de Respaldo Estático
+// Modelos Gemini Oficiales de Respaldo Estático
 const GEMINI_MODELS = [
-  "gemini-2.5-flash",
-  "gemini-2.5-flash-lite",
-  "gemini-3.5-flash",
-  "gemini-3.1-flash-lite",
-  "gemini-2.5-pro",
-  "gemini-flash-latest",
+  "gemini-1.5-flash",
   "gemini-2.0-flash",
-  "gemini-1.5-flash"
+  "gemini-1.5-pro",
+  "gemini-2.0-flash-lite",
+  "gemini-2.5-flash",
+  "gemini-flash-latest"
 ];
 
 let cachedGeminiModels = null;
@@ -254,10 +252,16 @@ async function callOpenAICompatible({ endpoint, key, model, prompt, extraHeaders
 async function executeMultiProviderCascade({ prompt, useSearch = true }) {
   const keys = getProviderKeys();
 
-  // Nivel 1: Google Gemini (Detección dinámica en vivo según la API Key del usuario)
+  // Nivel 1: Google Gemini (Modelo seleccionado por el usuario o detección dinámica en vivo)
   if (keys.gemini) {
+    const userModel = localStorage.getItem("santuario_theology_gemini_model")?.trim();
+    if (userModel) {
+      const res = await callGemini(keys.gemini, userModel, prompt, useSearch);
+      if (res) return res;
+    }
     const activeModels = await getLiveGeminiModels(keys.gemini);
     for (const model of activeModels) {
+      if (model === userModel) continue;
       const result = await callGemini(keys.gemini, model, prompt, useSearch);
       if (result) return result;
     }

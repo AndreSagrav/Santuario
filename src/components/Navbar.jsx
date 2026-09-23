@@ -27,12 +27,51 @@ export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSound
   const [isManualSyncing, setIsManualSyncing] = useState(false);
   const [manualSyncMsg, setManualSyncMsg] = useState('');
 
+  const [selectedGeminiModel, setSelectedGeminiModel] = useState(() => localStorage.getItem("santuario_theology_gemini_model") || "gemini-1.5-flash");
+  const [isDetectingModels, setIsDetectingModels] = useState(false);
+  const [detectedModelsMsg, setDetectedModelsMsg] = useState('');
+
   const handleOpenKeyModal = () => {
     setApiKeys(getAllApiKeys());
+    setSelectedGeminiModel(localStorage.getItem("santuario_theology_gemini_model") || "gemini-1.5-flash");
     setShowApiKeyModal(true);
   };
 
+  const handleDetectGeminiModels = async () => {
+    const key = apiKeys.gemini?.trim();
+    if (!key) {
+      setDetectedModelsMsg("Ingresa primero tu clave de Gemini arriba.");
+      return;
+    }
+    setIsDetectingModels(true);
+    setDetectedModelsMsg("");
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+      if (res.ok) {
+        const data = await res.json();
+        const models = (data.models || [])
+          .filter(m => m.supportedGenerationMethods?.includes("generateContent"))
+          .map(m => m.name.replace(/^models\//, ''));
+        if (models.length > 0) {
+          setSelectedGeminiModel(models[0]);
+          setDetectedModelsMsg(`✓ ${models.length} modelos detectados en tu cuenta. Seleccionado: ${models[0]}`);
+        } else {
+          setDetectedModelsMsg("No se encontraron modelos compatibles con generateContent.");
+        }
+      } else {
+        setDetectedModelsMsg(`Error ${res.status}: Clave inválida o sin permisos.`);
+      }
+    } catch (err) {
+      setDetectedModelsMsg("Error al conectar con la API de Google.");
+    } finally {
+      setIsDetectingModels(false);
+    }
+  };
+
   const handleSaveKeys = async () => {
+    if (selectedGeminiModel) {
+      localStorage.setItem("santuario_theology_gemini_model", selectedGeminiModel.trim());
+    }
     const res = await saveAndSyncAllApiKeys(apiKeys, currentUser);
     setSavedSuccess(true);
     setSyncStatus(res.syncedToCloud ? '¡Sincronizado en la nube con tu cuenta!' : 'Guardado en este dispositivo.');
@@ -378,10 +417,10 @@ export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSound
             {/* Formulario de Proveedores */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '18px' }}>
               {/* Google Gemini */}
-              <div>
+              <div style={{ background: 'rgba(212,175,55,0.04)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(212,175,55,0.15)' }}>
                 <label style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: '600', color: 'var(--gold-300)', marginBottom: '4px' }}>
-                  <span>Google Gemini (3.x Flash / Pro)</span>
-                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Recomendado</span>
+                  <span>Google Gemini API Key</span>
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Google AI Studio</span>
                 </label>
                 <input
                   type="password"
@@ -390,6 +429,40 @@ export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSound
                   value={apiKeys.gemini || ''}
                   onChange={(e) => setApiKeys(prev => ({ ...prev, gemini: e.target.value }))}
                 />
+
+                {/* Selector / Especificador de Modelo Gemini */}
+                <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Modelo Gemini a utilizar:</label>
+                    <button
+                      type="button"
+                      onClick={handleDetectGeminiModels}
+                      style={{ background: 'none', border: 'none', color: 'var(--gold-400)', fontSize: '0.74rem', cursor: 'pointer', textDecoration: 'underline' }}
+                    >
+                      {isDetectingModels ? 'Detectando...' : '🔍 Detectar modelos de mi clave'}
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    list="gemini-models-list"
+                    className="sacred-input"
+                    style={{ fontSize: '0.84rem', padding: '6px 10px' }}
+                    placeholder="gemini-1.5-flash, gemini-2.0-flash..."
+                    value={selectedGeminiModel}
+                    onChange={(e) => setSelectedGeminiModel(e.target.value)}
+                  />
+                  <datalist id="gemini-models-list">
+                    <option value="gemini-1.5-flash" />
+                    <option value="gemini-2.0-flash" />
+                    <option value="gemini-1.5-pro" />
+                    <option value="gemini-2.0-flash-lite" />
+                    <option value="gemini-2.5-flash" />
+                    <option value="gemini-flash-latest" />
+                  </datalist>
+                  {detectedModelsMsg && (
+                    <span style={{ fontSize: '0.72rem', color: '#86efac' }}>{detectedModelsMsg}</span>
+                  )}
+                </div>
               </div>
 
               {/* Groq */}
