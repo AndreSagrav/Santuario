@@ -365,128 +365,89 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
   });
 
   return (
-    <div style={{ maxWidth: '1600px', margin: '0 auto', padding: '24px 28px 90px' }} className="animate-fade-in">
+    <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '20px 20px 110px' }} className="animate-fade-in">
       
-      {/* =========================================================================
-          1. BARRA SUPERIOR: SELECTOR CANÓNICO + VERSIONES + AUDIO
-         ========================================================================= */}
-      <div className="sacred-panel" style={{ padding: '16px 24px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-        
-        {/* Selector de Cita Bíblica (Botón principal interactivo) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <button
-              onClick={() => handleNavigateChapter('prev')}
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(212,175,55,0.2)',
-                color: 'var(--gold-300)',
-                padding: '8px 10px',
-                borderRadius: '8px',
-                cursor: 'pointer'
-              }}
-              title="Capítulo Anterior"
-            >
-              <ChevronLeft size={16} />
-            </button>
+      {/* 1. BARRA SUPERIOR SOBRIA: NAVEGACIÓN + VERSIÓN + AUDIO */}
+      <div className="sacred-panel" style={{
+        padding: '12px 18px',
+        marginBottom: '28px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '12px'
+      }}>
+        {/* Selector de Libro y Capítulo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button
+            onClick={() => handleNavigateChapter('prev')}
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(212,175,55,0.2)',
+              color: 'var(--gold-300)',
+              padding: '7px 9px',
+              borderRadius: '7px',
+              cursor: 'pointer'
+            }}
+            title="Capítulo Anterior"
+          >
+            <ChevronLeft size={16} />
+          </button>
 
-            <button
-              onClick={handleOpenBookPicker}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '8px 20px',
-                borderRadius: '8px',
-                background: 'rgba(212,175,55,0.18)',
-                border: '1.5px solid var(--gold-400)',
-                color: '#ffffff',
-                fontSize: '1.1rem',
-                fontWeight: '800',
-                cursor: 'pointer',
-                boxShadow: '0 0 18px rgba(212,175,55,0.25)',
-                transition: 'all 0.2s'
-              }}
-              title="Cambiar libro, capítulo o rango de versículos"
-            >
-              <BookOpen size={17} color="var(--gold-400)" />
-              <span>
-                {currentPassage.book} {currentPassage.chapter}
-                {studyChapterRange.book === currentPassage.book && studyChapterRange.start !== studyChapterRange.end && (
-                  <span style={{ fontSize: '0.8rem', color: 'var(--gold-300)', marginLeft: '6px' }}>
-                    (Rango {studyChapterRange.start}-{studyChapterRange.end})
-                  </span>
-                )}
-              </span>
-              <span style={{ fontSize: '0.74rem', color: 'var(--gold-300)', background: 'rgba(0,0,0,0.5)', padding: '3px 8px', borderRadius: '4px', border: '1px solid rgba(212,175,55,0.3)' }}>
-                Cambiar Cita ▾
-              </span>
-            </button>
+          <button
+            onClick={handleOpenBookPicker}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '7px 16px',
+              borderRadius: '7px',
+              background: 'rgba(212,175,55,0.12)',
+              border: '1px solid var(--gold-400)',
+              color: '#ffffff',
+              fontWeight: '700',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+            title="Cambiar libro o capítulo"
+          >
+            <BookOpen size={16} color="var(--gold-400)" />
+            <span style={{ fontSize: '1.02rem' }}>{currentPassage.book} {currentPassage.chapter}</span>
+            <span style={{ fontSize: '0.72rem', color: 'var(--gold-300)' }}>▾</span>
+          </button>
 
-            <button
-              onClick={() => handleNavigateChapter('next')}
-              style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(212,175,55,0.2)',
-                color: 'var(--gold-300)',
-                padding: '8px 10px',
-                borderRadius: '8px',
-                cursor: 'pointer'
-              }}
-              title="Capítulo Siguiente"
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
-
-          {/* Accesos Rápidos a Capítulos Emblemáticos */}
-          <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px' }}>
-            {BIBLES_DATA.map((p) => {
-              const isSelected = p.id === currentPassage.id;
-              return (
-                <button
-                  key={p.id}
-                  onClick={() => {
-                    setCurrentPassage(p);
-                    setSelectedPassageId(p.id);
-                    setSelectedVerseNumbers([1]);
-                  }}
-                  style={{
-                    padding: '5px 12px',
-                    borderRadius: '9999px',
-                    fontSize: '0.78rem',
-                    fontWeight: isSelected ? '700' : '500',
-                    background: isSelected ? 'var(--gold-gradient)' : 'rgba(255,255,255,0.03)',
-                    color: isSelected ? '#07080c' : 'var(--text-muted)',
-                    border: isSelected ? 'none' : '1px solid rgba(212,175,55,0.18)',
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  {p.book} {p.chapter}
-                </button>
-              );
-            })}
-          </div>
+          <button
+            onClick={() => handleNavigateChapter('next')}
+            style={{
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(212,175,55,0.2)',
+              color: 'var(--gold-300)',
+              padding: '7px 9px',
+              borderRadius: '7px',
+              cursor: 'pointer'
+            }}
+            title="Capítulo Siguiente"
+          >
+            <ChevronRight size={16} />
+          </button>
         </div>
 
-        {/* Herramientas de Estudio: Versiones + Modos + Audio */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          
-          {/* Selector de Versión Primaria */}
-          <div style={{ display: 'flex', gap: '4px' }}>
+        {/* Versión + Audio + Comparar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          {/* Píldoras de Versión */}
+          <div style={{ display: 'flex', gap: '3px', background: 'rgba(255,255,255,0.03)', padding: '3px', borderRadius: '7px', border: '1px solid rgba(255,255,255,0.08)' }}>
             {BIBLE_VERSIONS.map((v) => (
               <button
                 key={v.id}
                 onClick={() => setPrimaryVersion(v.id)}
                 style={{
-                  padding: '5px 10px',
-                  borderRadius: '6px',
-                  fontSize: '0.78rem',
+                  padding: '4px 9px',
+                  borderRadius: '5px',
+                  fontSize: '0.75rem',
                   fontWeight: primaryVersion === v.id ? '700' : '500',
-                  border: primaryVersion === v.id ? '1px solid var(--gold-400)' : '1px solid rgba(255,255,255,0.08)',
-                  background: primaryVersion === v.id ? 'rgba(212,175,55,0.22)' : 'transparent',
-                  color: primaryVersion === v.id ? 'var(--gold-200)' : 'var(--text-muted)',
+                  background: primaryVersion === v.id ? 'var(--gold-gradient)' : 'transparent',
+                  color: primaryVersion === v.id ? '#07080c' : 'var(--text-muted)',
+                  border: 'none',
                   cursor: 'pointer'
                 }}
               >
@@ -495,346 +456,72 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
             ))}
           </div>
 
-          {/* Toggle Modo Paralelo */}
+          {/* Audio del Capítulo */}
+          <button
+            onClick={() => handleStartAudiobible(false)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 13px',
+              borderRadius: '7px',
+              background: isAudioPlaying ? 'rgba(239,68,68,0.2)' : 'rgba(212,175,55,0.1)',
+              border: isAudioPlaying ? '1px solid #ef4444' : '1px solid rgba(212,175,55,0.3)',
+              color: isAudioPlaying ? '#ef4444' : 'var(--gold-300)',
+              fontSize: '0.78rem',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            {isAudioPlaying ? <Square size={13} /> : <Volume2 size={14} />}
+            <span>{isAudioPlaying ? "Detener" : "Escuchar"}</span>
+          </button>
+
+          {/* Modo Paralelo */}
           <button
             onClick={() => setIsParallelMode(!isParallelMode)}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              padding: '6px 14px',
-              borderRadius: '8px',
-              background: isParallelMode ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.03)',
+              gap: '5px',
+              padding: '6px 12px',
+              borderRadius: '7px',
+              background: isParallelMode ? 'rgba(212,175,55,0.2)' : 'transparent',
               border: `1px solid ${isParallelMode ? 'var(--gold-400)' : 'rgba(255,255,255,0.1)'}`,
               color: isParallelMode ? 'var(--gold-200)' : 'var(--text-muted)',
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
               cursor: 'pointer'
             }}
+            title="Comparar dos versiones"
           >
-            <Columns size={14} />
-            <span>{isParallelMode ? "2 Versiones Activas" : "Comparar Versiones"}</span>
-          </button>
-
-          {/* Selector de Layout */}
-          {!isParallelMode && (
-            <button
-              onClick={() => setLayoutMode(layoutMode === 'two_columns' ? 'wide' : 'two_columns')}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
-                borderRadius: '8px',
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'var(--text-muted)',
-                fontSize: '0.8rem',
-                cursor: 'pointer'
-              }}
-            >
-              <Sliders size={14} />
-              <span>{layoutMode === 'two_columns' ? "2 Columnas" : "Lectura Amplia"}</span>
-            </button>
-          )}
-
-          {/* Audiobiblia Narrada */}
-          <button
-            onClick={() => handleStartAudiobible(false)}
-            className="btn-gold"
-            style={{ fontSize: '0.8rem', padding: '6px 14px' }}
-          >
-            {isAudioPlaying ? <Square size={14} /> : <Play size={14} />}
-            <span>{isAudioPlaying ? "Detener" : "Audiobiblia"}</span>
-          </button>
-
-          {/* Gabinete 5D (Restaurado en la barra superior junto a Audiobiblia) */}
-          <button
-            onClick={() => handleOpen5DForSelection()}
-            className="gold-btn-gradient"
-            style={{ 
-              fontSize: '0.82rem', 
-              padding: '6px 16px',
-              borderRadius: '8px',
-              fontWeight: '800',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              cursor: 'pointer'
-            }}
-            title={`Abrir Gabinete 5D para ${currentPassage.book} ${currentPassage.chapter}:${verseRangeDisplay}`}
-          >
-            <ScrollText size={15} />
-            <span>Gabinete 5D ({currentPassage.book} {currentPassage.chapter}:{verseRangeDisplay})</span>
+            <Columns size={13} />
+            <span>{isParallelMode ? "Paralelo" : "Comparar"}</span>
           </button>
         </div>
-
       </div>
 
-      {/* =========================================================================
-          1.1 BARRA DE NAVEGACIÓN DE RANGO DE CAPÍTULOS (SI HAY RANGO ACTIVO)
-         ========================================================================= */}
-      {studyChapterRange.book === currentPassage.book && studyChapterRange.start !== studyChapterRange.end && (
-        <div style={{
-          background: 'rgba(212,175,55,0.08)',
-          border: '1px solid rgba(212,175,55,0.25)',
-          borderRadius: '12px',
-          padding: '12px 18px',
-          marginBottom: '20px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '12px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: '800', color: 'var(--gold-400)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              📖 Rango en Estudio:
-            </span>
-            <span className="font-cinzel" style={{ fontSize: '1.05rem', color: '#ffffff', fontWeight: '700' }}>
-              {studyChapterRange.book} {Math.min(studyChapterRange.start, studyChapterRange.end)} al {Math.max(studyChapterRange.start, studyChapterRange.end)}
-            </span>
-            <span style={{ fontSize: '0.74rem', color: 'var(--gold-300)', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(212,175,55,0.2)', padding: '2px 8px', borderRadius: '4px' }}>
-              {Math.abs(studyChapterRange.end - studyChapterRange.start) + 1} capítulos
-            </span>
-          </div>
-
-          {/* Píldoras de Capítulos para saltar instantáneamente */}
-          <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', maxWidth: '100%', paddingBottom: '4px' }}>
-            {Array.from(
-              { length: Math.abs(studyChapterRange.end - studyChapterRange.start) + 1 },
-              (_, i) => Math.min(studyChapterRange.start, studyChapterRange.end) + i
-            ).map(chap => {
-              const isActive = Number(currentPassage.chapter) === chap;
-              return (
-                <button
-                  key={chap}
-                  onClick={() => handleSelectPassage(studyChapterRange.book, chap)}
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: '6px',
-                    fontSize: '0.82rem',
-                    fontWeight: isActive ? '800' : '600',
-                    background: isActive ? 'linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%)' : 'rgba(255,255,255,0.04)',
-                    color: isActive ? '#07080c' : 'var(--gold-200)',
-                    border: isActive ? '1px solid #ffd700' : '1px solid rgba(212,175,55,0.2)',
-                    cursor: 'pointer',
-                    boxShadow: isActive ? '0 0 12px rgba(212,175,55,0.5)' : 'none',
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.15s'
-                  }}
-                >
-                  Cap. {chap}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Indicador de Carga Sagrada */}
-      {isLoadingPassage && (
-        <div style={{
-          padding: '14px 20px',
-          marginBottom: '20px',
-          borderRadius: '10px',
-          background: 'rgba(212,175,55,0.12)',
-          border: '1px solid var(--gold-400)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          color: 'var(--gold-200)'
-        }}>
-          <Sparkles className="animate-spin" size={18} color="var(--gold-400)" />
-          <span style={{ fontWeight: '700', fontSize: '0.92rem' }}>
-            Cargando texto bíblico canónico de las Sagradas Escrituras...
-          </span>
-        </div>
-      )}
-
-      {/* =========================================================================
-          2. ENCABEZADO CANÓNICO, ESTADO DE ESTUDIO Y TÉRMINOS ORIGINALES
-         ========================================================================= */}
-      <div style={{ marginBottom: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px', marginBottom: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span className="sacred-badge">{currentPassage.book} {currentPassage.chapter}:{currentPassage.versesRange}</span>
-            <span style={{ fontSize: '0.86rem', color: 'var(--text-muted)' }}>Tema: {currentPassage.theme}</span>
-          </div>
-
-          {/* Indicador de Rango de Estudio Activo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{
-              fontSize: '0.78rem',
-              color: 'var(--gold-200)',
-              background: 'rgba(212,175,55,0.1)',
-              border: '1px solid rgba(212,175,55,0.25)',
-              padding: '4px 12px',
-              borderRadius: '9999px',
-              fontWeight: '700'
-            }}>
-              ✦ Versículo(s) en estudio: v. {verseRangeDisplay} ({selectedVerseNumbers.length} de {totalVerses})
-            </span>
-            <button
-              onClick={handleSelectAll}
-              style={{
-                padding: '3px 9px',
-                borderRadius: '6px',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: '#cbd5e1',
-                fontSize: '0.74rem',
-                cursor: 'pointer'
-              }}
-              title="Seleccionar todos los versículos del capítulo"
-            >
-              Todo el capítulo
-            </button>
-            <button
-              onClick={handleClearSelection}
-              style={{
-                padding: '3px 9px',
-                borderRadius: '6px',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'var(--text-muted)',
-                fontSize: '0.74rem',
-                cursor: 'pointer'
-              }}
-              title="Restablecer selección a solo el primer versículo"
-            >
-              Solo v.1
-            </button>
-            <button
-              onClick={handleCopySelectedVerses}
-              style={{
-                padding: '3px 10px',
-                borderRadius: '6px',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                color: copiedSelection ? '#4ade80' : 'var(--gold-300)',
-                fontSize: '0.74rem',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-              title="Copiar texto de los versículos seleccionados"
-            >
-              {copiedSelection ? <Check size={12} /> : <Copy size={12} />}
-              <span>{copiedSelection ? 'Copiado' : 'Copiar'}</span>
-            </button>
-            <button
-              onClick={() => onConsultAI?.({
-                passage: {
-                  title: `${currentPassage.book} ${currentPassage.chapter}:${verseRangeDisplay}`,
-                  book: currentPassage.book,
-                  chapter: currentPassage.chapter,
-                  verse: verseRangeDisplay
-                },
-                mood: 'Investigación Académica & Crítica Textual'
-              })}
-              style={{
-                padding: '3px 10px',
-                borderRadius: '6px',
-                background: 'rgba(212,175,55,0.12)',
-                border: '1px solid rgba(212,175,55,0.3)',
-                color: 'var(--gold-200)',
-                fontSize: '0.74rem',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-              title="Consultar con Ruaj IA sobre este versículo o rango"
-            >
-              <Sparkles size={12} />
-              <span>Consultar Ruaj</span>
-            </button>
-          </div>
-        </div>
-
-        <h2 className="font-cinzel gold-text-gradient" style={{ fontSize: '2.4rem', fontWeight: '800', margin: '4px 0' }}>
-          {currentPassage.title}
-        </h2>
-        <p style={{ fontSize: '0.94rem', color: 'var(--text-muted)', marginTop: '4px', maxWidth: '1050px', lineHeight: 1.6 }}>
-          <strong>Contexto Histórico:</strong> {currentPassage.background}
+      {/* 2. ENCABEZADO SERENO DEL PASAJE */}
+      <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+        <h1 className="font-cinzel gold-text-gradient" style={{ fontSize: '2.3rem', fontWeight: '800', margin: '0 0 6px' }}>
+          {currentPassage.book} {currentPassage.chapter}
+        </h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', margin: 0 }}>
+          {currentPassage.title ? `${currentPassage.title} • ` : ''}{primaryVersion}
         </p>
       </div>
 
-      {/* Términos Originales & Enlace al Léxico */}
-      {currentPassage.originalWords && currentPassage.originalWords.length > 0 && (
-        <div className="sacred-panel" style={{ padding: '16px 20px', marginBottom: '28px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: '700', color: 'var(--gold-400)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-              Términos Clave en Hebreo/Griego (Diccionario Strong):
-            </span>
-            <button
-              onClick={() => onOpenDictionary?.()}
-              style={{ background: 'transparent', border: 'none', color: 'var(--gold-300)', fontSize: '0.78rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-            >
-              <BookMarked size={13} />
-              <span>Abrir Diccionario Bíblico Completo ↗</span>
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {currentPassage.originalWords.map((wordObj, wIdx) => (
-              <button
-                key={wIdx}
-                onClick={() => setSelectedWordDetail(selectedWordDetail?.word === wordObj.word ? null : wordObj)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '6px 14px',
-                  borderRadius: '9999px',
-                  fontSize: '0.84rem',
-                  border: selectedWordDetail?.word === wordObj.word ? '1px solid var(--gold-400)' : '1px solid rgba(212,175,55,0.22)',
-                  background: selectedWordDetail?.word === wordObj.word ? 'rgba(212,175,55,0.25)' : 'rgba(255,255,255,0.02)',
-                  color: 'var(--gold-200)',
-                  cursor: 'pointer'
-                }}
-              >
-                <span style={{ fontWeight: '700' }}>{wordObj.word}</span>
-                <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>({wordObj.language} • {wordObj.strong})</span>
-              </button>
-            ))}
-          </div>
-
-          {selectedWordDetail && (
-            <div className="animate-fade-in" style={{ marginTop: '14px', padding: '16px', borderRadius: '8px', background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.25)' }}>
-              <div style={{ fontWeight: '700', color: 'var(--gold-200)', fontSize: '0.96rem', marginBottom: '4px' }}>
-                {selectedWordDetail.word} ({selectedWordDetail.strong}) — {selectedWordDetail.meaning}
-              </div>
-              <p style={{ fontSize: '0.88rem', color: '#e2e8f0', lineHeight: 1.6, margin: 0 }}>
-                {selectedWordDetail.note}
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* =========================================================================
-          4. VISUALIZACIÓN ESPACIOSA DEL TEXTO BÍBLICO (CON CASILLAS DE SELECCIÓN)
-         ========================================================================= */}
-      
-      {/* CASO A: MODO PARALELO (2 VERSIONES CARA A CARA) */}
+      {/* 3. LECTURA BÍBLICA LIMPIA E INMERSIVA */}
       {isParallelMode ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))', gap: '28px' }}>
-          
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: '24px' }}>
           {/* Columna Versión 1 */}
-          <div className="sacred-panel" style={{ padding: '32px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid var(--border-gold-subtle)', paddingBottom: '12px' }}>
-              <span className="font-cinzel" style={{ fontSize: '1.15rem', fontWeight: '700', color: 'var(--gold-200)' }}>
-                {primaryVersion}
-              </span>
-              <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>Versión Primaria</span>
+          <div className="sacred-panel" style={{ padding: '28px' }}>
+            <div style={{ fontSize: '0.86rem', fontWeight: '700', color: 'var(--gold-300)', marginBottom: '18px', borderBottom: '1px solid rgba(212,175,55,0.15)', paddingBottom: '8px' }}>
+              {primaryVersion}
             </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {versesList.map((verse) => {
                 const isSelected = selectedVerseNumbers.includes(verse.num);
-                const isSpeakingThis = activeSpeakingVerse === verse.num;
+                const isSpeaking = activeSpeakingVerse === verse.num;
                 return (
                   <div
                     key={verse.num}
@@ -842,31 +529,18 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
                     style={{
                       display: 'flex',
                       alignItems: 'baseline',
-                      gap: '14px',
-                      padding: '12px 16px',
-                      borderRadius: '8px',
+                      gap: '12px',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
                       cursor: 'pointer',
-                      background: isSpeakingThis ? 'rgba(212,175,55,0.24)' : isSelected ? 'rgba(212,175,55,0.14)' : 'rgba(255,255,255,0.015)',
-                      borderLeft: isSelected ? '4px solid var(--gold-400)' : '4px solid transparent',
-                      border: isSelected ? '1px solid rgba(212,175,55,0.4)' : '1px solid rgba(255,255,255,0.03)',
-                      boxShadow: isSelected ? '0 0 14px rgba(212,175,55,0.15)' : 'none',
-                      transition: 'all 0.15s'
+                      background: isSpeaking ? 'rgba(212,175,55,0.22)' : isSelected ? 'rgba(212,175,55,0.12)' : 'transparent',
+                      borderLeft: isSelected ? '3px solid var(--gold-400)' : '3px solid transparent'
                     }}
                   >
-                    <div style={{ color: isSelected ? 'var(--gold-400)' : '#64748b', display: 'flex', alignItems: 'center', paddingTop: '3px' }}>
-                      {isSelected ? <CheckSquare size={16} /> : <EmptySquare size={16} />}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '0.84rem', fontWeight: '800', color: 'var(--gold-400)', minWidth: '22px' }}>
-                        {verse.num}
-                      </span>
-                      {isSelected && (
-                        <span style={{ fontSize: '0.64rem', color: 'var(--gold-300)', background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)', padding: '1px 5px', borderRadius: '3px', fontWeight: '700' }}>
-                          ✓ Sel
-                        </span>
-                      )}
-                    </div>
-                    <p className="font-scripture" style={{ fontSize: '1.35rem', lineHeight: '1.8', color: '#f0f3fa', margin: 0, flex: 1 }}>
+                    <span style={{ fontSize: '0.82rem', fontWeight: '700', color: isSelected ? 'var(--gold-300)' : 'var(--gold-500)', minWidth: '20px', userSelect: 'none' }}>
+                      {verse.num}
+                    </span>
+                    <p className="font-scripture" style={{ fontSize: '1.25rem', lineHeight: '1.8', color: '#f1f5f9', margin: 0, flex: 1 }}>
                       {verse.text}
                     </p>
                   </div>
@@ -876,194 +550,40 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
           </div>
 
           {/* Columna Versión 2 */}
-          <div className="sacred-panel" style={{ padding: '32px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', borderBottom: '1px solid var(--border-gold-subtle)', paddingBottom: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span className="font-cinzel" style={{ fontSize: '1.15rem', fontWeight: '700', color: 'var(--gold-200)' }}>
-                  {secondaryVersion}
-                </span>
-                <select
-                  value={secondaryVersion}
-                  onChange={(e) => setSecondaryVersion(e.target.value)}
-                  style={{ background: '#0e121a', color: 'var(--gold-200)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.78rem' }}
-                >
-                  {BIBLE_VERSIONS.filter(v => v.id !== primaryVersion).map(v => (
-                    <option key={v.id} value={v.id}>{v.id}</option>
-                  ))}
-                </select>
-              </div>
-              <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)' }}>Versión Comparativa</span>
+          <div className="sacred-panel" style={{ padding: '28px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', borderBottom: '1px solid rgba(212,175,55,0.15)', paddingBottom: '8px' }}>
+              <span style={{ fontSize: '0.86rem', fontWeight: '700', color: 'var(--gold-300)' }}>{secondaryVersion}</span>
+              <select
+                value={secondaryVersion}
+                onChange={(e) => setSecondaryVersion(e.target.value)}
+                style={{ background: '#0e121a', color: 'var(--gold-200)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '4px', padding: '2px 8px', fontSize: '0.74rem' }}
+              >
+                {BIBLE_VERSIONS.filter(v => v.id !== primaryVersion).map(v => (
+                  <option key={v.id} value={v.id}>{v.id}</option>
+                ))}
+              </select>
             </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {secondaryVersesList.map((verse) => (
-                <div key={verse.num} style={{ display: 'flex', gap: '14px', padding: '12px 16px' }}>
-                  <span style={{ fontSize: '0.84rem', fontWeight: '800', color: 'var(--gold-500)', minWidth: '24px', paddingTop: '3px' }}>
+                <div key={verse.num} style={{ display: 'flex', gap: '12px', padding: '8px 12px' }}>
+                  <span style={{ fontSize: '0.82rem', fontWeight: '700', color: 'var(--gold-500)', minWidth: '20px' }}>
                     {verse.num}
                   </span>
-                  <p className="font-scripture" style={{ fontSize: '1.35rem', lineHeight: '1.8', color: '#f0f3fa', margin: 0 }}>
+                  <p className="font-scripture" style={{ fontSize: '1.25rem', lineHeight: '1.8', color: '#f1f5f9', margin: 0 }}>
                     {verse.text}
                   </p>
                 </div>
               ))}
             </div>
           </div>
-
-        </div>
-      ) : layoutMode === 'two_columns' ? (
-        
-        /* CASO B: MODO ATRIL DE DOS COLUMNAS EQUILIBRADAS (AMPLIO, ESPACIOSO) */
-        <div className="sacred-panel" style={{ padding: '36px 44px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '28px', borderBottom: '1px solid var(--border-gold-subtle)', paddingBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
-            <span className="font-cinzel" style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--gold-200)' }}>
-              {currentPassage.book} {currentPassage.chapter} — {primaryVersion} ({BIBLE_VERSIONS.find(v => v.id === primaryVersion)?.name})
-            </span>
-            <span style={{ fontSize: '0.8rem', color: 'var(--gold-400)', background: 'rgba(212,175,55,0.08)', padding: '4px 12px', borderRadius: '6px', border: '1px solid rgba(212,175,55,0.22)' }}>
-              Lectura Imperial en Dos Columnas (Haz clic para seleccionar; Shift+Clic para rango)
-            </span>
-          </div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(480px, 1fr))',
-            gap: '40px',
-            alignItems: 'start'
-          }}>
-            {/* Columna Izquierda */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {leftColumnVerses.map((verse) => {
-                const isSelected = selectedVerseNumbers.includes(verse.num);
-                const isSpeakingThis = activeSpeakingVerse === verse.num;
-                return (
-                  <div
-                    key={verse.num}
-                    onClick={(e) => handleVerseClick(verse.num, e)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'baseline',
-                      gap: '14px',
-                      padding: '12px 18px',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      background: isSpeakingThis ? 'rgba(212,175,55,0.24)' : isSelected ? 'rgba(212,175,55,0.14)' : 'rgba(255,255,255,0.015)',
-                      borderLeft: isSelected ? '4px solid var(--gold-400)' : '4px solid transparent',
-                      border: isSelected ? '1px solid rgba(212,175,55,0.4)' : '1px solid rgba(255,255,255,0.03)',
-                      boxShadow: isSelected ? '0 0 14px rgba(212,175,55,0.15)' : 'none',
-                      transition: 'all 0.15s'
-                    }}
-                  >
-                    <div style={{ color: isSelected ? 'var(--gold-400)' : '#64748b', display: 'flex', alignItems: 'center', paddingTop: '3px' }}>
-                      {isSelected ? <CheckSquare size={16} /> : <EmptySquare size={16} />}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '0.86rem', fontWeight: '800', color: 'var(--gold-400)', minWidth: '24px' }}>
-                        {verse.num}
-                      </span>
-                      {isSelected && (
-                        <span style={{ fontSize: '0.64rem', color: 'var(--gold-300)', background: 'rgba(212,175,55,0.18)', border: '1px solid rgba(212,175,55,0.3)', padding: '1px 5px', borderRadius: '3px', fontWeight: '700' }}>
-                          ✓ Sel
-                        </span>
-                      )}
-                    </div>
-                    <p className="font-scripture" style={{ fontSize: '1.4rem', lineHeight: '1.85', color: '#f8fafc', margin: 0, flex: 1 }}>
-                      {verse.text}
-                    </p>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpen5DForSelection(verse);
-                      }}
-                      style={{
-                        background: 'rgba(212,175,55,0.08)',
-                        border: '1px solid rgba(212,175,55,0.25)',
-                        borderRadius: '4px',
-                        padding: '3px 8px',
-                        color: 'var(--gold-300)',
-                        fontSize: '0.7rem',
-                        fontWeight: '700',
-                        cursor: 'pointer'
-                      }}
-                      title={`Abrir 5D solo para el versículo ${verse.num}`}
-                    >
-                      5D v.{verse.num}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Columna Derecha */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {rightColumnVerses.map((verse) => {
-                const isSelected = selectedVerseNumbers.includes(verse.num);
-                const isSpeakingThis = activeSpeakingVerse === verse.num;
-                return (
-                  <div
-                    key={verse.num}
-                    onClick={(e) => handleVerseClick(verse.num, e)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'baseline',
-                      gap: '14px',
-                      padding: '12px 18px',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      background: isSpeakingThis ? 'rgba(212,175,55,0.24)' : isSelected ? 'rgba(212,175,55,0.14)' : 'rgba(255,255,255,0.015)',
-                      borderLeft: isSelected ? '4px solid var(--gold-400)' : '4px solid transparent',
-                      border: isSelected ? '1px solid rgba(212,175,55,0.4)' : '1px solid rgba(255,255,255,0.03)',
-                      boxShadow: isSelected ? '0 0 14px rgba(212,175,55,0.15)' : 'none',
-                      transition: 'all 0.15s'
-                    }}
-                  >
-                    <div style={{ color: isSelected ? 'var(--gold-400)' : '#64748b', display: 'flex', alignItems: 'center', paddingTop: '3px' }}>
-                      {isSelected ? <CheckSquare size={16} /> : <EmptySquare size={16} />}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '0.86rem', fontWeight: '800', color: 'var(--gold-400)', minWidth: '24px' }}>
-                        {verse.num}
-                      </span>
-                      {isSelected && (
-                        <span style={{ fontSize: '0.64rem', color: 'var(--gold-300)', background: 'rgba(212,175,55,0.18)', border: '1px solid rgba(212,175,55,0.3)', padding: '1px 5px', borderRadius: '3px', fontWeight: '700' }}>
-                          ✓ Sel
-                        </span>
-                      )}
-                    </div>
-                    <p className="font-scripture" style={{ fontSize: '1.4rem', lineHeight: '1.85', color: '#f8fafc', margin: 0, flex: 1 }}>
-                      {verse.text}
-                    </p>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpen5DForSelection(verse);
-                      }}
-                      style={{
-                        background: 'rgba(212,175,55,0.08)',
-                        border: '1px solid rgba(212,175,55,0.25)',
-                        borderRadius: '4px',
-                        padding: '3px 8px',
-                        color: 'var(--gold-300)',
-                        fontSize: '0.7rem',
-                        fontWeight: '700',
-                        cursor: 'pointer'
-                      }}
-                      title={`Abrir 5D solo para el versículo ${verse.num}`}
-                    >
-                      5D v.{verse.num}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
         </div>
       ) : (
-        
-        /* CASO C: MODO COLUMNA AMPLIA UNIFICADA CON MÁRGENES GENEROSOS */
-        <div className="sacred-panel" style={{ padding: '40px 60px', maxWidth: '1160px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        /* LECTURA A UNA SOLA COLUMNA NOBLE Y DESPEJADA */
+        <div className="sacred-panel" style={{ padding: '36px 42px', maxWidth: '880px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {versesList.map((verse) => {
               const isSelected = selectedVerseNumbers.includes(verse.num);
-              const isSpeakingThis = activeSpeakingVerse === verse.num;
+              const isSpeaking = activeSpeakingVerse === verse.num;
               return (
                 <div
                   key={verse.num}
@@ -1071,56 +591,122 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
                   style={{
                     display: 'flex',
                     alignItems: 'baseline',
-                    gap: '18px',
-                    padding: '14px 20px',
-                    borderRadius: '8px',
+                    gap: '14px',
+                    padding: '8px 14px',
+                    borderRadius: '7px',
                     cursor: 'pointer',
-                    background: isSpeakingThis ? 'rgba(212,175,55,0.24)' : isSelected ? 'rgba(212,175,55,0.14)' : 'rgba(255,255,255,0.015)',
-                    borderLeft: isSelected ? '4px solid var(--gold-400)' : '3px solid transparent',
-                    border: isSelected ? '1px solid rgba(212,175,55,0.4)' : '1px solid rgba(255,255,255,0.03)',
-                    boxShadow: isSelected ? '0 0 14px rgba(212,175,55,0.15)' : 'none',
-                    transition: 'all 0.15s'
+                    background: isSpeaking ? 'rgba(212,175,55,0.22)' : isSelected ? 'rgba(212,175,55,0.1)' : 'transparent',
+                    borderLeft: isSelected ? '3px solid var(--gold-400)' : '3px solid transparent',
+                    transition: 'background 0.15s, border-left 0.15s'
                   }}
                 >
-                  <div style={{ color: isSelected ? 'var(--gold-400)' : '#64748b', display: 'flex', alignItems: 'center', paddingTop: '3px' }}>
-                    {isSelected ? <CheckSquare size={18} /> : <EmptySquare size={18} />}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '0.92rem', fontWeight: '800', color: 'var(--gold-400)', minWidth: '28px' }}>
-                      {verse.num}
-                    </span>
-                    {isSelected && (
-                      <span style={{ fontSize: '0.64rem', color: 'var(--gold-300)', background: 'rgba(212,175,55,0.18)', border: '1px solid rgba(212,175,55,0.3)', padding: '1px 6px', borderRadius: '3px', fontWeight: '700' }}>
-                        ✓ Seleccionado
-                      </span>
-                    )}
-                  </div>
-                  <p className="font-scripture" style={{ fontSize: '1.45rem', lineHeight: '1.9', color: '#f8fafc', margin: 0, flex: 1 }}>
+                  <span style={{
+                    fontSize: '0.84rem',
+                    fontWeight: '700',
+                    color: isSelected ? 'var(--gold-300)' : 'var(--gold-500)',
+                    minWidth: '22px',
+                    userSelect: 'none'
+                  }}>
+                    {verse.num}
+                  </span>
+                  <p className="font-scripture" style={{
+                    fontSize: '1.38rem',
+                    lineHeight: '1.85',
+                    color: isSelected ? '#ffffff' : '#f1f5f9',
+                    margin: 0,
+                    flex: 1
+                  }}>
                     {verse.text}
                   </p>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOpen5DForSelection(verse);
-                    }}
-                    style={{
-                      background: 'rgba(212,175,55,0.08)',
-                      border: '1px solid rgba(212,175,55,0.25)',
-                      borderRadius: '6px',
-                      padding: '4px 10px',
-                      color: 'var(--gold-300)',
-                      fontSize: '0.72rem',
-                      fontWeight: '700',
-                      cursor: 'pointer'
-                    }}
-                    title={`Abrir 5D solo para el versículo ${verse.num}`}
-                  >
-                    5D v.{verse.num}
-                  </button>
                 </div>
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* 4. BARRA FLOTANTE BAJO DEMANDA (APARECE SOLO AL SELECCIONAR VERSÍCULOS) */}
+      {selectedVerseNumbers.length > 0 && (
+        <div className="animate-fade-in" style={{
+          position: 'fixed',
+          bottom: '86px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 999,
+          background: 'rgba(9, 12, 18, 0.95)',
+          backdropFilter: 'blur(16px)',
+          border: '1.5px solid var(--gold-400)',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.85), 0 0 20px rgba(212,175,55,0.25)',
+          borderRadius: '9999px',
+          padding: '8px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          maxWidth: '92vw'
+        }}>
+          <span style={{ fontSize: '0.78rem', fontWeight: '700', color: 'var(--gold-300)', paddingRight: '8px', borderRight: '1px solid rgba(212,175,55,0.3)', whiteSpace: 'nowrap' }}>
+            v. {verseRangeDisplay}
+          </span>
+
+          <button
+            onClick={() => handleStartAudiobible(true)}
+            style={{ background: 'transparent', border: 'none', color: '#e2e8f0', fontSize: '0.76rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+          >
+            <Volume2 size={13} color="var(--gold-400)" />
+            <span>Escuchar</span>
+          </button>
+
+          <button
+            onClick={handleCopySelectedVerses}
+            style={{ background: 'transparent', border: 'none', color: '#e2e8f0', fontSize: '0.76rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+          >
+            {copiedSelection ? <Check size={13} color="#4ade80" /> : <Copy size={13} color="var(--gold-400)" />}
+            <span>{copiedSelection ? 'Copiado' : 'Copiar'}</span>
+          </button>
+
+          <button
+            onClick={() => onConsultAI?.({
+              passage: {
+                title: `${currentPassage.book} ${currentPassage.chapter}:${verseRangeDisplay}`,
+                book: currentPassage.book,
+                chapter: currentPassage.chapter,
+                verse: verseRangeDisplay
+              },
+              mood: 'Exégesis & Consejería'
+            })}
+            style={{ background: 'transparent', border: 'none', color: '#e2e8f0', fontSize: '0.76rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+          >
+            <Sparkles size={13} color="var(--gold-400)" />
+            <span>Ruaj</span>
+          </button>
+
+          <button
+            onClick={() => handleOpen5DForSelection()}
+            style={{
+              background: 'rgba(212,175,55,0.2)',
+              border: '1px solid var(--gold-400)',
+              borderRadius: '9999px',
+              color: 'var(--gold-200)',
+              fontSize: '0.76rem',
+              fontWeight: '700',
+              padding: '4px 11px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+          >
+            <ScrollText size={13} />
+            <span>Estudio 5D</span>
+          </button>
+
+          <button
+            onClick={() => setSelectedVerseNumbers([])}
+            style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px 4px', display: 'flex', alignItems: 'center' }}
+            title="Deseleccionar"
+          >
+            <X size={14} />
+          </button>
         </div>
       )}
 
