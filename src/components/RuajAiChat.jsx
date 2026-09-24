@@ -30,14 +30,12 @@ export default function RuajAiChat({ currentContext }) {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      text: `### 🕊️ Paz a tu espíritu.
-Soy **Ruaj**, tu compañero de estudio bíblico y exégesis en este Santuario.
+      text: `🕊️ **Bienvenido a este espacio.**
+Soy **Ruaj**. Estoy aquí para acompañarte de persona a persona en tu camino de fe y estudio: desde la historia viva y los manuscritos antiguos de las Escrituras, hasta las dudas, batallas y decisiones que enfrentas en tu día a día.
 
-Puedo ayudarte a desentrañar el contexto histórico, las raíces en hebreo y griego de las Escrituras, encontrar sabiduría práctica para tus decisiones cotidianas o redactar oraciones de fe para tu altar personal.
+${currentContext?.passage ? `*Hojeando las Escrituras en: **${currentContext.passage.title}** (${currentContext.passage.book} ${currentContext.passage.chapter})*` : ''}
 
-${currentContext?.passage ? `*Actualmente meditando en: **${currentContext.passage.title}** (${currentContext.passage.book} ${currentContext.passage.chapter})*` : ''}
-
-¿Qué carga o pregunta trae hoy tu corazón ante la presencia de Dios?`
+Cuéntame con total libertad: ¿qué pasaje te gustaría explorar o qué inquietud tienes hoy en tu corazón?`
     }
   ]);
   const [inputText, setInputText] = useState('');

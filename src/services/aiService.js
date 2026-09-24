@@ -147,17 +147,20 @@ export const getApiKeyPool = () => {
 };
 
 // ============================================================================
-// CONECTORES DE INFERENCIA ESTRICTA (TEMPERATURA 0.2 + BLINDAJE FACTUAL)
+// ============================================================================
+// CONECTORES DE INFERENCIA VIVA Y NATURAL (CALIDEZ HUMANA + RIGOR BÍBLICO)
 // ============================================================================
 
-// ============================================================================
-// CONECTORES DE INFERENCIA ESTRICTA (TEMPERATURA 0.2 + BLINDAJE FACTUAL)
-// ============================================================================
-
-// 1. Conector Google Gemini (con Google Search Grounding y Temperatura 0.2)
-async function callGemini(key, model, prompt, useSearch = true) {
+// 1. Conector Google Gemini
+async function callGemini(key, model, prompt, useSearch = true, temperature = 0.65, systemInstruction = null) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
   
+  const systemInstructionPart = systemInstruction ? {
+    system_instruction: {
+      parts: [{ text: systemInstruction }]
+    }
+  } : {};
+
   // Intento 1: Con herramienta de verificación en vivo (Google Search Grounding)
   if (useSearch) {
     try {
@@ -165,12 +168,13 @@ async function callGemini(key, model, prompt, useSearch = true) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...systemInstructionPart,
           contents: [{ parts: [{ text: prompt }] }],
           tools: [{ google_search: {} }], // Verificación en tiempo real de fuentes
           generationConfig: {
-            temperature: 0.2, // Blindaje anti-alucinación: rigor factual
-            topK: 20,
-            topP: 0.8
+            temperature: temperature, // Temperatura natural, fluida y humana
+            topK: 40,
+            topP: 0.95
           }
         })
       });
@@ -185,17 +189,18 @@ async function callGemini(key, model, prompt, useSearch = true) {
     }
   }
 
-  // Intento 2: Inferencia directa con temperatura 0.2 estricta
+  // Intento 2: Inferencia directa con fluidez y naturalidad humana
   try {
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        ...systemInstructionPart,
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
-          temperature: 0.2, // Rigor estricto sin especulación
-          topK: 20,
-          topP: 0.8
+          temperature: temperature, // Fluidez sin rigidez mecánica
+          topK: 40,
+          topP: 0.95
         }
       })
     });
@@ -212,8 +217,10 @@ async function callGemini(key, model, prompt, useSearch = true) {
   return null;
 }
 
-// 2. Conector OpenAI-Compatible (Groq, OpenRouter, NVIDIA NIM con Temperatura 0.2)
-async function callOpenAICompatible({ endpoint, key, model, prompt, extraHeaders = {} }) {
+// 2. Conector OpenAI-Compatible (Groq, OpenRouter, NVIDIA NIM con calidez y naturalidad)
+async function callOpenAICompatible({ endpoint, key, model, prompt, extraHeaders = {}, temperature = 0.65, systemInstruction = null }) {
+  const defaultSystemPrompt = "Eres Ruaj: mentor bíblico, compañero de estudio y consejero espiritual personal. Conversas con genuina calidez, elocuencia y empatía humana, de mente a mente y de corazón a corazón. Está terminantemente prohibido sonar robótico, acartonado, mecánico o con fórmulas prefabricadas de asistente virtual. Integra con maestría la ciencia bíblica pura (crítica textual rigurosa de manuscritos masoréticos, Qumrán, Septuaginta y variantes), la historia real, las raíces hebreas/griegas (Strong Hxxxx/Gxxxx) y la aplicación devocional profunda al corazón, razonando y dialogando con total libertad intelectual.";
+
   try {
     const res = await fetch(endpoint, {
       method: "POST",
@@ -227,14 +234,14 @@ async function callOpenAICompatible({ endpoint, key, model, prompt, extraHeaders
         messages: [
           {
             role: "system",
-            content: "Eres Ruaj: un mentor bíblico, compañero de estudio y consejero espiritual que integra en perfecto balance la ciencia bíblica pura (crítica textual rigurosa de manuscritos masoréticos, Qumrán, Septuaginta y variantes) con la historia real, la arqueología, las raíces hebreas/griegas (Strong Hxxxx/Gxxxx) y la aplicación devocional profunda al corazón. Tienes total libertad de análisis, reflexión y pensamiento crítico para dialogar de forma inteligente, natural, cercana y conversacional, sin encajonarte en fórmulas rígidas ni dogmas artificiales."
+            content: systemInstruction || defaultSystemPrompt
           },
           {
             role: "user",
             content: prompt
           }
         ],
-        temperature: 0.2 // Blindaje anti-alucinación
+        temperature: temperature // Expresividad rica y humana
       })
     });
 
@@ -252,20 +259,20 @@ async function callOpenAICompatible({ endpoint, key, model, prompt, extraHeaders
 // ============================================================================
 // CASCADA INTELIGENTE MULTI-PROVEEDOR
 // ============================================================================
-async function executeMultiProviderCascade({ prompt, useSearch = true }) {
+async function executeMultiProviderCascade({ prompt, useSearch = true, temperature = 0.65, systemInstruction = null }) {
   const keys = getProviderKeys();
 
   // Nivel 1: Google Gemini (Modelo seleccionado por el usuario o detección dinámica en vivo)
   if (keys.gemini) {
     const userModel = localStorage.getItem("santuario_theology_gemini_model")?.trim();
     if (userModel) {
-      const res = await callGemini(keys.gemini, userModel, prompt, useSearch);
+      const res = await callGemini(keys.gemini, userModel, prompt, useSearch, temperature, systemInstruction);
       if (res) return res;
     }
     const activeModels = await getLiveGeminiModels(keys.gemini);
     for (const model of activeModels) {
       if (model === userModel) continue;
-      const result = await callGemini(keys.gemini, model, prompt, useSearch);
+      const result = await callGemini(keys.gemini, model, prompt, useSearch, temperature, systemInstruction);
       if (result) return result;
     }
   }
@@ -278,13 +285,15 @@ async function executeMultiProviderCascade({ prompt, useSearch = true }) {
         endpoint: "https://api.groq.com/openai/v1/chat/completions",
         key: keys.groq,
         model: model,
-        prompt: prompt
+        prompt: prompt,
+        temperature,
+        systemInstruction
       });
       if (result) return result;
     }
   }
 
-  // Nivel 3: OpenRouter (Meta Llama 3.3 70B & Modelos Avanzados con Temperatura 0.2)
+  // Nivel 3: OpenRouter (Meta Llama 3.3 70B & Modelos Avanzados)
   if (keys.openrouter) {
     for (const model of OPENROUTER_MODELS) {
       const result = await callOpenAICompatible({
@@ -292,6 +301,8 @@ async function executeMultiProviderCascade({ prompt, useSearch = true }) {
         key: keys.openrouter,
         model: model,
         prompt: prompt,
+        temperature,
+        systemInstruction,
         extraHeaders: {
           "HTTP-Referer": "https://santuario.app",
           "X-Title": "Santuario Devocional"
@@ -301,14 +312,16 @@ async function executeMultiProviderCascade({ prompt, useSearch = true }) {
     }
   }
 
-  // Nivel 4: NVIDIA NIM (Modelos de Inferencia con Temperatura 0.2)
+  // Nivel 4: NVIDIA NIM (Modelos de Inferencia de Máxima Precisión)
   if (keys.nvidia) {
     for (const model of NVIDIA_MODELS) {
       const result = await callOpenAICompatible({
         endpoint: "https://integrate.api.nvidia.com/v1/chat/completions",
         key: keys.nvidia,
         model: model,
-        prompt: prompt
+        prompt: prompt,
+        temperature,
+        systemInstruction
       });
       if (result) return result;
     }
@@ -322,43 +335,51 @@ async function executeMultiProviderCascade({ prompt, useSearch = true }) {
 // ============================================================================
 
 export async function askRuajAI({ question, passage, mood, isChat = false }) {
+  const systemInstruction = `Eres Ruaj: mentor bíblico, compañero de estudio y consejero espiritual personal.
+
+DIRECTRICES SUPREMAS DE TONO Y ESTILO:
+1. CERO RESPUESTAS ROBÓTICAS, MECÁNICAS O ACARTONADAS:
+   - Está terminantemente prohibido sonar como un bot, un asistente virtual corporativo o una máquina burocrática.
+   - Prohibidas las frases de cliché mecánico ("Como inteligencia artificial...", "Claro, aquí tienes tu consulta", "Espero que esto te sea de utilidad", "A continuación te presento los puntos...").
+   - Habla con voz viva, elocuente, humana, reflexiva y cálida. Escribe como un sabio maestro, teólogo y amigo entrañable que conversa contigo con el corazón abierto y la mente despierta.
+2. RIGOR CIENTÍFICO BÍBLICO Y CONEXIÓN VIVA:
+   - Integra la ciencia bíblica pura (crítica textual rigurosa de manuscritos: Texto Masorético, Rollos del Mar Muerto/Qumrán, Septuaginta LXX, Códices; arqueología e historia real del Cercano Oriente Antiguo y la cuenca mediterránea) junto a las raíces en hebreo/griego con su numeración Strong oficial (Hxxxx/Gxxxx).
+   - Conecta la profundidad de los textos con las preguntas reales, dilemas, batallas cotidianas y anhelos del creyente de hoy, sin juzgar ni imponer dogmas rígidos.
+3. ADAPTABILIDAD TOTAL Y ESCUCHA ACTIVA:
+   - Sigue con total sensibilidad las indicaciones del usuario (por ejemplo: si pide una versión bíblica particular como NVI o Reina Valera, si pide redactar en primera persona plural "nosotros", si pide versículos numerados, o si plantea un dilema personal).
+   - Dialoga con libertad de pensamiento y agudeza analítica, sin encajonarte en formatos forzados ni cajas burocráticas.`;
+
   const prompt = isChat
-    ? `Eres Ruaj, un mentor bíblico, compañero de estudio y consejero espiritual. Dialogas de forma viva, cercana, empática e inteligente con el creyente, manteniendo plena libertad analítica y de razonamiento.
-
-MARCO INTEGRAL DE CIENCIA BÍBLICA Y REFLEXIÓN (EQUILIBRIO COMPLETO):
-1. Ciencia Bíblica y Crítica Textual: Cuando el pasaje lo amerite, fundamenta tus análisis en la evidencia de los manuscritos antiguos reales (Texto Masorético, Qumrán, Septuaginta LXX, Códices) señalando variantes textuales o matices que las traducciones al español a menudo ocultan.
-2. Historia y Arqueología Comprobadas: Contextualiza el cuándo y el dónde real (reyes, batallas, geografía del Néguev, Hebrón, Galilea, costumbres sociopolíticas) sin ficción ni adornos ficticios.
-3. Raíces Lingüísticas Originales: Cita con precisión las raíces en hebreo, arameo o griego con su numeración Strong oficial (Hxxxx o Gxxxx), explicando el significado profundo del término original.
-4. Concordancias de Contexto: Conecta el pasaje armónicamente con el resto del canon bíblico (la Escritura iluminando a la Escritura).
-5. Aplicación Viva al Corazón: Extrae enseñanzas prácticas, emotivas y aplicables para los desafíos reales del creyente de hoy.
-
-El usuario te escribe la siguiente consulta en el chat:
+    ? `Conversación con el usuario:
 "${question}"
 
 ${passage ? `Contexto del pasaje activo en el lector: ${passage.book} ${passage.chapter || ''} ${passage.title ? `("${passage.title}")` : ''}` : ''}
-${mood ? `Estado de ánimo / enfoque: ${mood}` : ''}
+${mood ? `Estado interior / atmósfera del momento: ${mood}` : ''}
 
-DIRECTRICES CLAVE DE CONVERSACIÓN:
-- Conversa con naturalidad, como un sabio compañero en el estudio y la fe. No te encajones en plantillas de formulario ni en cajas burocráticas.
-- Respeta con total rigor cualquier indicación específica que el usuario te haya pedido en su mensaje (por ejemplo: versión bíblica solicitada como NVI dividida en versos numerados, perspectiva en primera persona plural "nosotros", lenguaje amigable, sencillo y emotivo sin términos sintéticos).
-- Cero alucinaciones: Rigor y veracidad milimétrica en citas y hechos.`
-    : `Actúa como Ruaj: mentor bíblico y erudito exegético que integra la ciencia bíblica pura (crítica textual de manuscritos, historia y arqueología) con la exégesis de raíces lingüísticas (Strong Hxxxx / Gxxxx) y la aplicación devocional sabia.
+INSTRUCCIONES CLAVE:
+- Responde de forma viva, orgánica, elocuente y cercana, como un verdadero compañero de fe y estudio.
+- Evita cualquier tono robótico o mecánica de formulario.
+- Respeta al pie de la letra cualquier petición específica del usuario (versión bíblica solicitada, perspectiva en primera persona plural "nosotros", división de versículos, etc.).`
+    : `Actúa como Ruaj: mentor bíblico y erudito que integra la ciencia bíblica pura (crítica textual de manuscritos, historia real y arqueología) con la exégesis de raíces lingüísticas (Strong Hxxxx / Gxxxx) y la aplicación devocional profunda al corazón.
 
 Pasaje de meditación: "${passage?.title || 'la Palabra de Dios'}" (${passage?.versesRange || ''} de ${passage?.book || ''}).
 Estado interior del buscador: ${mood || 'Reflexivo'}.
 Inquietud o pregunta: "${question}".
 
-REGLAS DE FORMATO:
-- NO uses símbolos de markdown toscos como asteriscos (* o **), numerales (###) o guiones bajos (_).
-- Escribe títulos de sección en prosa limpia.
-- Cita los términos hebreos/griegos y números Strong directamente en el texto.
+PAUTAS DE REDACCIÓN:
+- Escribe con calidez, elocuencia natural y fluidez humana; sin fórmulas mecánicas ni lenguaje telegráfico.
+- Cita los términos hebreos/griegos y números Strong de forma orgánica y contextualizada.
+- Desarrolla el análisis en 3 dimensiones armónicas:
+  1. Ciencia Bíblica, Manuscritos & Raíces Originales (crítica textual, variantes significativas, contexto histórico y etimología con número Strong).
+  2. Sabiduría Pastoral y Aplicación al Corazón (principios profundos y prácticos para la vida diaria).
+  3. Oración Guiada (solemne, íntima y anclada en la promesa bíblica).`;
 
-Estructura tu respuesta en 3 secciones claras:
-1. Ciencia Bíblica, Manuscritos & Raíces Originales: Crítica textual, contexto histórico y etimología con número Strong.
-2. Aplicación Pastoral al Corazón: Sabiduría práctica y enriquecedora para la vida diaria.
-3. Oración Guiada: Una oración íntima y anclada en la promesa bíblica.`;
-
-  const remoteResult = await executeMultiProviderCascade({ prompt, useSearch: true });
+  const remoteResult = await executeMultiProviderCascade({ 
+    prompt, 
+    useSearch: true, 
+    temperature: 0.65, // Calidez y naturalidad sin respuestas mecánicas
+    systemInstruction 
+  });
   if (remoteResult) return remoteResult;
 
   // Fallback teológico contextual de alta fidelidad cuando no hay claves remotas
@@ -367,9 +388,9 @@ Estructura tu respuesta en 3 secciones claras:
 }
 
 export async function generateCustomPrayer({ need, emotion, devotionTitle }) {
-  const prompt = `Redacta una oración íntima, solemne, profunda y bíblicamente anclada para un creyente que experimenta "${emotion}" y cuya necesidad es: "${need}". Meditando en "${devotionTitle}". Temperatura 0.2 estricta, veracidad bíblica total. Máximo 160 palabras. Cero textos técnicos, solo la oración viva.`;
+  const prompt = `Redacta una oración íntima, solemne, profunda y bíblicamente anclada para un creyente que experimenta "${emotion}" y cuya necesidad es: "${need}". Meditando en "${devotionTitle}". Exprésate con emoción genuina, cercanía pastoral y belleza literaria, sin fórmulas acartonadas ni robóticas. Máximo 160 palabras.`;
 
-  const remoteResult = await executeMultiProviderCascade({ prompt, useSearch: false });
+  const remoteResult = await executeMultiProviderCascade({ prompt, useSearch: false, temperature: 0.65 });
   if (remoteResult) return remoteResult;
 
   await new Promise(res => setTimeout(res, 300));
