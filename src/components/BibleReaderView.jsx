@@ -75,6 +75,7 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
   const [modalVerseMode, setModalVerseMode] = useState('all'); // 'all' | 'range'
   const [modalVerseStart, setModalVerseStart] = useState(1);
   const [modalVerseEnd, setModalVerseEnd] = useState(31);
+  const [isCopied, setIsCopied] = useState(false);
 
   const versesList = currentPassage.versions[primaryVersion] || currentPassage.versions["RVR1960"] || [];
   const secondaryVersesList = currentPassage.versions[secondaryVersion] || currentPassage.versions["NTV"] || [];
@@ -219,6 +220,34 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
         setActiveSpeakingVerse(null);
       }
     );
+  };
+
+  // Copiar versículos o capítulo completo al portapapeles
+  const handleCopyContent = () => {
+    const isSelection = selectedVerseNumbers.length > 0 && selectedVerseNumbers.length < versesList.length;
+    const targetList = isSelection ? selectedVersesData : versesList;
+    const textToCopy = targetList.map(v => `${v.num}. ${v.text}`).join('\n');
+    const citation = `${currentPassage.book} ${currentPassage.chapter}${isSelection ? `:${verseRangeDisplay}` : ''} (${primaryVersion})`;
+    
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(`${citation}\n\n${textToCopy}`);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    }
+  };
+
+  // Consultar a Ruaj IA sobre el versículo activo o el capítulo
+  const handleConsultRuaj = () => {
+    const isSelection = selectedVerseNumbers.length > 0 && selectedVerseNumbers.length < versesList.length;
+    onConsultAI?.({
+      passage: {
+        title: `${currentPassage.book} ${currentPassage.chapter}${isSelection ? `:${verseRangeDisplay}` : ''}`,
+        book: currentPassage.book,
+        chapter: currentPassage.chapter,
+        verse: isSelection ? verseRangeDisplay : 'Capítulo Completo'
+      },
+      mood: 'Exégesis & Consejería'
+    });
   };
 
   // Cargar pasaje dinámicamente con soporte de versículos y rangos
@@ -451,25 +480,96 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
             ))}
           </div>
 
-          {/* Audio del Capítulo */}
-          <button
-            onClick={() => handleStartAudiobible(false)}
-            style={{
+          {/* Chip de Versículo Seleccionado (si hay selección específica) */}
+          {selectedVerseNumbers.length > 0 && selectedVerseNumbers.length < versesList.length && (
+            <div style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '6px 13px',
+              padding: '4px 10px',
               borderRadius: '7px',
-              background: isAudioPlaying ? 'rgba(239,68,68,0.2)' : 'rgba(212,175,55,0.1)',
-              border: isAudioPlaying ? '1px solid #ef4444' : '1px solid rgba(212,175,55,0.3)',
+              background: 'rgba(212,175,55,0.18)',
+              border: '1px solid var(--gold-400)',
+              color: '#ffd700',
+              fontSize: '0.78rem',
+              fontWeight: '800'
+            }}>
+              <span>v. {verseRangeDisplay}</span>
+              <button
+                onClick={() => setSelectedVerseNumbers([])}
+                style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                title="Quitar selección puntual"
+              >
+                <X size={13} />
+              </button>
+            </div>
+          )}
+
+          {/* Audio */}
+          <button
+            onClick={() => handleStartAudiobible(selectedVerseNumbers.length > 0 && selectedVerseNumbers.length < versesList.length)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              padding: '6px 12px',
+              borderRadius: '7px',
+              background: isAudioPlaying ? 'rgba(239,68,68,0.2)' : 'rgba(212,175,55,0.08)',
+              border: isAudioPlaying ? '1px solid #ef4444' : '1px solid rgba(212,175,55,0.25)',
               color: isAudioPlaying ? '#ef4444' : 'var(--gold-300)',
               fontSize: '0.78rem',
               fontWeight: '600',
               cursor: 'pointer'
             }}
+            title={selectedVerseNumbers.length > 0 && selectedVerseNumbers.length < versesList.length ? "Escuchar versículos seleccionados" : "Escuchar capítulo completo"}
           >
-            {isAudioPlaying ? <Square size={13} /> : <Volume2 size={14} />}
+            {isAudioPlaying ? <Square size={13} /> : <Volume2 size={13} />}
             <span>{isAudioPlaying ? "Detener" : "Escuchar"}</span>
+          </button>
+
+          {/* Copiar */}
+          <button
+            onClick={handleCopyContent}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              padding: '6px 12px',
+              borderRadius: '7px',
+              background: isCopied ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.04)',
+              border: isCopied ? '1px solid #4ade80' : '1px solid rgba(255,255,255,0.1)',
+              color: isCopied ? '#4ade80' : 'var(--text-muted)',
+              fontSize: '0.78rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease'
+            }}
+            title={selectedVerseNumbers.length > 0 && selectedVerseNumbers.length < versesList.length ? "Copiar versículos seleccionados" : "Copiar capítulo completo"}
+          >
+            {isCopied ? <Check size={13} color="#4ade80" /> : <Copy size={13} />}
+            <span>{isCopied ? "Copiado" : "Copiar"}</span>
+          </button>
+
+          {/* Ruaj IA */}
+          <button
+            onClick={handleConsultRuaj}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              padding: '6px 12px',
+              borderRadius: '7px',
+              background: 'rgba(212,175,55,0.08)',
+              border: '1px solid rgba(212,175,55,0.25)',
+              color: 'var(--gold-300)',
+              fontSize: '0.78rem',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+            title="Consultar a Ruaj IA sobre este pasaje"
+          >
+            <Sparkles size={13} color="var(--gold-400)" />
+            <span>Ruaj IA</span>
           </button>
 
           {/* Modo Paralelo */}
@@ -487,7 +587,7 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
               fontSize: '0.78rem',
               cursor: 'pointer'
             }}
-            title="Comparar dos versiones"
+            title="Comparar dos versiones en columnas"
           >
             <Columns size={13} />
             <span>{isParallelMode ? "Paralelo" : "Comparar"}</span>
@@ -642,92 +742,6 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
           </div>
         </div>
       )}
-
-      {/* 4. BARRA FLOTANTE BAJO DEMANDA (ACCESO INMEDIATO SIN SCROLL) */}
-      {selectedVerseNumbers.length > 0 && (
-        <div className="animate-fade-in" style={{
-          position: 'fixed',
-          top: '76px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 9999,
-          background: 'rgba(9, 12, 18, 0.96)',
-          backdropFilter: 'blur(20px)',
-          border: '1.5px solid var(--gold-400)',
-          boxShadow: '0 10px 40px rgba(0,0,0,0.9), 0 0 25px rgba(212,175,55,0.35)',
-          borderRadius: '9999px',
-          padding: '8px 18px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          maxWidth: '94vw'
-        }}>
-          <span style={{ fontSize: '0.8rem', fontWeight: '800', color: '#ffd700', paddingRight: '10px', borderRight: '1px solid rgba(212,175,55,0.3)', whiteSpace: 'nowrap' }}>
-            v. {verseRangeDisplay}
-          </span>
-
-          <button
-            onClick={() => handleStartAudiobible(true)}
-            style={{ background: 'transparent', border: 'none', color: '#e2e8f0', fontSize: '0.76rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-          >
-            <Volume2 size={13} color="var(--gold-400)" />
-            <span>Escuchar</span>
-          </button>
-
-          <button
-            onClick={handleCopySelectedVerses}
-            style={{ background: 'transparent', border: 'none', color: '#e2e8f0', fontSize: '0.76rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-          >
-            {copiedSelection ? <Check size={13} color="#4ade80" /> : <Copy size={13} color="var(--gold-400)" />}
-            <span>{copiedSelection ? 'Copiado' : 'Copiar'}</span>
-          </button>
-
-          <button
-            onClick={() => onConsultAI?.({
-              passage: {
-                title: `${currentPassage.book} ${currentPassage.chapter}:${verseRangeDisplay}`,
-                book: currentPassage.book,
-                chapter: currentPassage.chapter,
-                verse: verseRangeDisplay
-              },
-              mood: 'Exégesis & Consejería'
-            })}
-            style={{ background: 'transparent', border: 'none', color: '#e2e8f0', fontSize: '0.76rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-          >
-            <Sparkles size={13} color="var(--gold-400)" />
-            <span>Ruaj</span>
-          </button>
-
-          <button
-            onClick={() => handleOpen5DForSelection()}
-            style={{
-              background: 'rgba(212,175,55,0.2)',
-              border: '1px solid var(--gold-400)',
-              borderRadius: '9999px',
-              color: 'var(--gold-200)',
-              fontSize: '0.76rem',
-              fontWeight: '700',
-              padding: '4px 11px',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}
-          >
-            <ScrollText size={13} />
-            <span>Estudio 5D</span>
-          </button>
-
-          <button
-            onClick={() => setSelectedVerseNumbers([])}
-            style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px 4px', display: 'flex', alignItems: 'center' }}
-            title="Deseleccionar"
-          >
-            <X size={14} />
-          </button>
-        </div>
-      )}
-
 
       {/* =========================================================================
           5. MODAL SELECTOR DE LIBROS Y CAPÍTULOS DE TODA LA BIBLIA
