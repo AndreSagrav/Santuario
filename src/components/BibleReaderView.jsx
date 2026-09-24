@@ -1785,12 +1785,14 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
       )}
 
       {/* Drawer del Aparato Crítico Pentadimensional */}
-      <TheologicalApparatusDrawer
-        isOpen={isApparatusOpen}
-        onClose={() => setIsApparatusOpen(false)}
-        verseContext={apparatusContext}
-        onConsultAI={onConsultAI}
-      />
+      {isApparatusOpen && apparatusContext && (
+        <TheologicalApparatusDrawer
+          isOpen={isApparatusOpen}
+          onClose={() => setIsApparatusOpen(false)}
+          verseContext={apparatusContext}
+          onConsultAI={onConsultAI}
+        />
+      )}
 
     </div>
   );

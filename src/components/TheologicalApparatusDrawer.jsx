@@ -39,8 +39,8 @@ export default function TheologicalApparatusDrawer({
   const [isExpanded, setIsExpanded] = useState(true);
 
   const displayRef = verseContext?.verseRange 
-    ? `${verseContext.book} ${verseContext.chapter}:${verseContext.verseRange}`
-    : `${verseContext?.book} ${verseContext?.chapter}:${verseContext?.verseNum}`;
+    ? `${verseContext?.book || ''} ${verseContext?.chapter || ''}:${verseContext?.verseRange || ''}`
+    : `${verseContext?.book || ''} ${verseContext?.chapter || ''}:${verseContext?.verseNum || ''}`;
 
   const corpus = getBookCorpus(verseContext?.book || '');
 
@@ -51,6 +51,8 @@ export default function TheologicalApparatusDrawer({
       setApparatusContent('');
     }
   }, [isOpen, verseContext?.book, verseContext?.chapter, verseContext?.verseRange, verseContext?.verseNum]);
+
+  if (!isOpen || !verseContext) return null;
 
   const loadApparatus = async () => {
     if (!verseContext) return;
@@ -243,7 +245,7 @@ export default function TheologicalApparatusDrawer({
           color: 'var(--gold-400)',
           bg: 'rgba(212,175,55,0.06)',
           border: 'rgba(212,175,55,0.25)',
-          text: `El pasaje de ${verseContext.book} se inserta en el despliegue progresivo del pacto de Dios con su pueblo escogido, preservando la línea de la promesa redentora.`
+          text: `El pasaje de ${verseContext?.book || ''} se inserta en el despliegue progresivo del pacto de Dios con su pueblo escogido, preservando la línea de la promesa redentora.`
         },
         {
           badge: 'Cumplimiento Tipológico en Cristo',
