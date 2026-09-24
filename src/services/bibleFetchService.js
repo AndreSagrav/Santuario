@@ -1,5 +1,6 @@
 import { BIBLES_DATA } from '../data/biblesData';
 import { CANONICAL_BOOKS } from '../data/canonicalBooks';
+import { getChapterVerseCount } from '../data/bibleVerseCounts';
 
 /**
  * bibleFetchService.js
@@ -296,4 +297,122 @@ export async function getPassageData({ book, chapter = 1, preferredVersion = 'RV
   };
 
   return fallbackObject;
+}
+
+/**
+ * Obtiene un tramo continuo de lectura bíblica (perícopa), dentro del mismo capítulo
+ * o a través de múltiples capítulos continuos (ej: Génesis 1:15 al 2:10).
+ */
+export async function getPassageRangeData({
+  book,
+  startChapter = 1,
+  startVerse = 1,
+  endChapter = 1,
+  endVerse = null,
+  preferredVersion = 'RVR1960'
+}) {
+  const canonicalBook = findCanonicalBook(book);
+  const maxChaps = canonicalBook.chapters || 150;
+
+  let sChap = Math.max(1, Math.min(Number(startChapter) || 1, maxChaps));
+  let eChap = Math.max(sChap, Math.min(Number(endChapter) || sChap, maxChaps));
+
+  const sChapMaxVerses = getChapterVerseCount(canonicalBook.name, sChap);
+  const eChapMaxVerses = getChapterVerseCount(canonicalBook.name, eChap);
+
+  let sVerse = Math.max(1, Math.min(Number(startVerse) || 1, sChapMaxVerses));
+  let eVerse = endVerse !== null && endVerse !== undefined 
+    ? Math.max(1, Math.min(Number(endVerse) || eChapMaxVerses, eChapMaxVerses))
+    : eChapMaxVerses;
+
+  if (sChap === eChap && sVerse > eVerse) {
+    const temp = sVerse;
+    sVerse = eVerse;
+    eVerse = temp;
+  }
+
+  const isCrossChapter = sChap !== eChap;
+  const isFullChapter = !isCrossChapter && sVerse === 1 && eVerse === sChapMaxVerses;
+
+  if (isFullChapter) {
+    return getPassageData({ book: canonicalBook.name, chapter: sChap, preferredVersion });
+  }
+
+  const fullBible = await fetchFullBible();
+  let rangeVerses = [];
+
+  if (fullBible && fullBible.length > 0) {
+    const bookIdx = CANONICAL_BOOKS.findIndex(b => b.name === canonicalBook.name);
+    let bookData = (bookIdx >= 0 && fullBible[bookIdx]) ? fullBible[bookIdx] : null;
+
+    if (!bookData) {
+      bookData = fullBible.find(b => {
+        const norm = normalizeBookName(b.name);
+        return norm === normalizeBookName(canonicalBook.name) || b.abbrev === normalizeBookName(canonicalBook.name);
+      });
+    }
+
+    if (bookData && bookData.chapters) {
+      for (let c = sChap; c <= eChap; c++) {
+        const chapterVersesRaw = bookData.chapters[c - 1] || [];
+        const vStartIdx = (c === sChap) ? sVerse - 1 : 0;
+        const vEndIdx = (c === eChap) ? eVerse - 1 : chapterVersesRaw.length - 1;
+
+        for (let v = vStartIdx; v <= vEndIdx; v++) {
+          if (chapterVersesRaw[v] !== undefined) {
+            rangeVerses.push({
+              num: v + 1,
+              chapter: c,
+              verseId: `${c}:${v + 1}`,
+              text: chapterVersesRaw[v].trim()
+            });
+          }
+        }
+      }
+    }
+  }
+
+  if (rangeVerses.length === 0) {
+    rangeVerses.push({
+      num: sVerse,
+      chapter: sChap,
+      verseId: `${sChap}:${sVerse}`,
+      text: `Texto sagrado de ${canonicalBook.name} ${sChap}:${sVerse}.`
+    });
+  }
+
+  const titleStr = isCrossChapter
+    ? `${canonicalBook.name} ${sChap}:${sVerse} — ${eChap}:${eVerse}`
+    : (sVerse === eVerse 
+        ? `${canonicalBook.name} ${sChap}:${sVerse}`
+        : `${canonicalBook.name} ${sChap}:${sVerse}-${eVerse}`);
+
+  const versesRangeStr = isCrossChapter
+    ? `${sChap}:${sVerse} — ${eChap}:${eVerse}`
+    : `${sVerse}-${eVerse}`;
+
+  return {
+    id: `${normalizeBookName(canonicalBook.name)}-range-${sChap}_${sVerse}-${eChap}_${eVerse}`,
+    book: canonicalBook.name,
+    chapter: isCrossChapter ? `${sChap} — ${eChap}` : sChap,
+    isRange: true,
+    isMultiChapter: isCrossChapter,
+    rangeSpec: {
+      startChapter: sChap,
+      startVerse: sVerse,
+      endChapter: eChap,
+      endVerse: eVerse
+    },
+    versesRange: versesRangeStr,
+    title: titleStr,
+    theme: getBookTheme(canonicalBook, sChap),
+    background: getHistoricalBackground(canonicalBook),
+    originalWords: getOriginalKeywords(canonicalBook),
+    versions: {
+      RVR1960: rangeVerses,
+      NTV: rangeVerses,
+      NVI: rangeVerses,
+      KJV: rangeVerses
+    }
+  };
 }

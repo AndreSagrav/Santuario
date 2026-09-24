@@ -29,7 +29,7 @@ import {
 } from 'lucide-react';
 import { BIBLES_DATA, BIBLE_VERSIONS } from '../data/biblesData';
 import { CANONICAL_BOOKS } from '../data/canonicalBooks';
-import { getPassageData } from '../services/bibleFetchService';
+import { getPassageData, getPassageRangeData } from '../services/bibleFetchService';
 import { sacredAudio } from '../services/sacredAudioEngine';
 import { getChapterVerseCount } from '../data/bibleVerseCounts';
 import TheologicalApparatusDrawer from './TheologicalApparatusDrawer';
@@ -66,6 +66,11 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
   // Estado del Modal Selector de Libros y Capítulos
   const [isBookPickerOpen, setIsBookPickerOpen] = useState(false);
   const [pickerStep, setPickerStep] = useState('book'); // 'book' | 'chapter' | 'verse'
+  const [pickerMode, setPickerMode] = useState('chapter'); // 'chapter' | 'range'
+  const [rangeStartChapter, setRangeStartChapter] = useState(1);
+  const [rangeStartVerse, setRangeStartVerse] = useState(1);
+  const [rangeEndChapter, setRangeEndChapter] = useState(1);
+  const [rangeEndVerse, setRangeEndVerse] = useState(10);
   const [bookSearchQuery, setBookSearchQuery] = useState('');
   const [selectedTestament, setSelectedTestament] = useState('all'); // 'all' | 'AT' | 'NT'
   const [selectedBookObj, setSelectedBookObj] = useState(CANONICAL_BOOKS[0]); // Génesis por defecto
@@ -250,7 +255,7 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
     });
   };
 
-  // Cargar pasaje dinámicamente con soporte de versículos y rangos
+    // Cargar pasaje dinámicamente con soporte de versículos y rangos continuos
   const handleSelectPassage = async (bookName, chapterNum, verseConfig = null) => {
     setIsLoadingPassage(true);
     sacredAudio.stopSpeaking();
@@ -258,33 +263,27 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
     setActiveSpeakingVerse(null);
 
     try {
-      const data = await getPassageData({ book: bookName, chapter: chapterNum, preferredVersion: primaryVersion });
+      let data;
+      if (verseConfig?.isRange) {
+        data = await getPassageRangeData({
+          book: bookName,
+          startChapter: verseConfig.startChapter || chapterNum,
+          startVerse: verseConfig.startVerse || 1,
+          endChapter: verseConfig.endChapter || chapterNum,
+          endVerse: verseConfig.endVerse,
+          preferredVersion: primaryVersion
+        });
+      } else {
+        data = await getPassageData({ book: bookName, chapter: chapterNum, preferredVersion: primaryVersion });
+      }
+
       setCurrentPassage(data);
       setSelectedPassageId(data.id);
       
       const vList = data.versions?.[primaryVersion] || data.versions?.["RVR1960"] || [];
-      const totalV = vList.length;
-
-      if (verseConfig) {
-        if (verseConfig.verseMode === 'all') {
-          setSelectedVerseNumbers(vList.map(v => v.num));
-          setRangeStart(1);
-          setRangeEnd(totalV || 1);
-        } else {
-          const vStart = Math.max(1, Math.min(Number(verseConfig.verseStart) || 1, totalV));
-          const vEnd = Math.max(vStart, Math.min(Number(verseConfig.verseEnd) || totalV, totalV));
-          const nums = [];
-          for (let i = vStart; i <= vEnd; i++) nums.push(i);
-          setSelectedVerseNumbers(nums.length > 0 ? nums : [1]);
-          setRangeStart(vStart);
-          setRangeEnd(vEnd);
-        }
-      } else {
-        // Por defecto todos los versículos del capítulo están activos y seleccionados
-        setSelectedVerseNumbers(vList.map(v => v.num));
-        setRangeStart(1);
-        setRangeEnd(totalV || 1);
-      }
+      setSelectedVerseNumbers([]);
+      setRangeStart(vList[0]?.num || 1);
+      setRangeEnd(vList[vList.length - 1]?.num || 1);
     } catch (e) {
       console.error("Error al cargar pasaje bíblico:", e);
     } finally {
@@ -326,6 +325,12 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
     setModalVerseMode('all');
     setModalVerseStart(1);
     setModalVerseEnd(vCount);
+
+    setRangeStartChapter(targetChap);
+    setRangeStartVerse(1);
+    setRangeEndChapter(targetChap);
+    setRangeEndVerse(Math.min(10, vCount));
+    setPickerMode('chapter');
     setPickerStep('book');
     setIsBookPickerOpen(true);
   };
@@ -352,6 +357,33 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
     setModalVerseEnd(vCount);
   };
 
+  // Aislar el tramo de versículos seleccionados para lectura limpia sin el resto del capítulo
+  const handleIsolateSelection = () => {
+    if (selectedVerseNumbers.length === 0) return;
+    const minV = Math.min(...selectedVerseNumbers);
+    const maxV = Math.max(...selectedVerseNumbers);
+    const currChap = Number(currentPassage.chapter) || 1;
+    handleSelectPassage(currentPassage.book, currChap, {
+      isRange: true,
+      startChapter: currChap,
+      startVerse: minV,
+      endChapter: currChap,
+      endVerse: maxV
+    });
+  };
+
+  // Confirmar selección de tramo personalizado desde el modal
+  const handleConfirmRangeSelection = async () => {
+    setIsBookPickerOpen(false);
+    await handleSelectPassage(selectedBookObj.name, rangeStartChapter, {
+      isRange: true,
+      startChapter: rangeStartChapter,
+      startVerse: rangeStartVerse,
+      endChapter: rangeEndChapter,
+      endVerse: rangeEndVerse
+    });
+  };
+
   // Confirmar selección del modal con el botón "Aceptar y Cargar Selección"
   const handleConfirmModalSelection = async (overrideStart = null, overrideEnd = null, overrideVStart = null, overrideVEnd = null) => {
     setIsBookPickerOpen(false);
@@ -361,7 +393,7 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
     const chapVerses = getChapterVerseCount(selectedBookObj.name, startChap);
     const vStart = typeof overrideVStart === 'number' ? overrideVStart : modalVerseStart;
     const vEnd = typeof overrideVEnd === 'number' ? overrideVEnd : (modalVerseMode === 'all' ? chapVerses : modalVerseEnd);
-    const vMode = typeof overrideVStart === 'number' ? 'range' : modalVerseMode;
+    const isSpecificRange = (modalVerseMode === 'range' && (vStart > 1 || vEnd < chapVerses)) || typeof overrideVStart === 'number';
 
     setStudyChapterRange({
       book: selectedBookObj.name,
@@ -369,11 +401,17 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
       end: endChap
     });
 
-    await handleSelectPassage(selectedBookObj.name, startChap, {
-      verseMode: vMode,
-      verseStart: Math.min(vStart, vEnd),
-      verseEnd: Math.max(vStart, vEnd)
-    });
+    if (isSpecificRange) {
+      await handleSelectPassage(selectedBookObj.name, startChap, {
+        isRange: true,
+        startChapter: startChap,
+        startVerse: Math.min(vStart, vEnd),
+        endChapter: endChap,
+        endVerse: Math.max(vStart, vEnd)
+      });
+    } else {
+      await handleSelectPassage(selectedBookObj.name, startChap);
+    }
   };
 
   // Dividir versículos para modo 2 columnas equilibrado
@@ -480,12 +518,12 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
             ))}
           </div>
 
-          {/* Chip de Versículo Seleccionado (si hay selección específica) */}
+          {/* Chip de Versículo Seleccionado con opción de Aislar */}
           {selectedVerseNumbers.length > 0 && selectedVerseNumbers.length < versesList.length && (
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '8px',
               padding: '4px 10px',
               borderRadius: '7px',
               background: 'rgba(212,175,55,0.18)',
@@ -496,9 +534,25 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
             }}>
               <span>v. {verseRangeDisplay}</span>
               <button
+                onClick={handleIsolateSelection}
+                style={{
+                  background: 'var(--gold-400)',
+                  border: 'none',
+                  borderRadius: '4px',
+                  color: '#07090e',
+                  padding: '2px 7px',
+                  fontSize: '0.72rem',
+                  fontWeight: '800',
+                  cursor: 'pointer'
+                }}
+                title="Aislar y leer exclusivamente estos versículos"
+              >
+                Aislar Lectura
+              </button>
+              <button
                 onClick={() => setSelectedVerseNumbers([])}
                 style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
-                title="Quitar selección puntual"
+                title="Quitar selección"
               >
                 <X size={13} />
               </button>
@@ -621,11 +675,37 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
       {/* 2. ENCABEZADO SERENO DEL PASAJE */}
       <div style={{ textAlign: 'center', marginBottom: '28px' }}>
         <h1 className="font-cinzel gold-text-gradient" style={{ fontSize: '2.3rem', fontWeight: '800', margin: '0 0 6px' }}>
-          {currentPassage.book} {currentPassage.chapter}
+          {currentPassage.isRange ? currentPassage.title : `${currentPassage.book} ${currentPassage.chapter}`}
         </h1>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', margin: 0 }}>
-          {currentPassage.title ? `${currentPassage.title} • ` : ''}{primaryVersion}
+          {currentPassage.theme ? `${currentPassage.theme} • ` : ''}{primaryVersion}
         </p>
+
+        {currentPassage.isRange && (
+          <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '0.8rem', color: '#ffd700', background: 'rgba(212,175,55,0.12)', padding: '3px 12px', borderRadius: '6px', border: '1px solid rgba(212,175,55,0.3)', fontWeight: '700' }}>
+              Tramo Seleccionado ({versesList.length} versículos)
+            </span>
+            <button
+              onClick={() => handleSelectPassage(currentPassage.book, currentPassage.rangeSpec?.startChapter || 1)}
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.18)',
+                color: '#ffffff',
+                borderRadius: '6px',
+                padding: '3px 12px',
+                fontSize: '0.78rem',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+              title="Restaurar y leer el capítulo completo"
+            >
+              <span>⤢ Ver Capítulo Completo</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 3. LECTURA BÍBLICA LIMPIA E INMERSIVA */}
@@ -997,9 +1077,9 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
                 </div>
               )}
 
-              {/* PASO 2: SELECCIONAR CAPÍTULO */}
+              {/* PASO 2: SELECCIONAR CAPÍTULO O TRAMO PERSONALIZADO */}
               {pickerStep === 'chapter' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {/* Subcabecera informativa del libro seleccionado */}
                   <div style={{
                     display: 'flex',
@@ -1008,7 +1088,9 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
                     padding: '12px 18px',
                     borderRadius: '10px',
                     background: 'rgba(212,175,55,0.08)',
-                    border: '1px solid rgba(212,175,55,0.25)'
+                    border: '1px solid rgba(212,175,55,0.25)',
+                    flexWrap: 'wrap',
+                    gap: '10px'
                   }}>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1020,68 +1102,311 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
                         </span>
                       </div>
                       <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                        Seleccione un número para fijar el capítulo. Doble clic para abrir al instante.
+                        {pickerMode === 'chapter' 
+                          ? 'Seleccione un capítulo completo para lectura directa o pase a versículos' 
+                          : 'Configure libremente el tramo de lectura (mismo capítulo o trans-capítulo)'}
                       </span>
                     </div>
 
-                    <button
-                      onClick={() => setPickerStep('book')}
-                      style={{
-                        padding: '6px 12px',
-                        borderRadius: '6px',
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.12)',
-                        color: 'var(--text-muted)',
-                        fontSize: '0.8rem',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      ← Cambiar Libro
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {/* Switch entre Capítulo Completo y Tramo */}
+                      <div style={{ display: 'flex', background: 'rgba(0,0,0,0.4)', borderRadius: '8px', padding: '3px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <button
+                          onClick={() => setPickerMode('chapter')}
+                          style={{
+                            padding: '5px 12px',
+                            borderRadius: '6px',
+                            background: pickerMode === 'chapter' ? 'var(--gold-400)' : 'transparent',
+                            color: pickerMode === 'chapter' ? '#07090e' : 'var(--text-muted)',
+                            border: 'none',
+                            fontWeight: pickerMode === 'chapter' ? '800' : '500',
+                            fontSize: '0.78rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ⚡ Por Capítulo
+                        </button>
+                        <button
+                          onClick={() => {
+                            setPickerMode('range');
+                            setRangeStartChapter(modalChapterStart);
+                            setRangeStartVerse(1);
+                            setRangeEndChapter(modalChapterStart);
+                            setRangeEndVerse(Math.min(10, getChapterVerseCount(selectedBookObj.name, modalChapterStart)));
+                          }}
+                          style={{
+                            padding: '5px 12px',
+                            borderRadius: '6px',
+                            background: pickerMode === 'range' ? 'var(--gold-400)' : 'transparent',
+                            color: pickerMode === 'range' ? '#07090e' : 'var(--text-muted)',
+                            border: 'none',
+                            fontWeight: pickerMode === 'range' ? '800' : '500',
+                            fontSize: '0.78rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          🎯 Tramo / Perícopa
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={() => setPickerStep('book')}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: '6px',
+                          background: 'rgba(255,255,255,0.05)',
+                          border: '1px solid rgba(255,255,255,0.12)',
+                          color: 'var(--text-muted)',
+                          fontSize: '0.8rem',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ← Libros
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Cuadrícula de Números de Capítulos */}
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(52px, 1fr))',
-                    gap: '10px',
-                    maxHeight: '50vh',
-                    overflowY: 'auto',
-                    padding: '6px 4px'
-                  }}>
-                    {Array.from({ length: selectedBookObj.chapters }, (_, i) => i + 1).map((chap) => {
-                      const isSelected = modalChapterStart === chap;
-                      return (
+                  {/* VISTA A: CUADRÍCULA DE CAPÍTULOS ESTÁNDAR */}
+                  {pickerMode === 'chapter' ? (
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(52px, 1fr))',
+                      gap: '10px',
+                      maxHeight: '50vh',
+                      overflowY: 'auto',
+                      padding: '6px 4px'
+                    }}>
+                      {Array.from({ length: selectedBookObj.chapters }, (_, i) => i + 1).map((chap) => {
+                        const isSelected = modalChapterStart === chap;
+                        return (
+                          <button
+                            key={chap}
+                            onClick={() => handleModalChapterClick(chap)}
+                            onDoubleClick={() => handleConfirmModalSelection(chap, chap)}
+                            style={{
+                              height: '52px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              borderRadius: '10px',
+                              background: isSelected
+                                ? 'linear-gradient(135deg, var(--gold-400) 0%, #b8860b 100%)'
+                                : 'rgba(255,255,255,0.04)',
+                              border: isSelected
+                                ? '1.5px solid #ffd700'
+                                : '1px solid rgba(255,255,255,0.08)',
+                              color: isSelected ? '#05070a' : '#ffffff',
+                              fontWeight: isSelected ? '900' : '600',
+                              fontSize: '1.05rem',
+                              cursor: 'pointer',
+                              boxShadow: isSelected ? '0 0 16px rgba(212,175,55,0.4)' : 'none',
+                              transition: 'all 0.12s ease'
+                            }}
+                            title={'Capítulo ' + chap + ' (Doble clic para cargar inmediatamente)'}
+                          >
+                            {chap}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    /* VISTA B: TRAMO PERSONALIZADO (PERÍCOPA CONTINUA) */
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                        gap: '16px'
+                      }}>
+                        {/* Panel Inicio */}
+                        <div style={{
+                          background: 'rgba(255,255,255,0.03)',
+                          border: '1px solid rgba(74,222,128,0.3)',
+                          borderRadius: '12px',
+                          padding: '16px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '12px'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '6px' }}>
+                            <span style={{ fontSize: '0.82rem', fontWeight: '800', color: '#4ade80' }}>
+                              ● INICIO DE LECTURA
+                            </span>
+                          </div>
+
+                          <div>
+                            <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                              Capítulo Inicial:
+                            </label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <button
+                                onClick={() => {
+                                  const prev = Math.max(1, rangeStartChapter - 1);
+                                  setRangeStartChapter(prev);
+                                  if (rangeEndChapter < prev) setRangeEndChapter(prev);
+                                }}
+                                style={{ width: '32px', height: '34px', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', fontWeight: '700' }}
+                              >-</button>
+                              <select
+                                value={rangeStartChapter}
+                                onChange={(e) => {
+                                  const c = Number(e.target.value);
+                                  setRangeStartChapter(c);
+                                  if (rangeEndChapter < c) setRangeEndChapter(c);
+                                }}
+                                style={{ flex: 1, padding: '7px 10px', background: '#0b0f17', border: '1px solid rgba(212,175,55,0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                              >
+                                {Array.from({ length: selectedBookObj.chapters }, (_, i) => i + 1).map(c => (
+                                  <option key={c} value={c}>Capítulo {c}</option>
+                                ))}
+                              </select>
+                              <button
+                                onClick={() => {
+                                  const next = Math.min(selectedBookObj.chapters, rangeStartChapter + 1);
+                                  setRangeStartChapter(next);
+                                  if (rangeEndChapter < next) setRangeEndChapter(next);
+                                }}
+                                style={{ width: '32px', height: '34px', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', fontWeight: '700' }}
+                              >+</button>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                              Versículo Inicial (1 al {getChapterVerseCount(selectedBookObj.name, rangeStartChapter)}):
+                            </label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <button
+                                onClick={() => setRangeStartVerse(Math.max(1, rangeStartVerse - 1))}
+                                style={{ width: '32px', height: '34px', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', fontWeight: '700' }}
+                              >-</button>
+                              <select
+                                value={rangeStartVerse}
+                                onChange={(e) => setRangeStartVerse(Number(e.target.value))}
+                                style={{ flex: 1, padding: '7px 10px', background: '#0b0f17', border: '1px solid rgba(212,175,55,0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                              >
+                                {Array.from({ length: getChapterVerseCount(selectedBookObj.name, rangeStartChapter) }, (_, i) => i + 1).map(v => (
+                                  <option key={v} value={v}>Versículo {v}</option>
+                                ))}
+                              </select>
+                              <button
+                                onClick={() => setRangeStartVerse(Math.min(getChapterVerseCount(selectedBookObj.name, rangeStartChapter), rangeStartVerse + 1))}
+                                style={{ width: '32px', height: '34px', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', fontWeight: '700' }}
+                              >+</button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Panel Fin */}
+                        <div style={{
+                          background: 'rgba(255,255,255,0.03)',
+                          border: '1px solid rgba(239,68,68,0.3)',
+                          borderRadius: '12px',
+                          padding: '16px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '12px'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '6px' }}>
+                            <span style={{ fontSize: '0.82rem', fontWeight: '800', color: '#f87171' }}>
+                              ● FIN DE LECTURA
+                            </span>
+                          </div>
+
+                          <div>
+                            <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                              Capítulo Final:
+                            </label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <button
+                                onClick={() => setRangeEndChapter(Math.max(rangeStartChapter, rangeEndChapter - 1))}
+                                style={{ width: '32px', height: '34px', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', fontWeight: '700' }}
+                              >-</button>
+                              <select
+                                value={rangeEndChapter}
+                                onChange={(e) => setRangeEndChapter(Number(e.target.value))}
+                                style={{ flex: 1, padding: '7px 10px', background: '#0b0f17', border: '1px solid rgba(212,175,55,0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                              >
+                                {Array.from({ length: selectedBookObj.chapters - rangeStartChapter + 1 }, (_, i) => rangeStartChapter + i).map(c => (
+                                  <option key={c} value={c}>Capítulo {c}</option>
+                                ))}
+                              </select>
+                              <button
+                                onClick={() => setRangeEndChapter(Math.min(selectedBookObj.chapters, rangeEndChapter + 1))}
+                                style={{ width: '32px', height: '34px', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', fontWeight: '700' }}
+                              >+</button>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                              Versículo Final (1 al {getChapterVerseCount(selectedBookObj.name, rangeEndChapter)}):
+                            </label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <button
+                                onClick={() => setRangeEndVerse(Math.max(1, rangeEndVerse - 1))}
+                                style={{ width: '32px', height: '34px', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', fontWeight: '700' }}
+                              >-</button>
+                              <select
+                                value={rangeEndVerse}
+                                onChange={(e) => setRangeEndVerse(Number(e.target.value))}
+                                style={{ flex: 1, padding: '7px 10px', background: '#0b0f17', border: '1px solid rgba(212,175,55,0.3)', borderRadius: '6px', color: '#fff', fontSize: '0.88rem' }}
+                              >
+                                {Array.from({ length: getChapterVerseCount(selectedBookObj.name, rangeEndChapter) }, (_, i) => i + 1).map(v => (
+                                  <option key={v} value={v}>Versículo {v}</option>
+                                ))}
+                              </select>
+                              <button
+                                onClick={() => setRangeEndVerse(Math.min(getChapterVerseCount(selectedBookObj.name, rangeEndChapter), rangeEndVerse + 1))}
+                                style={{ width: '32px', height: '34px', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', cursor: 'pointer', fontWeight: '700' }}
+                              >+</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Resumen del Tramo y Botón de Carga Rápida */}
+                      <div style={{
+                        padding: '12px 18px',
+                        borderRadius: '10px',
+                        background: 'rgba(212,175,55,0.1)',
+                        border: '1px solid rgba(212,175,55,0.3)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: '10px'
+                      }}>
+                        <div>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Tramo definido: </span>
+                          <span style={{ fontSize: '0.98rem', fontWeight: '800', color: '#ffd700' }}>
+                            {selectedBookObj.name}{' '}
+                            {rangeStartChapter === rangeEndChapter
+                              ? (rangeStartVerse === rangeEndVerse 
+                                  ? `${rangeStartChapter}:${rangeStartVerse}` 
+                                  : `${rangeStartChapter}:${rangeStartVerse}-${rangeEndVerse}`)
+                              : `${rangeStartChapter}:${rangeStartVerse} — ${rangeEndChapter}:${rangeEndVerse}`}
+                          </span>
+                        </div>
                         <button
-                          key={chap}
-                          onClick={() => handleModalChapterClick(chap)}
-                          onDoubleClick={() => handleConfirmModalSelection(chap, chap)}
+                          onClick={handleConfirmRangeSelection}
+                          className="btn-gold font-cinzel"
                           style={{
-                            height: '52px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderRadius: '10px',
-                            background: isSelected
-                              ? 'linear-gradient(135deg, var(--gold-400) 0%, #b8860b 100%)'
-                              : 'rgba(255,255,255,0.04)',
-                            border: isSelected
-                              ? '1.5px solid #ffd700'
-                              : '1px solid rgba(255,255,255,0.08)',
-                            color: isSelected ? '#05070a' : '#ffffff',
-                            fontWeight: isSelected ? '900' : '600',
-                            fontSize: '1.05rem',
+                            padding: '8px 20px',
+                            fontSize: '0.88rem',
+                            fontWeight: '800',
+                            borderRadius: '8px',
                             cursor: 'pointer',
-                            boxShadow: isSelected ? '0 0 16px rgba(212,175,55,0.4)' : 'none',
-                            transition: 'all 0.12s ease'
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px'
                           }}
-                          title={'Capítulo ' + chap + ' (Doble clic para cargar inmediatamente)'}
                         >
-                          {chap}
+                          <Check size={16} />
+                          <span>Cargar este Tramo</span>
                         </button>
-                      );
-                    })}
-                  </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1235,8 +1560,11 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Selección activa:</span>
                 <span style={{ fontSize: '0.95rem', fontWeight: '800', color: '#ffd700' }}>
-                  {selectedBookObj.name} {modalChapterStart}
-                  {modalVerseMode === 'range' ? ':' + modalVerseStart + '-' + modalVerseEnd : ''}
+                  {pickerMode === 'range' && pickerStep === 'chapter'
+                    ? (rangeStartChapter === rangeEndChapter
+                        ? `${selectedBookObj.name} ${rangeStartChapter}:${rangeStartVerse}-${rangeEndVerse}`
+                        : `${selectedBookObj.name} ${rangeStartChapter}:${rangeStartVerse} — ${rangeEndChapter}:${rangeEndVerse}`)
+                    : `${selectedBookObj.name} ${modalChapterStart}${modalVerseMode === 'range' ? ':' + modalVerseStart + '-' + modalVerseEnd : ''}`}
                 </span>
               </div>
 
@@ -1275,7 +1603,13 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
                   </button>
                 ) : (
                   <button
-                    onClick={() => handleConfirmModalSelection()}
+                    onClick={() => {
+                      if (pickerMode === 'range' && pickerStep === 'chapter') {
+                        handleConfirmRangeSelection();
+                      } else {
+                        handleConfirmModalSelection();
+                      }
+                    }}
                     className="btn-gold font-cinzel"
                     style={{
                       padding: '8px 22px',
@@ -1290,7 +1624,11 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
                     }}
                   >
                     <Check size={18} />
-                    <span>Cargar {selectedBookObj.name} {modalChapterStart}</span>
+                    <span>
+                      {pickerMode === 'range' && pickerStep === 'chapter'
+                        ? `Cargar Tramo: ${rangeStartChapter === rangeEndChapter ? `${rangeStartChapter}:${rangeStartVerse}-${rangeEndVerse}` : `${rangeStartChapter}:${rangeStartVerse} — ${rangeEndChapter}:${rangeEndVerse}`}`
+                        : `Cargar ${selectedBookObj.name} ${modalChapterStart}`}
+                    </span>
                   </button>
                 )}
               </div>
