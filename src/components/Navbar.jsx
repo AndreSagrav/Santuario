@@ -27,13 +27,24 @@ export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSound
   const [isManualSyncing, setIsManualSyncing] = useState(false);
   const [manualSyncMsg, setManualSyncMsg] = useState('');
 
-  const [selectedGeminiModel, setSelectedGeminiModel] = useState(() => localStorage.getItem("santuario_theology_gemini_model") || "gemini-1.5-flash");
+  const [selectedGeminiModel, setSelectedGeminiModel] = useState(() => {
+    const saved = localStorage.getItem("santuario_theology_gemini_model");
+    if (!saved || saved.includes("1.5") || saved.includes("2.0") || saved.includes("2.5")) {
+      return "gemini-3.8-flash";
+    }
+    return saved;
+  });
   const [isDetectingModels, setIsDetectingModels] = useState(false);
   const [detectedModelsMsg, setDetectedModelsMsg] = useState('');
 
   const handleOpenKeyModal = () => {
     setApiKeys(getAllApiKeys());
-    setSelectedGeminiModel(localStorage.getItem("santuario_theology_gemini_model") || "gemini-1.5-flash");
+    const saved = localStorage.getItem("santuario_theology_gemini_model");
+    if (!saved || saved.includes("1.5") || saved.includes("2.0") || saved.includes("2.5")) {
+      setSelectedGeminiModel("gemini-3.8-flash");
+    } else {
+      setSelectedGeminiModel(saved);
+    }
     setShowApiKeyModal(true);
   };
 
@@ -447,17 +458,21 @@ export default function Navbar({ activeTab, setActiveTab, toggleZenMode, isSound
                     list="gemini-models-list"
                     className="sacred-input"
                     style={{ fontSize: '0.84rem', padding: '6px 10px' }}
-                    placeholder="gemini-1.5-flash, gemini-2.0-flash..."
+                    placeholder="gemini-3.8-flash, gemini-flash-latest..."
                     value={selectedGeminiModel}
                     onChange={(e) => setSelectedGeminiModel(e.target.value)}
                   />
                   <datalist id="gemini-models-list">
-                    <option value="gemini-1.5-flash" />
-                    <option value="gemini-2.0-flash" />
-                    <option value="gemini-1.5-pro" />
-                    <option value="gemini-2.0-flash-lite" />
-                    <option value="gemini-2.5-flash" />
+                    <option value="gemini-3.8-flash" />
+                    <option value="gemini-3.7-flash" />
+                    <option value="gemini-3.5-flash-lite" />
+                    <option value="gemini-3.5-flash" />
+                    <option value="gemini-3.6-flash" />
+                    <option value="gemini-3.1-flash-lite" />
                     <option value="gemini-flash-latest" />
+                    <option value="gemini-flash-lite-latest" />
+                    <option value="gemini-3.1-pro-preview" />
+                    <option value="gemini-pro-latest" />
                   </datalist>
                   {detectedModelsMsg && (
                     <span style={{ fontSize: '0.72rem', color: '#86efac' }}>{detectedModelsMsg}</span>
