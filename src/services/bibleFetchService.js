@@ -64,32 +64,50 @@ async function fetchFullBible() {
   if (!fullBiblePromise) {
     fullBiblePromise = (async () => {
       // 1. Intentar cargar desde los recursos estáticos locales (Ultra rápido)
-      try {
-        const res = await fetch('/data/bible_es_rvr.json');
-        if (res.ok) {
-          const text = await res.text();
-          // Limpiar BOM si existiera
-          const cleanText = text.charCodeAt(0) === 0xFEFF ? text.substring(1) : text;
-          fullBibleCache = JSON.parse(cleanText);
-          return fullBibleCache;
+      const baseUrl = import.meta.env.BASE_URL || '/';
+      const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+      const localPaths = [
+        `${cleanBase}data/bible_es_rvr.json`,
+        './data/bible_es_rvr.json',
+        '/data/bible_es_rvr.json',
+        'data/bible_es_rvr.json'
+      ];
+
+      for (const path of localPaths) {
+        try {
+          const res = await fetch(path);
+          if (res.ok) {
+            const text = await res.text();
+            const cleanText = text.charCodeAt(0) === 0xFEFF ? text.substring(1) : text;
+            fullBibleCache = JSON.parse(cleanText);
+            return fullBibleCache;
+          }
+        } catch {
+          // Intentar la siguiente ruta local
         }
-      } catch (e) {
-        console.warn('Carga local de biblia falló, intentando CDN:', e);
       }
 
       // 2. Respaldo CDN en caso de servidor estático no disponible
-      try {
-        const resCdn = await fetch('https://cdn.jsdelivr.net/gh/thiagobodruk/bible/json/es_rvr.json');
-        if (resCdn.ok) {
-          const textCdn = await resCdn.text();
-          const cleanTextCdn = textCdn.charCodeAt(0) === 0xFEFF ? textCdn.substring(1) : textCdn;
-          fullBibleCache = JSON.parse(cleanTextCdn);
-          return fullBibleCache;
+      const cdnUrls = [
+        'https://cdn.jsdelivr.net/gh/thiagobodruk/bible@master/json/es_rvr.json',
+        'https://raw.githubusercontent.com/thiagobodruk/bible/master/json/es_rvr.json'
+      ];
+
+      for (const cdnUrl of cdnUrls) {
+        try {
+          const resCdn = await fetch(cdnUrl);
+          if (resCdn.ok) {
+            const textCdn = await resCdn.text();
+            const cleanTextCdn = textCdn.charCodeAt(0) === 0xFEFF ? textCdn.substring(1) : textCdn;
+            fullBibleCache = JSON.parse(cleanTextCdn);
+            return fullBibleCache;
+          }
+        } catch {
+          // Continuar con siguiente CDN
         }
-      } catch (e2) {
-        console.error('Fallo en todas las fuentes de texto bíblico:', e2);
       }
 
+      console.error('Fallo en todas las fuentes de texto bíblico');
       return null;
     })();
   }
