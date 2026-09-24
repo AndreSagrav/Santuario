@@ -120,24 +120,25 @@ export default function TheologicalApparatusDrawer({
           secondaryText: 'Καὶ οὗτοι οἱ ἐλθόντες εἰς Σεκελακ • βοηθοῦντες ἐν πολέμῳ',
           secondaryTranslit: 'Kai houtoi hoi elthontes eis Sekelak • boēthountes en polemō',
           morphologyItems: [
-            { term: 'עֹזְרֵי (H5828)', note: "Part. activo plural constr. Qal de 'azar: «ayudadores leales en la batalla»." },
-            { term: 'גִּבּוֹרִים (H1368)', note: 'Sustantivo masc. plural: guerreros valientes de probada virtud moral y militar.' },
-            { term: 'צִקְלַג (H6860)', note: 'Topónimo del Néguev bíblico donde David consolidó la unificación del reino.' }
+            { spanish: 'Ayudadores en la guerra', term: 'עֹזְרֵי', translit: "'ozrê", strong: 'H5828', grammar: 'Part. activo plural constr. Qal', note: 'Describe una milicia leal cohesionada por juramento de fidelidad militar y espiritual.' },
+            { spanish: 'Valientes / Hombres de poder', term: 'גִּבּוֹרִים', translit: 'gibbôrîm', strong: 'H1368', grammar: 'Sustantivo masc. plural', note: 'Guerreros veteranos de probada virtud moral, valentía y lealtad.' },
+            { spanish: 'Siclag (Enclave)', term: 'צִקְלַג', translit: 'Tsiqlag', strong: 'H6860', grammar: 'Topónimo del Néguev', note: 'Base estratégica de David donde se fraguó la unificación de las doce tribus.' }
           ]
         };
       }
       if (corpus.book.includes('Génesis')) {
         return {
-          primaryTitle: 'Texto Masorético (BHS):',
+          primaryTitle: 'Texto Masorético (BHS / Codex Leningradensis):',
           primaryText: 'בְּרֵאשִׁית בָּרָא אֱלֹהִים אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ',
           primaryTranslit: "Bereshit bara Elohim 'et hashamayim w'et ha'aretz",
           secondaryTitle: 'Septuaginta Griega (Génesis LXX):',
           secondaryText: 'Ἐν ἀρχῇ ἐποίησεν ὁ θεὸς τὸν οὐρανὸν καὶ τὴν γῆν',
           secondaryTranslit: 'En archē epoiēsen ho theos ton ouranon kai tēn gēn',
           morphologyItems: [
-            { term: 'בָּרָא (H1254)', note: 'Perfecto Qal 3ms: crear ex nihilo; sujeto exclusivo divino.' },
-            { term: 'אֱלֹהִים (H430)', note: 'Plural de majestad creadora con verbo en singular.' },
-            { term: 'בְּרֵאשִׁית (H7225)', note: 'Sustantivo constructo: en el origen primordial ordenado.' }
+            { spanish: 'En el principio', term: 'בְּרֵאשִׁית', translit: 'Bereshit', strong: 'H7225', grammar: 'Sustantivo femenino constructo con prefijo Bet', note: 'Apertura solemne que designa el punto de partida absoluto del tiempo y el cosmos ordenado por Dios.' },
+            { spanish: 'Creó', term: 'בָּרָא', translit: 'Bará', strong: 'H1254', grammar: 'Verbo Qal Perfecto 3ª masc. sing.', note: 'Creación soberana ex nihilo (sin materia preexistente). Su sujeto exclusivo en todo el Tanaj bíblico es Dios.' },
+            { spanish: 'Dios', term: 'אֱלֹהִים', translit: 'Elohim', strong: 'H430', grammar: 'Sustantivo masculino plural con verbo en singular', note: 'Plural de majestad creadora absoluta que denota la plenitud de poder y soberanía infinita.' },
+            { spanish: 'Los cielos y la tierra', term: 'הַשָּׁמַיִם וְהָאָרֶץ', translit: "hashamayim w'et ha'aretz", strong: 'H8064 / H776', grammar: 'Merismo hebreo cosmológico', note: 'Figura de merismo que abarca la totalidad del universo creado, de lo más alto a lo más profundo.' }
           ]
         };
       }
@@ -150,9 +151,9 @@ export default function TheologicalApparatusDrawer({
           secondaryText: 'κύριος ποιμαίνει με καὶ οὐδέν με ὑστερήσει',
           secondaryTranslit: 'Kyrios poimainei me kai ouden me hysterēsei',
           morphologyItems: [
-            { term: 'רֹעִי (H7462)', note: 'Participio activo Qal con sufijo 1s: «pastoreándome de continuo».' },
-            { term: 'לֹא אֶחְסָר (H2637)', note: 'Partícula de negación absoluta más imperfecto Qal: provisión inquebrantable.' },
-            { term: 'יְהוָה (H3068)', note: 'Tetragrámaton del Dios del pacto eterno.' }
+            { spanish: 'Mi pastor / me pastorea', term: 'רֹעִי', translit: "Ro'î", strong: 'H7462', grammar: 'Participio activo Qal con sufijo 1s', note: 'Acción continua: «pastoreándome de continuo». Cuidado tierno, defensa y guía ininterrumpida.' },
+            { spanish: 'Nada me faltará', term: 'לֹא אֶחְסָר', translit: "Lo 'eḥsar", strong: 'H2637', grammar: 'Negación absoluta + Qal Imperfecto 1s', note: 'Certeza inquebrantable de que en la comunión con el Eterno nunca habrá carencia vital.' },
+            { spanish: 'El Señor / Yahweh', term: 'יְהוָה', translit: 'Yahwéh', strong: 'H3068', grammar: 'Nombre propio sagrado inefable (Tetragrámaton)', note: 'El Dios autosuficiente y fiel que entra en pacto personal e inquebrantable con su pueblo.' }
           ]
         };
       }
@@ -164,9 +165,9 @@ export default function TheologicalApparatusDrawer({
         secondaryText: 'ὁ νόμος τοῦ κυρίου ἄμωμος • ἐπιστρέφων ψυχάς',
         secondaryTranslit: 'Ho nomos tou kyriou amōmos',
         morphologyItems: [
-          { term: 'יְהוָה (H3068)', note: 'Nombre propio sagrado inefable de Dios revelado en el pacto.' },
-          { term: 'חֶסֶד (H2617)', note: 'Gracia, amor firme e incondicional de pacto.' },
-          { term: 'שָׁלוֹם (H7965)', note: 'Integridad cósmica, justicia y armonía integral.' }
+          { spanish: 'El Señor / Yahweh', term: 'יְהוָה', translit: 'Yahwéh', strong: 'H3068', grammar: 'Tetragrámaton sagrado', note: 'Nombre propio inefable del Dios de la alianza eterna.' },
+          { spanish: 'Misericordia / Amor Leal', term: 'חֶסֶד', translit: 'Jésed', strong: 'H2617', grammar: 'Sustantivo masculino', note: 'Gracia, fidelidad de pacto y amor entrañable e incondicional.' },
+          { spanish: 'Paz / Plenitud', term: 'שָׁלוֹם', translit: 'Shalom', strong: 'H7965', grammar: 'Sustantivo masculino', note: 'Integridad cósmica, justicia, reposo y bienestar integral divino.' }
         ]
       };
     } else {
@@ -178,9 +179,9 @@ export default function TheologicalApparatusDrawer({
         secondaryText: 'Gratia vobis et pax a Deo Patre et Domino Iesu Christo',
         secondaryTranslit: 'Vulgata Clementina / Stuttgart',
         morphologyItems: [
-          { term: 'χάρις (G5485)', note: 'Favor y gracia inmerecida otorgada libremente por Dios.' },
-          { term: 'πίστις (G4102)', note: 'Fe activa, lealtad perseverante y entrega incondicional a Cristo.' },
-          { term: 'εἰρήνη (G1515)', note: 'Paz mesiánica reconciliadora sellada en la cruz.' }
+          { spanish: 'Gracia', term: 'χάρις', translit: 'Jaris', strong: 'G5485', grammar: 'Sustantivo femenino nominativo', note: 'Favor y benevolencia inmerecida otorgada libremente por Dios a través de Cristo.' },
+          { spanish: 'Fe / Fidelidad', term: 'πίστις', translit: 'Pistis', strong: 'G4102', grammar: 'Sustantivo femenino nominativo', note: 'Confianza activa, convicción firme y entrega de lealtad absoluta.' },
+          { spanish: 'Paz', term: 'εἰρήνη', translit: 'Eirēnē', strong: 'G1515', grammar: 'Sustantivo femenino nominativo', note: 'Paz mesiánica reconciliadora sellada en la cruz y derramada por el Espíritu Santo.' }
         ]
       };
     }
@@ -235,6 +236,31 @@ export default function TheologicalApparatusDrawer({
           bg: 'rgba(244,114,182,0.06)',
           border: 'rgba(244,114,182,0.25)',
           text: '«El Dios de paz que resucitó de los muertos a nuestro Señor Jesucristo, el gran pastor de las ovejas por la sangre del pacto eterno».'
+        }
+      ];
+    }
+    if (corpus.book.includes('Génesis')) {
+      return [
+        {
+          badge: 'Pacto Edénico & Mandato Creacional (Gén 1-2)',
+          color: 'var(--gold-400)',
+          bg: 'rgba(212,175,55,0.06)',
+          border: 'rgba(212,175,55,0.25)',
+          text: 'Dios establece al ser humano a Su imagen y semejanza (Imago Dei) como mayordomo de la creación, en santidad y comunión perfecta con el Creador.'
+        },
+        {
+          badge: 'Cristo, Verbo Creador & Sustentador',
+          color: '#93c5fd',
+          bg: 'rgba(59,130,246,0.06)',
+          border: 'rgba(147,197,253,0.25)',
+          text: 'Juan 1:1-3 y Colosenses 1:16 revelan que en Cristo fueron creadas todas las cosas en los cielos y en la tierra; Él es anterior a todas las cosas y en Él todas subsisten.'
+        },
+        {
+          badge: 'El Protoevangelio & Victoria del Mesías (Gén 3:15)',
+          color: '#4ade80',
+          bg: 'rgba(74,222,128,0.06)',
+          border: 'rgba(74,222,128,0.25)',
+          text: 'La primera promesa redentora del pacto: la simiente de la mujer aplastará la cabeza de la serpiente, culminando en la resurrección triunfal de Jesús.'
         }
       ];
     }
@@ -632,16 +658,72 @@ export default function TheologicalApparatusDrawer({
                         </div>
                       </div>
 
-                      {getSectionContent(1) ? (
-                        <SacredContentRenderer content={getSectionContent(1)} multiColumn={true} />
-                      ) : (
-                        <div style={{ fontSize: '0.88rem', color: '#cbd5e1', lineHeight: 1.6 }}>
-                          {origCards.morphologyItems.map((item, idx) => (
-                            <div key={idx} style={{ marginBottom: '4px' }}>
-                              • <strong>{item.term}:</strong> {item.note}
+                      {/* Fichas Léxicas con Español Destacado, Original y Morfología */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                        gap: '12px',
+                        marginBottom: '16px'
+                      }}>
+                        {origCards.morphologyItems.map((item, idx) => (
+                          <div key={idx} style={{
+                            background: 'rgba(255,255,255,0.03)',
+                            border: '1px solid rgba(212,175,55,0.22)',
+                            borderRadius: '10px',
+                            padding: '14px 16px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '6px'
+                          }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                              <span style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffffff' }}>
+                                «{item.spanish || item.term}»
+                              </span>
+                              <span style={{
+                                fontSize: '0.72rem',
+                                color: 'var(--gold-400)',
+                                background: 'rgba(212,175,55,0.12)',
+                                border: '1px solid rgba(212,175,55,0.3)',
+                                padding: '2px 7px',
+                                borderRadius: '4px',
+                                fontWeight: '700'
+                              }}>
+                                {item.strong || ''}
+                              </span>
                             </div>
-                          ))}
-                        </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{
+                                fontFamily: corpus.isOldTestament ? "'SBL Hebrew', serif" : "'SBL Greek', serif",
+                                color: '#fef08a',
+                                fontWeight: '700',
+                                fontSize: '1.2rem',
+                                direction: corpus.isOldTestament ? 'rtl' : 'ltr'
+                              }}>
+                                {item.term}
+                              </span>
+                              {item.translit && (
+                                <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.82rem' }}>
+                                  ({item.translit})
+                                </span>
+                              )}
+                            </div>
+
+                            {item.grammar && (
+                              <span style={{ fontSize: '0.74rem', color: '#60a5fa', fontWeight: '700' }}>
+                                {item.grammar}
+                              </span>
+                            )}
+
+                            <p style={{ margin: '4px 0 0', fontSize: '0.84rem', color: '#cbd5e1', lineHeight: '1.55' }}>
+                              {item.note}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+
+                      {getSectionContent(1) && (
+                        <SacredContentRenderer content={getSectionContent(1)} multiColumn={true} />
                       )}
                     </div>
 

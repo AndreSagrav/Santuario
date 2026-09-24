@@ -46,20 +46,21 @@ Morfosintaxis Clave:
 • יְהוָה (H3068): El Tetragrámaton aparece como el garante soberano de la unificación nacional bajo la casa de David.`;
     } else if (corpus.book.includes('Génesis')) {
       langAnalysis = `1. Exégesis Lingüística & Morfología Original:
-Texto Hebreo Masorético (BHS / Codex Leningradensis):
-בְּרֵאשִׁית בָּרָא אֱלֹהִים (Bereshit bara Elohim).
-Morfosintaxis Clave:
-• בָּרָא (bara - H1254): Verbo en perfecto Qal, 3ª persona masculino singular. En la Biblia hebrea el sujeto exclusivo de bara es Dios; denota creación soberana sin material preexistente (creatio ex nihilo).
-• אֱלֹהִים (Elohim - H430): Sustantivo masculino plural con verbo en singular, revelando la plenitud majestuosa del Dios soberano.
-• אֵת (et - H853): Marcador acusativo directo que enfatiza el objeto creado con absoluta certeza.`;
+Texto Hebreo Masorético (BHS / Codex Leningradensis B19A):
+בְּרֵאשִׁית בָּרָא אֱלֹהִים אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ (Bereshit bara Elohim 'et hashamayim w'et ha'aretz).
+Morfosintaxis y Léxico Hebreo-Español:
+• «Creó» — בָּרָא (Bará - Strong H1254): Verbo en aspecto Perfecto Qal (3ª masc. singular). En toda la Biblia hebrea, el sujeto gramatical exclusivo de este verbo es Dios. Denota un acto creador soberano sin esfuerzo ni materia preexistente (creatio ex nihilo), a diferencia de «hacer» ('asah) o «formar» (yatsar).
+• «Dios» — אֱלֹהִים (Elohim - Strong H430): Sustantivo masculino plural que rige un verbo en singular (bará). Es el plural de majestad y plenitud ontológica suprema: el Dios único que trasciende toda multiplicidad pagana.
+• «En el principio» — בְּרֵאשִׁית (Bereshit - Strong H7225): Apertura solemne con prefijo preposicional Bet (בְּ): marca el origen absoluto del tiempo, el espacio y la materia.
+• «Los cielos y la tierra» — אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ: Merismo semítico canónico que abarca la totalidad del cosmos visible e invisible.`;
     } else if (corpus.book.includes('Salmo')) {
       langAnalysis = `1. Exégesis Lingüística & Morfología Original:
 Texto Hebreo Masorético Tiberiense (BHS):
 Salterio Litúrgico Canónico (Tehilim - תְּהִלִּים).
-Morfosintaxis Clave:
-• רֹעִי (ro'i - H7462): Participio activo Qal con sufijo pronominal de 1ª persona: «pastoreándome de continuo».
-• חֶסֶד (Jésed - H2617): Gracia, lealtad entrañable y amor del pacto inquebrantable.
-• שָׁלוֹם (Shalom - H7965): Plenitud, integridad cósmica y bienestar integral garantizado por la presencia de Dios.`;
+Morfosintaxis y Léxico Hebreo-Español:
+• «Mi Pastor» — רֹעִי (Ro'î - Strong H7462): Participio activo Qal con sufijo pronominal 1s: «pastoreándome de continuo con ternura y custodia activa».
+• «Amor Leal / Gracia» — חֶסֶד (Jésed - Strong H2617): Fidelidad de pacto inquebrantable que trasciende la debilidad humana.
+• «Paz / Plenitud» — שָׁלוֹם (Shalom - Strong H7965): Integridad, reposo y bienestar integral donde nada falta.`;
     } else {
       langAnalysis = `1. Exégesis Lingüística & Morfología Original:
 Texto Hebreo Masorético (Codex Leningradensis B19A / Biblia Hebraica Stuttgartensia):
@@ -81,7 +82,12 @@ Morfosintaxis Clave:
 
   // 2. Contexto Histórico & Sociocultural ANE
   let historyAnalysis = '';
-  if (corpus.book.includes('Crónicas')) {
+  if (corpus.book.includes('Génesis')) {
+    historyAnalysis = `2. Contexto Histórico & Sociocultural:
+• Horizonte de los Orígenes y Cosmogonía Comparada del ANE: Génesis 1 proclama la creación ex nihilo frente al horizonte mítico del Próximo Oriente Antiguo. A diferencia del Enuma Elish babilónico (donde el cosmos surge de los cadáveres despedazados de Tiamat y Kingu tras violentas guerras entre dioses), el texto bíblico presenta una ruptura epistemológica absoluta: un solo Dios trascendente que crea por Su sola palabra soberana y pura voluntad.
+• Desmitificación Cósmica Radical: Los astros no son deidades celestiales a las que temer o rendir culto (como el sol Shamash o la luna Sin), sino meras «lumbreras» y criaturas puestas al servicio del orden de los días y las estaciones.
+• Dignidad Inalienable del Ser Humano (Imago Dei): En los mitos mesopotámicos el ser humano fue creado para aliviar a los dioses de su trabajo manual como sirvientes; en la revelación bíblica, toda persona es creada a imagen y semejanza de Dios (Tselem Elohim), con dignidad real y vocación de mayordomía sagrada.`;
+  } else if (corpus.book.includes('Crónicas')) {
     historyAnalysis = `2. Contexto Histórico & Sociocultural:
 • Trasfondo Histórico: 1 y 2 Crónicas fueron redactadas durante el período persa post-exílico (c. 450–400 a.C.), en los días de Esdras y Nehemías, para alentar a los repatriados de Babilonia.
 • Enfoque de 1 Crónicas 12: Recuerda la épica congregación de valientes en Siclag (en territorio filisteo) y Hebrón, cuando guerreros de las doce tribus desertaron de la casa de Saúl para ungir a David como rey unificado.

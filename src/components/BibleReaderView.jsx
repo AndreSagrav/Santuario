@@ -65,15 +65,16 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
 
   // Estado del Modal Selector de Libros y Capítulos
   const [isBookPickerOpen, setIsBookPickerOpen] = useState(false);
+  const [pickerStep, setPickerStep] = useState('book'); // 'book' | 'chapter' | 'verse'
   const [bookSearchQuery, setBookSearchQuery] = useState('');
   const [selectedTestament, setSelectedTestament] = useState('all'); // 'all' | 'AT' | 'NT'
-  const [selectedBookObj, setSelectedBookObj] = useState(CANONICAL_BOOKS[18]); // Salmos por defecto
+  const [selectedBookObj, setSelectedBookObj] = useState(CANONICAL_BOOKS[0]); // Génesis por defecto
   const [isLoadingPassage, setIsLoadingPassage] = useState(false);
-  const [modalChapterStart, setModalChapterStart] = useState(23);
-  const [modalChapterEnd, setModalChapterEnd] = useState(23);
+  const [modalChapterStart, setModalChapterStart] = useState(1);
+  const [modalChapterEnd, setModalChapterEnd] = useState(1);
   const [modalVerseMode, setModalVerseMode] = useState('all'); // 'all' | 'range'
   const [modalVerseStart, setModalVerseStart] = useState(1);
-  const [modalVerseEnd, setModalVerseEnd] = useState(6);
+  const [modalVerseEnd, setModalVerseEnd] = useState(31);
 
   const versesList = currentPassage.versions[primaryVersion] || currentPassage.versions["RVR1960"] || [];
   const secondaryVersesList = currentPassage.versions[secondaryVersion] || currentPassage.versions["NTV"] || [];
@@ -284,7 +285,7 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
 
   // Abrir Modal Selector sincronizado con el libro y rango actual
   const handleOpenBookPicker = () => {
-    const matchedBook = CANONICAL_BOOKS.find(b => b.name.toLowerCase() === currentPassage.book.toLowerCase()) || CANONICAL_BOOKS[18];
+    const matchedBook = CANONICAL_BOOKS.find(b => b.name.toLowerCase() === currentPassage.book.toLowerCase()) || CANONICAL_BOOKS[0];
     setSelectedBookObj(matchedBook);
     const currChap = Number(currentPassage.chapter) || 1;
     const isMatchingBook = studyChapterRange.book === matchedBook.name;
@@ -296,10 +297,11 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
     setModalVerseMode('all');
     setModalVerseStart(1);
     setModalVerseEnd(vCount);
+    setPickerStep('book');
     setIsBookPickerOpen(true);
   };
 
-  // Seleccionar un libro en el modal
+  // Seleccionar un libro en el modal y avanzar limpiamente al Paso 2 (Capítulos)
   const handleSelectBookInModal = (b) => {
     setSelectedBookObj(b);
     setModalChapterStart(1);
@@ -308,24 +310,17 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
     setModalVerseMode('all');
     setModalVerseStart(1);
     setModalVerseEnd(vCount);
+    setPickerStep('chapter');
   };
 
-  // Interacción en cuadrícula de capítulos del modal: Clic normal selecciona el capítulo exacto; Shift+Clic expande rango
-  const handleModalChapterClick = (chap, isShift = false) => {
-    if (isShift) {
-      const start = Math.min(modalChapterStart, chap);
-      const end = Math.max(modalChapterStart, chap);
-      setModalChapterStart(start);
-      setModalChapterEnd(end);
-    } else {
-      // Clic normal: fija con precisión el capítulo elegido y recalcula versículos
-      setModalChapterStart(chap);
-      setModalChapterEnd(chap);
-      const vCount = getChapterVerseCount(selectedBookObj.name, chap);
-      setModalVerseMode('all');
-      setModalVerseStart(1);
-      setModalVerseEnd(vCount);
-    }
+  // Interacción en cuadrícula de capítulos: fija con precisión el capítulo elegido y recalcula versículos
+  const handleModalChapterClick = (chap) => {
+    setModalChapterStart(chap);
+    setModalChapterEnd(chap);
+    const vCount = getChapterVerseCount(selectedBookObj.name, chap);
+    setModalVerseMode('all');
+    setModalVerseStart(1);
+    setModalVerseEnd(vCount);
   };
 
   // Confirmar selección del modal con el botón "Aceptar y Cargar Selección"
@@ -497,6 +492,29 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
             <Columns size={13} />
             <span>{isParallelMode ? "Paralelo" : "Comparar"}</span>
           </button>
+
+          {/* Botón Acceso Rápido Estudio 5D */}
+          <button
+            onClick={() => handleOpen5DForSelection()}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              borderRadius: '7px',
+              background: 'linear-gradient(135deg, rgba(212,175,55,0.25) 0%, rgba(212,175,55,0.1) 100%)',
+              border: '1.5px solid var(--gold-400)',
+              color: '#ffffff',
+              fontSize: '0.8rem',
+              fontWeight: '700',
+              cursor: 'pointer',
+              boxShadow: '0 0 14px rgba(212,175,55,0.2)'
+            }}
+            title="Abrir Biblia de Estudio 5D, comentarios y notas exegéticas"
+          >
+            <ScrollText size={14} color="var(--gold-400)" />
+            <span>Estudio 5D</span>
+          </button>
         </div>
       </div>
 
@@ -625,26 +643,26 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
         </div>
       )}
 
-      {/* 4. BARRA FLOTANTE BAJO DEMANDA (APARECE SOLO AL SELECCIONAR VERSÍCULOS) */}
+      {/* 4. BARRA FLOTANTE BAJO DEMANDA (ACCESO INMEDIATO SIN SCROLL) */}
       {selectedVerseNumbers.length > 0 && (
         <div className="animate-fade-in" style={{
           position: 'fixed',
-          bottom: '86px',
+          top: '76px',
           left: '50%',
           transform: 'translateX(-50%)',
-          zIndex: 999,
-          background: 'rgba(9, 12, 18, 0.95)',
-          backdropFilter: 'blur(16px)',
+          zIndex: 9999,
+          background: 'rgba(9, 12, 18, 0.96)',
+          backdropFilter: 'blur(20px)',
           border: '1.5px solid var(--gold-400)',
-          boxShadow: '0 8px 30px rgba(0,0,0,0.85), 0 0 20px rgba(212,175,55,0.25)',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.9), 0 0 25px rgba(212,175,55,0.35)',
           borderRadius: '9999px',
-          padding: '8px 16px',
+          padding: '8px 18px',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
-          maxWidth: '92vw'
+          gap: '10px',
+          maxWidth: '94vw'
         }}>
-          <span style={{ fontSize: '0.78rem', fontWeight: '700', color: 'var(--gold-300)', paddingRight: '8px', borderRight: '1px solid rgba(212,175,55,0.3)', whiteSpace: 'nowrap' }}>
+          <span style={{ fontSize: '0.8rem', fontWeight: '800', color: '#ffd700', paddingRight: '10px', borderRight: '1px solid rgba(212,175,55,0.3)', whiteSpace: 'nowrap' }}>
             v. {verseRangeDisplay}
           </span>
 
@@ -723,605 +741,489 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
           bottom: 0,
           zIndex: 99999,
           background: 'rgba(3, 4, 7, 0.88)',
-          backdropFilter: 'blur(10px)',
+          backdropFilter: 'blur(16px)',
           display: 'flex',
-          alignItems: 'flex-start',
+          alignItems: 'center',
           justifyContent: 'center',
-          padding: '24px 20px',
+          padding: '20px',
           overflow: 'hidden'
         }}>
           <div style={{
             width: '100%',
-            maxWidth: '920px',
-            maxHeight: 'calc(100vh - 48px)',
-            background: 'linear-gradient(180deg, #0a0d14 0%, #06070a 100%)',
-            border: '1px solid rgba(212,175,55,0.3)',
+            maxWidth: '860px',
+            maxHeight: '90vh',
+            background: 'linear-gradient(180deg, #0e121b 0%, #07090e 100%)',
+            border: '1.5px solid rgba(212,175,55,0.3)',
             borderRadius: '16px',
-            boxShadow: '0 0 50px rgba(0,0,0,0.9), 0 0 30px rgba(212,175,55,0.1)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.95), 0 0 35px rgba(212,175,55,0.15)',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden'
           }}>
-            {/* Cabecera del Selector */}
-            <div style={{ padding: '18px 24px', borderBottom: '1px solid rgba(212,175,55,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <BookOpen size={18} color="var(--gold-400)" />
-                <h3 className="font-cinzel gold-text-gradient" style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>
-                  Selector Canónico de Libros & Capítulos
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsBookPickerOpen(false)}
-                style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Buscador de Libro + Filtros de Testamento */}
-            <div style={{ padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <div style={{ position: 'relative', flex: '1 1 280px' }}>
-                <Search size={15} color="var(--text-muted)" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
-                <input
-                  type="text"
-                  placeholder="Escribe el nombre de un libro (ej. Génesis, Salmos, Mateo)..."
-                  value={bookSearchQuery}
-                  onChange={(e) => setBookSearchQuery(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px 8px 36px',
-                    borderRadius: '8px',
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(212,175,55,0.2)',
-                    color: '#ffffff',
-                    fontSize: '0.86rem',
-                    outline: 'none'
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: '6px' }}>
-                <button
-                  onClick={() => setSelectedTestament('all')}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontSize: '0.78rem',
-                    background: selectedTestament === 'all' ? 'var(--gold-gradient)' : 'rgba(255,255,255,0.03)',
-                    color: selectedTestament === 'all' ? '#07080c' : 'var(--text-muted)',
-                    border: 'none',
-                    fontWeight: '700',
-                    cursor: 'pointer'
-                  }}
-                >
-                  66 Libros
-                </button>
-                <button
-                  onClick={() => setSelectedTestament('AT')}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontSize: '0.78rem',
-                    background: selectedTestament === 'AT' ? 'var(--gold-gradient)' : 'rgba(255,255,255,0.03)',
-                    color: selectedTestament === 'AT' ? '#07080c' : 'var(--text-muted)',
-                    border: 'none',
-                    fontWeight: '700',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Antiguo Testamento (39)
-                </button>
-                <button
-                  onClick={() => setSelectedTestament('NT')}
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '6px',
-                    fontSize: '0.78rem',
-                    background: selectedTestament === 'NT' ? 'var(--gold-gradient)' : 'rgba(255,255,255,0.03)',
-                    color: selectedTestament === 'NT' ? '#07080c' : 'var(--text-muted)',
-                    border: 'none',
-                    fontWeight: '700',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Nuevo Testamento (27)
-                </button>
-              </div>
-            </div>
-
-            {/* Contenido en 2 Paneles: Libros a la Izquierda + Capítulos y Versículos a la Derecha */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', flex: 1, overflow: 'hidden' }}>
-              
-              {/* Lista de Libros */}
-              <div style={{ padding: '16px', overflowY: 'auto', borderRight: '1px solid rgba(255,255,255,0.06)', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '6px', alignContent: 'start' }}>
-                {filteredBooks.map((b) => {
-                  const isSelected = selectedBookObj.name === b.name;
-                  return (
-                    <button
-                      key={b.name}
-                      onClick={() => handleSelectBookInModal(b)}
-                      style={{
-                        padding: '8px 10px',
-                        borderRadius: '6px',
-                        textAlign: 'left',
-                        background: isSelected ? 'rgba(212,175,55,0.22)' : 'rgba(255,255,255,0.02)',
-                        border: isSelected ? '1px solid var(--gold-400)' : '1px solid transparent',
-                        color: isSelected ? 'var(--gold-200)' : 'var(--text-muted)',
-                        fontSize: '0.82rem',
-                        fontWeight: isSelected ? '700' : '400',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <span>{b.name}</span>
-                      <span style={{ fontSize: '0.68rem', color: '#64748b' }}>{b.chapters}c</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Selector de Capítulos & Versículos para el Libro Seleccionado */}
-              <div style={{ padding: '18px 22px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                
-                {/* Cabecera del Panel de Capítulos */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px' }}>
-                  <div>
-                    <span style={{ fontSize: '0.74rem', color: 'var(--gold-400)', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.05em' }}>
-                      Selección Canónica de Capítulos:
-                    </span>
-                    <h4 className="font-cinzel" style={{ fontSize: '1.25rem', color: '#ffffff', margin: '2px 0 0' }}>
-                      {selectedBookObj.name} ({selectedBookObj.chapters} capítulos)
-                    </h4>
-                  </div>
-
-                  {/* Resumen del Rango de Capítulos */}
-                  <div style={{
-                    background: 'rgba(212,175,55,0.12)',
-                    border: '1px solid rgba(212,175,55,0.3)',
-                    padding: '4px 12px',
-                    borderRadius: '8px',
-                    fontSize: '0.8rem',
-                    color: 'var(--gold-200)',
-                    fontWeight: '700'
-                  }}>
-                    {modalChapterStart === modalChapterEnd
-                      ? `Capítulo ${modalChapterStart}`
-                      : `Capítulos ${Math.min(modalChapterStart, modalChapterEnd)} al ${Math.max(modalChapterStart, modalChapterEnd)} (${Math.abs(modalChapterEnd - modalChapterStart) + 1} caps)`}
-                  </div>
-                </div>
-
-                {/* Atajos Rápidos de Rango */}
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>Atajos:</span>
-                  <button
-                    onClick={() => { setModalChapterStart(1); setModalChapterEnd(1); }}
-                    style={{ padding: '4px 8px', borderRadius: '6px', fontSize: '0.74rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.2)', color: 'var(--gold-200)', cursor: 'pointer' }}
-                  >
-                    Solo Cap. 1
-                  </button>
-                  {selectedBookObj.chapters >= 5 && (
-                    <button
-                      onClick={() => { setModalChapterStart(1); setModalChapterEnd(5); }}
-                      style={{ padding: '4px 8px', borderRadius: '6px', fontSize: '0.74rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.2)', color: 'var(--gold-200)', cursor: 'pointer' }}
-                    >
-                      Cap. 1-5
-                    </button>
-                  )}
-                  {selectedBookObj.chapters >= 10 && (
-                    <button
-                      onClick={() => { setModalChapterStart(1); setModalChapterEnd(10); }}
-                      style={{ padding: '4px 8px', borderRadius: '6px', fontSize: '0.74rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.2)', color: 'var(--gold-200)', cursor: 'pointer' }}
-                    >
-                      Cap. 1-10
-                    </button>
-                  )}
-                  {selectedBookObj.chapters >= 23 && (
-                    <button
-                      onClick={() => { setModalChapterStart(1); setModalChapterEnd(23); }}
-                      style={{ padding: '4px 8px', borderRadius: '6px', fontSize: '0.74rem', background: 'rgba(212,175,55,0.18)', border: '1px solid var(--gold-400)', color: '#ffd700', fontWeight: '800', cursor: 'pointer' }}
-                    >
-                      Cap. 1-23 ★
-                    </button>
-                  )}
-                  <button
-                    onClick={() => { setModalChapterStart(1); setModalChapterEnd(selectedBookObj.chapters); }}
-                    style={{ padding: '4px 8px', borderRadius: '6px', fontSize: '0.74rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.2)', color: 'var(--gold-200)', cursor: 'pointer' }}
-                  >
-                    Todo el libro ({selectedBookObj.chapters}c)
-                  </button>
-                </div>
-
-                {/* Selectores de Rango Numéricos Manuales */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  background: 'rgba(255,255,255,0.02)',
-                  padding: '8px 14px',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  flexWrap: 'wrap'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Desde Cap:</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max={selectedBookObj.chapters}
-                      value={modalChapterStart}
-                      onChange={(e) => {
-                        const val = Math.max(1, Math.min(parseInt(e.target.value, 10) || 1, selectedBookObj.chapters));
-                        setModalChapterStart(val);
-                      }}
-                      style={{
-                        width: '56px',
-                        padding: '4px 8px',
-                        borderRadius: '6px',
-                        background: 'rgba(0,0,0,0.5)',
-                        border: '1px solid var(--gold-400)',
-                        color: '#ffffff',
-                        fontWeight: '700',
-                        fontSize: '0.84rem',
-                        textAlign: 'center'
-                      }}
-                    />
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Hasta Cap:</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max={selectedBookObj.chapters}
-                      value={modalChapterEnd}
-                      onChange={(e) => {
-                        const val = Math.max(1, Math.min(parseInt(e.target.value, 10) || 1, selectedBookObj.chapters));
-                        setModalChapterEnd(val);
-                      }}
-                      style={{
-                        width: '56px',
-                        padding: '4px 8px',
-                        borderRadius: '6px',
-                        background: 'rgba(0,0,0,0.5)',
-                        border: '1px solid var(--gold-400)',
-                        color: '#ffffff',
-                        fontWeight: '700',
-                        fontSize: '0.84rem',
-                        textAlign: 'center'
-                      }}
-                    />
-                  </div>
-
-                  <span style={{ fontSize: '0.72rem', color: 'var(--gold-400)', fontStyle: 'italic' }}>
-                    💡 Haz clic en 2 capítulos o usa Shift+Clic para marcar un rango
+            {/* Cabecera del Selector con Pasos */}
+            <div style={{
+              padding: '16px 24px',
+              borderBottom: '1px solid rgba(212,175,55,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              background: 'rgba(0,0,0,0.3)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <BookOpen size={20} color="var(--gold-400)" />
+                  <span className="font-cinzel gold-text-gradient" style={{ fontSize: '1.15rem', fontWeight: '800' }}>
+                    Explorador Bíblico Canónico
                   </span>
                 </div>
 
-                {/* Cuadrícula Interactiva de Capítulos */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(44px, 1fr))', gap: '6px', maxHeight: '180px', overflowY: 'auto', paddingRight: '4px' }}>
-                  {Array.from({ length: selectedBookObj.chapters }, (_, i) => i + 1).map((chap) => {
-                    const minSelected = Math.min(modalChapterStart, modalChapterEnd);
-                    const maxSelected = Math.max(modalChapterStart, modalChapterEnd);
-                    const isEndpoint = chap === minSelected || chap === maxSelected;
-                    const isInRange = chap >= minSelected && chap <= maxSelected;
+                {/* Tabs de Pasos */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <button
+                    onClick={() => setPickerStep('book')}
+                    style={{
+                      background: pickerStep === 'book' ? 'rgba(212,175,55,0.2)' : 'transparent',
+                      border: pickerStep === 'book' ? '1px solid var(--gold-400)' : '1px solid transparent',
+                      color: pickerStep === 'book' ? '#ffd700' : 'var(--text-muted)',
+                      borderRadius: '6px',
+                      padding: '4px 10px',
+                      fontSize: '0.78rem',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    1. Libro: {selectedBookObj.name}
+                  </button>
 
-                    return (
-                      <button
-                        key={chap}
-                        onClick={(e) => handleModalChapterClick(chap, e.shiftKey)}
-                        onDoubleClick={() => handleConfirmModalSelection(chap, chap)}
-                        style={{
-                          height: '38px',
-                          borderRadius: '6px',
-                          background: isEndpoint
-                            ? 'linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%)'
-                            : isInRange
-                              ? 'rgba(212,175,55,0.24)'
-                              : 'rgba(255,255,255,0.04)',
-                          border: isEndpoint
-                            ? '1.5px solid #ffd700'
-                            : isInRange
-                              ? '1px solid rgba(212,175,55,0.55)'
-                              : '1px solid rgba(212,175,55,0.16)',
-                          color: isEndpoint
-                            ? '#07080c'
-                            : isInRange
-                              ? 'var(--gold-200)'
-                              : 'var(--text-muted)',
-                          fontSize: '0.86rem',
-                          fontWeight: isEndpoint ? '900' : isInRange ? '700' : '500',
-                          boxShadow: isEndpoint ? '0 0 16px rgba(212,175,55,0.7)' : 'none',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s'
-                        }}
-                        title={`Capítulo ${chap}. Clic para seleccionar, Shift+Clic para rango, doble clic para abrir de inmediato.`}
-                      >
-                        {chap}
-                      </button>
-                    );
-                  })}
+                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.8rem' }}>›</span>
+
+                  <button
+                    onClick={() => setPickerStep('chapter')}
+                    style={{
+                      background: pickerStep === 'chapter' ? 'rgba(212,175,55,0.2)' : 'transparent',
+                      border: pickerStep === 'chapter' ? '1px solid var(--gold-400)' : '1px solid transparent',
+                      color: pickerStep === 'chapter' ? '#ffd700' : 'var(--text-muted)',
+                      borderRadius: '6px',
+                      padding: '4px 10px',
+                      fontSize: '0.78rem',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    2. Cap: {modalChapterStart}
+                  </button>
+
+                  <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.8rem' }}>›</span>
+
+                  <button
+                    onClick={() => setPickerStep('verse')}
+                    style={{
+                      background: pickerStep === 'verse' ? 'rgba(212,175,55,0.2)' : 'transparent',
+                      border: pickerStep === 'verse' ? '1px solid var(--gold-400)' : '1px solid transparent',
+                      color: pickerStep === 'verse' ? '#ffd700' : 'var(--text-muted)',
+                      borderRadius: '6px',
+                      padding: '4px 10px',
+                      fontSize: '0.78rem',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    3. Versículos {modalVerseMode === 'range' ? '(' + modalVerseStart + '-' + modalVerseEnd + ')' : '(Todos)'}
+                  </button>
                 </div>
+              </div>
 
-                {/* =========================================================================
-                    NUEVA SECCIÓN: SELECTOR DE VERSÍCULOS DINÁMICO DE ALTA FIDELIDAD
-                   ========================================================================= */}
-                {(() => {
-                  const currentChapVersesTotal = getChapterVerseCount(selectedBookObj.name, modalChapterStart);
+              <button
+                onClick={() => setIsBookPickerOpen(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={16} />
+              </button>
+            </div>
 
-                  return (
-                    <div style={{
-                      marginTop: '6px',
-                      borderTop: '1px solid rgba(212,175,55,0.22)',
-                      paddingTop: '14px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '12px'
-                    }}>
-                      {/* Cabecera de Versículos */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <ScrollText size={17} color="var(--gold-400)" />
-                          <span className="font-cinzel" style={{ fontSize: '0.98rem', fontWeight: '800', color: '#ffffff' }}>
-                            Versículos de {selectedBookObj.name} {modalChapterStart}
-                            <span style={{ fontSize: '0.8rem', color: 'var(--gold-400)', marginLeft: '8px', fontWeight: '600' }}>
-                              ({currentChapVersesTotal} versículos)
+            {/* CUERPO DEL SELECTOR SEGÚN PASO */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+              {/* PASO 1: SELECCIONAR LIBRO */}
+              {pickerStep === 'book' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {/* Barra de Filtros y Búsqueda */}
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <div style={{ position: 'relative', flex: '1', minWidth: '220px' }}>
+                      <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--gold-400)' }} />
+                      <input
+                        type="text"
+                        placeholder="Buscar libro (ej. Génesis, Mateo, Salmos)..."
+                        value={bookSearchQuery}
+                        onChange={(e) => setBookSearchQuery(e.target.value)}
+                        autoFocus
+                        style={{
+                          width: '100%',
+                          padding: '10px 14px 10px 38px',
+                          background: 'rgba(0,0,0,0.4)',
+                          border: '1px solid rgba(212,175,55,0.3)',
+                          borderRadius: '8px',
+                          color: '#fff',
+                          fontSize: '0.88rem',
+                          outline: 'none'
+                        }}
+                      />
+                      {bookSearchQuery && (
+                        <button
+                          onClick={() => setBookSearchQuery('')}
+                          style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Filtros AT / NT */}
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {[
+                        { id: 'all', label: 'Todos (66)' },
+                        { id: 'AT', label: 'Antiguo T. (39)' },
+                        { id: 'NT', label: 'Nuevo T. (27)' }
+                      ].map(t => (
+                        <button
+                          key={t.id}
+                          onClick={() => setSelectedTestament(t.id)}
+                          style={{
+                            padding: '8px 14px',
+                            borderRadius: '8px',
+                            background: selectedTestament === t.id ? 'var(--gold-400)' : 'rgba(255,255,255,0.04)',
+                            color: selectedTestament === t.id ? '#05070a' : 'var(--text-muted)',
+                            border: selectedTestament === t.id ? '1px solid var(--gold-400)' : '1px solid rgba(255,255,255,0.08)',
+                            fontWeight: selectedTestament === t.id ? '800' : '500',
+                            fontSize: '0.8rem',
+                            cursor: 'pointer',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Cuadrícula limpia de Libros */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                    gap: '10px',
+                    maxHeight: '52vh',
+                    overflowY: 'auto',
+                    paddingRight: '6px'
+                  }}>
+                    {filteredBooks.map((b) => {
+                      const isSelected = selectedBookObj.name === b.name;
+                      return (
+                        <button
+                          key={b.name}
+                          onClick={() => handleSelectBookInModal(b)}
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'flex-start',
+                            justifyContent: 'center',
+                            padding: '12px 14px',
+                            borderRadius: '10px',
+                            background: isSelected
+                              ? 'linear-gradient(135deg, rgba(212,175,55,0.25) 0%, rgba(212,175,55,0.08) 100%)'
+                              : 'rgba(255,255,255,0.03)',
+                            border: isSelected
+                              ? '1.5px solid var(--gold-400)'
+                              : '1px solid rgba(255,255,255,0.06)',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            transition: 'all 0.15s ease',
+                            position: 'relative'
+                          }}
+                        >
+                          <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                            <span style={{
+                              fontWeight: isSelected ? '800' : '600',
+                              color: isSelected ? '#ffd700' : '#ffffff',
+                              fontSize: '0.92rem'
+                            }}>
+                              {b.name}
                             </span>
+                            <span style={{
+                              fontSize: '0.68rem',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              background: b.testament === 'AT' ? 'rgba(56, 189, 248, 0.15)' : 'rgba(168, 85, 247, 0.15)',
+                              color: b.testament === 'AT' ? '#7dd3fc' : '#d8b4fe',
+                              fontWeight: '700'
+                            }}>
+                              {b.testament}
+                            </span>
+                          </div>
+                          <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                            {b.chapters} {b.chapters === 1 ? 'capítulo' : 'capítulos'} • {b.category || 'Canónico'}
                           </span>
-                        </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
-                        {/* Atajos Rápidos de Versículos */}
-                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
-                          <button
-                            onClick={() => {
-                              setModalVerseMode('all');
-                              setModalVerseStart(1);
-                              setModalVerseEnd(currentChapVersesTotal);
-                            }}
-                            style={{
-                              padding: '4px 10px',
-                              borderRadius: '6px',
-                              fontSize: '0.74rem',
-                              background: modalVerseMode === 'all'
-                                ? 'linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%)'
-                                : 'rgba(255,255,255,0.05)',
-                              color: modalVerseMode === 'all' ? '#07080c' : 'var(--gold-200)',
-                              fontWeight: modalVerseMode === 'all' ? '800' : '600',
-                              border: modalVerseMode === 'all' ? '1px solid #ffd700' : '1px solid rgba(212,175,55,0.25)',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            Todo el capítulo ({currentChapVersesTotal}v) ★
-                          </button>
-                          {currentChapVersesTotal >= 5 && (
-                            <button
-                              onClick={() => {
-                                setModalVerseMode('range');
-                                setModalVerseStart(1);
-                                setModalVerseEnd(5);
-                              }}
-                              style={{ padding: '4px 8px', borderRadius: '6px', fontSize: '0.74rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.2)', color: 'var(--gold-200)', cursor: 'pointer' }}
-                            >
-                              v. 1-5
-                            </button>
-                          )}
-                          {currentChapVersesTotal >= 10 && (
-                            <button
-                              onClick={() => {
-                                setModalVerseMode('range');
-                                setModalVerseStart(1);
-                                setModalVerseEnd(10);
-                              }}
-                              style={{ padding: '4px 8px', borderRadius: '6px', fontSize: '0.74rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.2)', color: 'var(--gold-200)', cursor: 'pointer' }}
-                            >
-                              v. 1-10
-                            </button>
-                          )}
-                          {currentChapVersesTotal >= 20 && (
-                            <button
-                              onClick={() => {
-                                setModalVerseMode('range');
-                                setModalVerseStart(1);
-                                setModalVerseEnd(20);
-                              }}
-                              style={{ padding: '4px 8px', borderRadius: '6px', fontSize: '0.74rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.2)', color: 'var(--gold-200)', cursor: 'pointer' }}
-                            >
-                              v. 1-20
-                            </button>
-                          )}
-                          {currentChapVersesTotal > 20 && (
-                            <button
-                              onClick={() => {
-                                setModalVerseMode('range');
-                                setModalVerseStart(21);
-                                setModalVerseEnd(currentChapVersesTotal);
-                              }}
-                              style={{ padding: '4px 8px', borderRadius: '6px', fontSize: '0.74rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(212,175,55,0.2)', color: 'var(--gold-200)', cursor: 'pointer' }}
-                            >
-                              v. 21-{currentChapVersesTotal}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Selectores Numéricos Manuales de Versículo */}
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        background: 'rgba(255,255,255,0.02)',
-                        padding: '8px 14px',
-                        borderRadius: '8px',
-                        border: '1px solid rgba(255,255,255,0.06)',
-                        flexWrap: 'wrap'
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Desde v:</label>
-                          <input
-                            type="number"
-                            min="1"
-                            max={currentChapVersesTotal}
-                            value={modalVerseStart}
-                            onChange={(e) => {
-                              const val = Math.max(1, Math.min(parseInt(e.target.value, 10) || 1, currentChapVersesTotal));
-                              setModalVerseStart(val);
-                              setModalVerseMode('range');
-                            }}
-                            style={{
-                              width: '54px',
-                              padding: '4px 8px',
-                              borderRadius: '6px',
-                              background: 'rgba(0,0,0,0.5)',
-                              border: '1px solid var(--gold-400)',
-                              color: '#ffffff',
-                              fontWeight: '700',
-                              fontSize: '0.84rem',
-                              textAlign: 'center'
-                            }}
-                          />
-                        </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <label style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Hasta v:</label>
-                          <input
-                            type="number"
-                            min="1"
-                            max={currentChapVersesTotal}
-                            value={modalVerseEnd}
-                            onChange={(e) => {
-                              const val = Math.max(1, Math.min(parseInt(e.target.value, 10) || 1, currentChapVersesTotal));
-                              setModalVerseEnd(val);
-                              setModalVerseMode('range');
-                            }}
-                            style={{
-                              width: '54px',
-                              padding: '4px 8px',
-                              borderRadius: '6px',
-                              background: 'rgba(0,0,0,0.5)',
-                              border: '1px solid var(--gold-400)',
-                              color: '#ffffff',
-                              fontWeight: '700',
-                              fontSize: '0.84rem',
-                              textAlign: 'center'
-                            }}
-                          />
-                        </div>
-
-                        <span style={{ fontSize: '0.74rem', color: 'var(--gold-400)', fontStyle: 'italic' }}>
-                          💡 Haz clic en un versículo para seleccionarlo, o Shift+Clic para marcar un rango
+              {/* PASO 2: SELECCIONAR CAPÍTULO */}
+              {pickerStep === 'chapter' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                  {/* Subcabecera informativa del libro seleccionado */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 18px',
+                    borderRadius: '10px',
+                    background: 'rgba(212,175,55,0.08)',
+                    border: '1px solid rgba(212,175,55,0.25)'
+                  }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffd700' }}>
+                          {selectedBookObj.name}
+                        </span>
+                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                          ({selectedBookObj.chapters} capítulos disponibles)
                         </span>
                       </div>
+                      <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                        Seleccione un número para fijar el capítulo. Doble clic para abrir al instante.
+                      </span>
+                    </div>
 
-                      {/* Cuadrícula Interactiva de Versículos */}
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(42px, 1fr))',
-                        gap: '6px',
-                        maxHeight: '180px',
-                        overflowY: 'auto',
-                        paddingRight: '4px'
-                      }}>
-                        {Array.from({ length: currentChapVersesTotal }, (_, i) => i + 1).map((vNum) => {
-                          const isAll = modalVerseMode === 'all';
-                          const vMin = Math.min(modalVerseStart, modalVerseEnd);
-                          const vMax = Math.max(modalVerseStart, modalVerseEnd);
-                          const isEndpoint = !isAll && (vNum === vMin || vNum === vMax);
-                          const isInRange = isAll || (vNum >= vMin && vNum <= vMax);
+                    <button
+                      onClick={() => setPickerStep('book')}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        color: 'var(--text-muted)',
+                        fontSize: '0.8rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ← Cambiar Libro
+                    </button>
+                  </div>
 
-                          return (
-                            <button
-                              key={vNum}
-                              onClick={(e) => {
-                                if (e.shiftKey) {
-                                  const newStart = Math.min(modalVerseStart, vNum);
-                                  const newEnd = Math.max(modalVerseStart, vNum);
-                                  setModalVerseStart(newStart);
-                                  setModalVerseEnd(newEnd);
-                                  setModalVerseMode('range');
-                                } else {
-                                  setModalVerseStart(vNum);
-                                  setModalVerseEnd(vNum);
-                                  setModalVerseMode('range');
-                                }
-                              }}
-                              onDoubleClick={() => {
-                                setModalVerseStart(vNum);
-                                setModalVerseEnd(vNum);
-                                setModalVerseMode('range');
-                                handleConfirmModalSelection(modalChapterStart, modalChapterStart, vNum, vNum);
-                              }}
-                              style={{
-                                height: '38px',
-                                borderRadius: '6px',
-                                background: isEndpoint
-                                  ? 'linear-gradient(135deg, var(--gold-400) 0%, var(--gold-600) 100%)'
-                                  : isInRange
-                                    ? 'rgba(212,175,55,0.22)'
-                                    : 'rgba(255,255,255,0.04)',
-                                border: isEndpoint
-                                  ? '1.5px solid #ffd700'
-                                  : isInRange
-                                    ? '1px solid rgba(212,175,55,0.5)'
-                                    : '1px solid rgba(212,175,55,0.14)',
-                                color: isEndpoint
-                                  ? '#07080c'
-                                  : isInRange
-                                    ? 'var(--gold-200)'
-                                    : 'var(--text-muted)',
-                                fontSize: '0.84rem',
-                                fontWeight: isEndpoint ? '900' : isInRange ? '700' : '500',
-                                boxShadow: isEndpoint ? '0 0 14px rgba(212,175,55,0.6)' : 'none',
-                                cursor: 'pointer',
-                                transition: 'all 0.15s'
-                              }}
-                              title={`Versículo ${vNum}. Clic para seleccionar, Shift+Clic para rango, doble clic para abrir de inmediato.`}
-                            >
-                              {vNum}
-                            </button>
-                          );
-                        })}
+                  {/* Cuadrícula de Números de Capítulos */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(52px, 1fr))',
+                    gap: '10px',
+                    maxHeight: '50vh',
+                    overflowY: 'auto',
+                    padding: '6px 4px'
+                  }}>
+                    {Array.from({ length: selectedBookObj.chapters }, (_, i) => i + 1).map((chap) => {
+                      const isSelected = modalChapterStart === chap;
+                      return (
+                        <button
+                          key={chap}
+                          onClick={() => handleModalChapterClick(chap)}
+                          onDoubleClick={() => handleConfirmModalSelection(chap, chap)}
+                          style={{
+                            height: '52px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '10px',
+                            background: isSelected
+                              ? 'linear-gradient(135deg, var(--gold-400) 0%, #b8860b 100%)'
+                              : 'rgba(255,255,255,0.04)',
+                            border: isSelected
+                              ? '1.5px solid #ffd700'
+                              : '1px solid rgba(255,255,255,0.08)',
+                            color: isSelected ? '#05070a' : '#ffffff',
+                            fontWeight: isSelected ? '900' : '600',
+                            fontSize: '1.05rem',
+                            cursor: 'pointer',
+                            boxShadow: isSelected ? '0 0 16px rgba(212,175,55,0.4)' : 'none',
+                            transition: 'all 0.12s ease'
+                          }}
+                          title={'Capítulo ' + chap + ' (Doble clic para cargar inmediatamente)'}
+                        >
+                          {chap}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* PASO 3: SELECCIONAR VERSÍCULOS (OPCIONAL) */}
+              {pickerStep === 'verse' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 18px',
+                    borderRadius: '10px',
+                    background: 'rgba(212,175,55,0.08)',
+                    border: '1px solid rgba(212,175,55,0.25)'
+                  }}>
+                    <div>
+                      <span style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffd700' }}>
+                        {selectedBookObj.name} {modalChapterStart}
+                      </span>
+                      <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                        Este capítulo cuenta con {getChapterVerseCount(selectedBookObj.name, modalChapterStart)} versículos
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => setPickerStep('chapter')}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '6px',
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.12)',
+                        color: 'var(--text-muted)',
+                        fontSize: '0.8rem',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ← Volver a Capítulos
+                    </button>
+                  </div>
+
+                  {/* Opciones de Versículos */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <button
+                      onClick={() => {
+                        setModalVerseMode('all');
+                        setModalVerseStart(1);
+                        setModalVerseEnd(getChapterVerseCount(selectedBookObj.name, modalChapterStart));
+                      }}
+                      style={{
+                        padding: '16px',
+                        borderRadius: '10px',
+                        background: modalVerseMode === 'all' ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.03)',
+                        border: modalVerseMode === 'all' ? '1.5px solid var(--gold-400)' : '1px solid rgba(255,255,255,0.08)',
+                        textAlign: 'left',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <div style={{ fontWeight: '800', color: modalVerseMode === 'all' ? '#ffd700' : '#fff', marginBottom: '6px', fontSize: '0.95rem' }}>
+                        ✓ Todo el Capítulo
+                      </div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                        Leer desde el versículo 1 hasta el {getChapterVerseCount(selectedBookObj.name, modalChapterStart)}
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => setModalVerseMode('range')}
+                      style={{
+                        padding: '16px',
+                        borderRadius: '10px',
+                        background: modalVerseMode === 'range' ? 'rgba(212,175,55,0.2)' : 'rgba(255,255,255,0.03)',
+                        border: modalVerseMode === 'range' ? '1.5px solid var(--gold-400)' : '1px solid rgba(255,255,255,0.08)',
+                        textAlign: 'left',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <div style={{ fontWeight: '800', color: modalVerseMode === 'range' ? '#ffd700' : '#fff', marginBottom: '6px', fontSize: '0.95rem' }}>
+                        Seleccionar Rango Específico
+                      </div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                        Definir versículo inicial y versículo final
+                      </div>
+                    </button>
+                  </div>
+
+                  {modalVerseMode === 'range' && (
+                    <div style={{
+                      padding: '16px 20px',
+                      borderRadius: '10px',
+                      background: 'rgba(0,0,0,0.3)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '24px'
+                    }}>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Desde el versículo:</label>
+                        <input
+                          type="number"
+                          min="1"
+                          max={getChapterVerseCount(selectedBookObj.name, modalChapterStart)}
+                          value={modalVerseStart}
+                          onChange={(e) => setModalVerseStart(Math.max(1, Math.min(Number(e.target.value) || 1, getChapterVerseCount(selectedBookObj.name, modalChapterStart))))}
+                          style={{
+                            padding: '8px 12px',
+                            background: '#0d1117',
+                            border: '1px solid rgba(212,175,55,0.3)',
+                            borderRadius: '6px',
+                            color: '#fff',
+                            fontSize: '0.95rem'
+                          }}
+                        />
                       </div>
 
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Hasta el versículo:</label>
+                        <input
+                          type="number"
+                          min="1"
+                          max={getChapterVerseCount(selectedBookObj.name, modalChapterStart)}
+                          value={modalVerseEnd}
+                          onChange={(e) => setModalVerseEnd(Math.max(1, Math.min(Number(e.target.value) || 1, getChapterVerseCount(selectedBookObj.name, modalChapterStart))))}
+                          style={{
+                            padding: '8px 12px',
+                            background: '#0d1117',
+                            border: '1px solid rgba(212,175,55,0.3)',
+                            borderRadius: '6px',
+                            color: '#fff',
+                            fontSize: '0.95rem'
+                          }}
+                        />
+                      </div>
                     </div>
-                  );
-                })()}
-
-              </div>
+                  )}
+                </div>
+              )}
 
             </div>
 
-            {/* Barra Inferior Fija del Modal con Resumen y Botón Aceptar */}
+            {/* Pie de Página del Modal */}
             <div style={{
-              padding: '16px 24px',
-              borderTop: '1px solid rgba(212,175,55,0.25)',
-              background: 'rgba(10,13,20,0.98)',
+              padding: '14px 24px',
+              borderTop: '1px solid rgba(212,175,55,0.2)',
+              background: 'rgba(0,0,0,0.4)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               flexWrap: 'wrap',
               gap: '12px'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <BookOpen size={20} color="var(--gold-400)" />
-                <div>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                    Selección a Cargar:
-                  </span>
-                  <div style={{ fontSize: '1.05rem', color: '#ffffff', fontWeight: '800' }}>
-                    {selectedBookObj.name}{' '}
-                    <span style={{ color: 'var(--gold-300)' }}>
-                      {modalChapterStart === modalChapterEnd
-                        ? `Capítulo ${modalChapterStart}`
-                        : `Capítulos ${Math.min(modalChapterStart, modalChapterEnd)} al ${Math.max(modalChapterStart, modalChapterEnd)}`}
-                    </span>
-                    <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginLeft: '8px' }}>
-                      • {modalVerseMode === 'all' 
-                          ? `Todos los versículos (1-${getChapterVerseCount(selectedBookObj.name, modalChapterStart)})` 
-                          : `v. ${Math.min(modalVerseStart, modalVerseEnd)}-${Math.max(modalVerseStart, modalVerseEnd)}`}
-                    </span>
-                  </div>
-                </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Selección activa:</span>
+                <span style={{ fontSize: '0.95rem', fontWeight: '800', color: '#ffd700' }}>
+                  {selectedBookObj.name} {modalChapterStart}
+                  {modalVerseMode === 'range' ? ':' + modalVerseStart + '-' + modalVerseEnd : ''}
+                </span>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1339,29 +1241,44 @@ export default function BibleReaderView({ initialPassageId, onConsultAI, onOpenD
                 >
                   Cancelar
                 </button>
-                <button
-                  onClick={() => handleConfirmModalSelection()}
-                  className="btn-gold font-cinzel"
-                  style={{
-                    padding: '10px 24px',
-                    fontSize: '0.95rem',
-                    fontWeight: '800',
-                    borderRadius: '8px',
-                    boxShadow: '0 0 20px rgba(212,175,55,0.4)',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  <Check size={18} />
-                  <span>
-                    Aceptar y Cargar {selectedBookObj.name}{' '}
-                    {modalChapterStart === modalChapterEnd
-                      ? `${modalChapterStart}:${modalVerseMode === 'all' ? `1-${getChapterVerseCount(selectedBookObj.name, modalChapterStart)}` : `${Math.min(modalVerseStart, modalVerseEnd)}-${Math.max(modalVerseStart, modalVerseEnd)}`}`
-                      : `Caps. ${Math.min(modalChapterStart, modalChapterEnd)}-${Math.max(modalChapterStart, modalChapterEnd)}`}
-                  </span>
-                </button>
+
+                {pickerStep === 'book' ? (
+                  <button
+                    onClick={() => setPickerStep('chapter')}
+                    className="btn-gold font-cinzel"
+                    style={{
+                      padding: '8px 20px',
+                      fontSize: '0.9rem',
+                      fontWeight: '800',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <span>Elegir Capítulos de {selectedBookObj.name} →</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleConfirmModalSelection()}
+                    className="btn-gold font-cinzel"
+                    style={{
+                      padding: '8px 22px',
+                      fontSize: '0.92rem',
+                      fontWeight: '800',
+                      borderRadius: '8px',
+                      boxShadow: '0 0 20px rgba(212,175,55,0.3)',
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <Check size={18} />
+                    <span>Cargar {selectedBookObj.name} {modalChapterStart}</span>
+                  </button>
+                )}
               </div>
             </div>
 
