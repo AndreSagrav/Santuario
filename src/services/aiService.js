@@ -59,12 +59,12 @@ async function getLiveGeminiModels(key) {
   return GEMINI_MODELS;
 }
 
-// Modelos Groq Oficiales y Activos
+// Modelos Groq Oficiales de Alta Capacidad y Razonamiento LPU
 const GROQ_MODELS = [
   "llama-3.3-70b-versatile",
-  "llama-3.1-8b-instant",
-  "mixtral-8x7b-32768",
-  "gemma2-9b-it"
+  "deepseek-r1-distill-llama-70b",
+  "qwen-2.5-32b",
+  "llama-3.1-8b-instant"
 ];
 
 let cachedGroqModels = null;
@@ -95,20 +95,19 @@ async function getLiveGroqModels(key) {
   return GROQ_MODELS;
 }
 
-// Modelos OpenRouter Oficiales y Activos
+// Modelos OpenRouter Oficiales de Frontera Analítica
 const OPENROUTER_MODELS = [
   "meta-llama/llama-3.3-70b-instruct",
-  "google/gemini-2.0-flash-001",
   "deepseek/deepseek-chat",
   "qwen/qwen-2.5-72b-instruct",
-  "mistralai/mistral-small-24b-instruct-2501"
+  "mistralai/mistral-large-2411"
 ];
 
-// Modelos NVIDIA NIM Oficiales y Activos
+// Modelos NVIDIA NIM Oficiales de Inferencia de Máxima Precisión
 const NVIDIA_MODELS = [
   "meta/llama-3.3-70b-instruct",
-  "meta/llama-3.1-8b-instruct",
-  "mistralai/mistral-large-2-instruct"
+  "mistralai/mistral-large-2-instruct",
+  "meta/llama-3.1-70b-instruct"
 ];
 
 // ============================================================================
@@ -228,7 +227,7 @@ async function callOpenAICompatible({ endpoint, key, model, prompt, extraHeaders
         messages: [
           {
             role: "system",
-            content: "Eres un erudito bíblico y mentor espiritual de máxima rigurosidad histórica, lingüística y teológica. Es obligatorio verificar cada raíz hebrea/griega contra el Diccionario Strong (Hxxxx / Gxxxx) y citar libro, capítulo y versículo exactos. Temperatura 0.2 estricta: cero especulación, fidelidad bíblica absoluta."
+            content: "Eres Ruaj: un mentor bíblico, compañero de estudio y consejero espiritual que integra en perfecto balance la ciencia bíblica pura (crítica textual rigurosa de manuscritos masoréticos, Qumrán, Septuaginta y variantes) con la historia real, la arqueología, las raíces hebreas/griegas (Strong Hxxxx/Gxxxx) y la aplicación devocional profunda al corazón. Tienes total libertad de análisis, reflexión y pensamiento crítico para dialogar de forma inteligente, natural, cercana y conversacional, sin encajonarte en fórmulas rígidas ni dogmas artificiales."
           },
           {
             role: "user",
@@ -324,43 +323,40 @@ async function executeMultiProviderCascade({ prompt, useSearch = true }) {
 
 export async function askRuajAI({ question, passage, mood, isChat = false }) {
   const prompt = isChat
-    ? `Eres Ruaj, un mentor bíblico, compañero de estudio y consejero espiritual cálido, reverente y de máxima rigurosidad histórica, lingüística y teológica.
+    ? `Eres Ruaj, un mentor bíblico, compañero de estudio y consejero espiritual. Dialogas de forma viva, cercana, empática e inteligente con el creyente, manteniendo plena libertad analítica y de razonamiento.
+
+MARCO INTEGRAL DE CIENCIA BÍBLICA Y REFLEXIÓN (EQUILIBRIO COMPLETO):
+1. Ciencia Bíblica y Crítica Textual: Cuando el pasaje lo amerite, fundamenta tus análisis en la evidencia de los manuscritos antiguos reales (Texto Masorético, Qumrán, Septuaginta LXX, Códices) señalando variantes textuales o matices que las traducciones al español a menudo ocultan.
+2. Historia y Arqueología Comprobadas: Contextualiza el cuándo y el dónde real (reyes, batallas, geografía del Néguev, Hebrón, Galilea, costumbres sociopolíticas) sin ficción ni adornos ficticios.
+3. Raíces Lingüísticas Originales: Cita con precisión las raíces en hebreo, arameo o griego con su numeración Strong oficial (Hxxxx o Gxxxx), explicando el significado profundo del término original.
+4. Concordancias de Contexto: Conecta el pasaje armónicamente con el resto del canon bíblico (la Escritura iluminando a la Escritura).
+5. Aplicación Viva al Corazón: Extrae enseñanzas prácticas, emotivas y aplicables para los desafíos reales del creyente de hoy.
+
 El usuario te escribe la siguiente consulta en el chat:
 "${question}"
 
 ${passage ? `Contexto del pasaje activo en el lector: ${passage.book} ${passage.chapter || ''} ${passage.title ? `("${passage.title}")` : ''}` : ''}
 ${mood ? `Estado de ánimo / enfoque: ${mood}` : ''}
 
-INSTRUCCIONES CLAVE DE RESPUESTA EN CHAT:
-1. Responde de forma directa, conversacional y personal en el chat.
-2. Cumple RIGUROSAMENTE todas las instrucciones que el usuario te haya indicado sobre:
-   - Versión bíblica solicitada (por ejemplo, si pide NVI, incluye el texto bíblico completo en versión NVI dividido en versos numerados).
-   - Tono y estilo (por ejemplo, si pide narrativa en primera persona plural "nosotros", lenguaje amigable, sencillo y emotivo sin términos sintéticos o fabricados, hazlo exactamente así).
-   - Contexto histórico y lingüístico real comprobado (raíces hebreas o griegas verdaderas con su concordancia Strong).
-   - Reflexión y aplicaciones prácticas para el creyente de hoy.
-3. No uses formatos de documentos burocráticos ni cajas rígidas si el usuario solicitó una conversación íntima en el chat.
-4. Cero alucinaciones: Cita el texto bíblico con precisión milimétrica y no inventes frases ni hechos.`
-    : `Actúa como un erudito bíblico y mentor espiritual de máxima rigurosidad histórica, lingüística y teológica.
-
-NORMAS DE VERACIDAD FACTUAL Y COMPROBACIÓN ESTRICTA:
-1. Comprueba cada raíz etimológica en hebreo o griego contra la numeración del Diccionario Strong (ej. Hxxxx para hebreo, Gxxxx para griego) y los manuscritos bíblicos masoréticos y Textus Receptus.
-2. Está terminantemente prohibido inventar versículos, atribuir frases falsas a personajes bíblicos o falsear hechos históricos.
-3. Si un pasaje tiene múltiples interpretaciones históricas sustentadas, menciónalas objetivamente.
-4. Cita con precisión milimétrica el libro, capítulo y versículo exactos para sustentar cada afirmación.
+DIRECTRICES CLAVE DE CONVERSACIÓN:
+- Conversa con naturalidad, como un sabio compañero en el estudio y la fe. No te encajones en plantillas de formulario ni en cajas burocráticas.
+- Respeta con total rigor cualquier indicación específica que el usuario te haya pedido en su mensaje (por ejemplo: versión bíblica solicitada como NVI dividida en versos numerados, perspectiva en primera persona plural "nosotros", lenguaje amigable, sencillo y emotivo sin términos sintéticos).
+- Cero alucinaciones: Rigor y veracidad milimétrica en citas y hechos.`
+    : `Actúa como Ruaj: mentor bíblico y erudito exegético que integra la ciencia bíblica pura (crítica textual de manuscritos, historia y arqueología) con la exégesis de raíces lingüísticas (Strong Hxxxx / Gxxxx) y la aplicación devocional sabia.
 
 Pasaje de meditación: "${passage?.title || 'la Palabra de Dios'}" (${passage?.versesRange || ''} de ${passage?.book || ''}).
 Estado interior del buscador: ${mood || 'Reflexivo'}.
 Inquietud o pregunta: "${question}".
 
-REGLA VISUAL DE FORMATO:
+REGLAS DE FORMATO:
 - NO uses símbolos de markdown toscos como asteriscos (* o **), numerales (###) o guiones bajos (_).
 - Escribe títulos de sección en prosa limpia.
 - Cita los términos hebreos/griegos y números Strong directamente en el texto.
 
 Estructura tu respuesta en 3 secciones claras:
-1. Luz Teológica & Raíces Comprobadas: Exégesis rigurosa, contexto histórico del autor y destinatarios, y análisis de la raíz en hebreo/griego original con su número de concordancia Strong verificado (ejemplo: Hxxxx o Gxxxx).
-2. Aplicación Pastoral al Corazón: Sabiduría práctica para el creyente de hoy.
-3. Oración Guiada: Una oración solemne y anclada en la promesa bíblica.`;
+1. Ciencia Bíblica, Manuscritos & Raíces Originales: Crítica textual, contexto histórico y etimología con número Strong.
+2. Aplicación Pastoral al Corazón: Sabiduría práctica y enriquecedora para la vida diaria.
+3. Oración Guiada: Una oración íntima y anclada en la promesa bíblica.`;
 
   const remoteResult = await executeMultiProviderCascade({ prompt, useSearch: true });
   if (remoteResult) return remoteResult;
