@@ -63,47 +63,47 @@ async function fetchFullBible() {
   if (fullBibleCache) return fullBibleCache;
   if (!fullBiblePromise) {
     fullBiblePromise = (async () => {
-      // 1. Intentar cargar desde los recursos estáticos locales (Ultra rápido)
-      const baseUrl = import.meta.env.BASE_URL || '/';
-      const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-      const localPaths = [
-        `${cleanBase}data/bible_es_rvr.json`,
+      // Lista de URLs candidatas por orden de fiabilidad
+      const candidateUrls = [
+        'https://andresagrav.github.io/Santuario/data/bible_es_rvr.json',
+        'https://cdn.jsdelivr.net/gh/thiagobodruk/bible@master/json/es_rvr.json',
+        '/Santuario/data/bible_es_rvr.json',
         './data/bible_es_rvr.json',
         '/data/bible_es_rvr.json',
         'data/bible_es_rvr.json'
       ];
 
-      for (const path of localPaths) {
+      // Añadir origen del navegador si está en GitHub Pages o localhost
+      if (typeof window !== 'undefined' && window.location) {
         try {
-          const res = await fetch(path);
-          if (res.ok) {
-            const text = await res.text();
-            const cleanText = text.charCodeAt(0) === 0xFEFF ? text.substring(1) : text;
-            fullBibleCache = JSON.parse(cleanText);
-            return fullBibleCache;
+          const origin = window.location.origin;
+          const pathname = window.location.pathname;
+          if (pathname.includes('/Santuario')) {
+            candidateUrls.unshift(`${origin}/Santuario/data/bible_es_rvr.json`);
           }
+          const baseHref = window.location.href.split('?')[0].split('#')[0].replace(/[^/]*$/, '');
+          candidateUrls.unshift(new URL('data/bible_es_rvr.json', baseHref).href);
         } catch {
-          // Intentar la siguiente ruta local
+          // Continuar con la lista estática
         }
       }
 
-      // 2. Respaldo CDN en caso de servidor estático no disponible
-      const cdnUrls = [
-        'https://cdn.jsdelivr.net/gh/thiagobodruk/bible@master/json/es_rvr.json',
-        'https://raw.githubusercontent.com/thiagobodruk/bible/master/json/es_rvr.json'
-      ];
+      const uniqueUrls = [...new Set(candidateUrls.filter(Boolean))];
 
-      for (const cdnUrl of cdnUrls) {
+      for (const url of uniqueUrls) {
         try {
-          const resCdn = await fetch(cdnUrl);
-          if (resCdn.ok) {
-            const textCdn = await resCdn.text();
-            const cleanTextCdn = textCdn.charCodeAt(0) === 0xFEFF ? textCdn.substring(1) : textCdn;
-            fullBibleCache = JSON.parse(cleanTextCdn);
-            return fullBibleCache;
+          const res = await fetch(url);
+          if (res.ok) {
+            const text = await res.text();
+            const cleanText = text.charCodeAt(0) === 0xFEFF ? text.substring(1) : text;
+            const parsed = JSON.parse(cleanText);
+            if (Array.isArray(parsed) && parsed.length > 0 && parsed[0]?.chapters) {
+              fullBibleCache = parsed;
+              return fullBibleCache;
+            }
           }
         } catch {
-          // Continuar con siguiente CDN
+          // Intentar el siguiente candidato
         }
       }
 
