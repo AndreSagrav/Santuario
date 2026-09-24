@@ -473,3 +473,83 @@ RESPONDE EXCLUSIVAMENTE en formato JSON válido con esta estructura:
   };
 }
 
+// ============================================================================
+// TRANSCRIPCIÓN DE AUDIO MULTIMODAL (GROQ WHISPER V3 + GEMINI AUDIO)
+// ============================================================================
+export async function transcribeAudio(audioBlob) {
+  if (!audioBlob) return null;
+  const keys = getProviderKeys();
+
+  // 1. Groq Whisper LPU (Inferencia en ~200ms)
+  if (keys.groq) {
+    try {
+      const formData = new FormData();
+      formData.append("file", audioBlob, "audio.webm");
+      formData.append("model", "whisper-large-v3");
+      formData.append("language", "es");
+
+      const res = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${keys.groq}` },
+        body: formData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.text && data.text.trim()) {
+          return data.text.trim();
+        }
+      }
+    } catch (e) {
+      console.warn("Fallo en Groq Whisper:", e);
+    }
+  }
+
+  // 2. Gemini Multimodal Audio
+  if (keys.gemini) {
+    try {
+      const base64Audio = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const res = reader.result;
+          resolve(res.split(",")[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(audioBlob);
+      });
+
+      const model = localStorage.getItem("santuario_theology_gemini_model")?.trim() || "gemini-3.7-flash";
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${keys.gemini}`;
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              {
+                inline_data: {
+                  mime_type: audioBlob.type || "audio/webm",
+                  data: base64Audio
+                }
+              },
+              {
+                text: "Transcribe con exactitud lo que dice el usuario en este audio en español. Devuelve ÚNICAMENTE el texto transcrito, sin comentarios adicionales ni comillas."
+              }
+            ]
+          }]
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text && text.trim()) return text.trim();
+      }
+    } catch (e) {
+      console.warn("Fallo en Gemini Audio:", e);
+    }
+  }
+
+  return null;
+}

@@ -15,7 +15,7 @@ import {
   Volume2,
   VolumeX
 } from 'lucide-react';
-import { askRuajAI } from '../services/aiService';
+import { askRuajAI, transcribeAudio } from '../services/aiService';
 import SacredContentRenderer from '../utils/sacredFormatter';
 import logoImg from '../assets/santuario-logo.jpg';
 
@@ -41,52 +41,34 @@ Cuéntame con total libertad: ¿qué pasaje te gustaría explorar o qué inquiet
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [copiedIdx, setCopiedIdx] = useState(null);
-  const [isListening, setIsListening] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const [speakingIdx, setSpeakingIdx] = useState(null);
+  const [autoVoice, setAutoVoice] = useState(() => localStorage.getItem('santuario_ruaj_autovoice') !== 'false');
 
-  // Detener audio al desmontar
+  const mediaRecorderRef = React.useRef(null);
+  const audioChunksRef = React.useRef([]);
+
+  // Detener audio y grabación al desmontar
   useEffect(() => {
     return () => {
       if (window.speechSynthesis) window.speechSynthesis.cancel();
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+      }
     };
   }, []);
 
-  // Dictado por voz (Micrófono)
-  const toggleListening = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Tu navegador no soporta entrada de voz directa. Puedes escribir tu consulta en el campo.");
-      return;
-    }
-
-    if (isListening) {
-      setIsListening(false);
-      return;
-    }
-
-    try {
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'es-ES';
-      recognition.continuous = false;
-      recognition.interimResults = false;
-
-      recognition.onstart = () => setIsListening(true);
-      recognition.onend = () => setIsListening(false);
-      recognition.onerror = () => setIsListening(false);
-
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        setInputText(prev => prev ? `${prev} ${transcript}` : transcript);
-        setIsListening(false);
-      };
-
-      recognition.start();
-    } catch (e) {
-      setIsListening(false);
-    }
+  const toggleAutoVoice = () => {
+    setAutoVoice(prev => {
+      const next = !prev;
+      localStorage.setItem('santuario_ruaj_autovoice', String(next));
+      if (!next && window.speechSynthesis) window.speechSynthesis.cancel();
+      return next;
+    });
   };
 
-  // Lectura oral de la respuesta
+  // Reproducción con voz humana natural (sin sonar robótico)
   const toggleSpeaking = (text, idx) => {
     if (!window.speechSynthesis) return;
 
@@ -97,11 +79,35 @@ Cuéntame con total libertad: ¿qué pasaje te gustaría explorar o qué inquiet
     }
 
     window.speechSynthesis.cancel();
-    const cleanText = text.replace(/[*#_`>]/g, '').replace(/https?:\/\/\S+/g, '');
+
+    // Limpieza de símbolos técnicos y markdown para una lectura natural y fluida
+    const cleanText = text
+      .replace(/[*#_`>✦•]/g, ' ')
+      .replace(/\(Strong\s+[HG]\d+\)/gi, '')
+      .replace(/\[\d+\]/g, '')
+      .replace(/https?:\/\/\S+/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
     const utterance = new SpeechSynthesisUtterance(cleanText);
+    const voices = window.speechSynthesis.getVoices();
+
+    // Seleccionar voz neuronal o de alta calidad en español
+    const bestVoice = voices.find(v => 
+      v.lang.startsWith('es') && (
+        v.name.includes('Natural') || 
+        v.name.includes('Neural') || 
+        v.name.includes('Google') || 
+        v.name.includes('Alvaro') || 
+        v.name.includes('Jorge') || 
+        v.name.includes('Mónica')
+      )
+    ) || voices.find(v => v.lang.startsWith('es'));
+
+    if (bestVoice) utterance.voice = bestVoice;
     utterance.lang = 'es-ES';
-    utterance.rate = 0.95;
-    utterance.pitch = 0.95;
+    utterance.rate = 1.0;
+    utterance.pitch = 0.98;
 
     utterance.onend = () => setSpeakingIdx(null);
     utterance.onerror = () => setSpeakingIdx(null);
@@ -110,7 +116,77 @@ Cuéntame con total libertad: ¿qué pasaje te gustaría explorar o qué inquiet
     window.speechSynthesis.speak(utterance);
   };
 
-  const handleSendMessage = async (textToSend) => {
+  // Grabación directa con micrófono y transcripción rápida (Whisper v3 / Gemini)
+  const toggleListening = async () => {
+    if (isRecording) {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+      }
+      setIsRecording(false);
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioChunksRef.current = [];
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach(track => track.stop());
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+
+        if (audioBlob.size > 1000) {
+          setIsTranscribing(true);
+          try {
+            const transcribed = await transcribeAudio(audioBlob);
+            if (transcribed && transcribed.trim()) {
+              setInputText('');
+              handleSendMessage(transcribed.trim(), true);
+            } else {
+              // Fallback al dictado local
+              fallbackNativeSpeech();
+            }
+          } catch (e) {
+            console.error("Error transcribiendo audio:", e);
+            fallbackNativeSpeech();
+          } finally {
+            setIsTranscribing(false);
+          }
+        }
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.warn("Acceso a micrófono estándar denegado o no disponible:", err);
+      fallbackNativeSpeech();
+    }
+  };
+
+  const fallbackNativeSpeech = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("No se pudo iniciar el dictado por voz. Verifica los permisos de micrófono.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'es-ES';
+    recognition.continuous = false;
+    recognition.onresult = (e) => {
+      const t = e.results[0][0].transcript;
+      if (t) handleSendMessage(t, true);
+    };
+    recognition.start();
+  };
+
+  const handleSendMessage = async (textToSend, shouldSpeak = false) => {
     const query = textToSend || inputText;
     if (!query.trim() || isLoading) return;
 
@@ -127,13 +203,21 @@ Cuéntame con total libertad: ¿qué pasaje te gustaría explorar o qué inquiet
         isChat: true
       });
 
-      setMessages((prev) => [...prev, { role: 'assistant', text: response }]);
+      setMessages((prev) => {
+        const nextIdx = prev.length;
+        const updated = [...prev, { role: 'assistant', text: response }];
+        // Si el usuario envió por voz o tiene auto-voz activo, Ruaj le responde hablando
+        if ((autoVoice || shouldSpeak) && window.speechSynthesis) {
+          setTimeout(() => toggleSpeaking(response, nextIdx), 250);
+        }
+        return updated;
+      });
     } catch (error) {
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
-          text: 'Ocurrió una interrupción en la comunión digital. Por favor intenta formular nuevamente tu pregunta.'
+          text: 'Ocurrió una interrupción en la comunicación con Ruaj. Por favor intenta formular nuevamente tu pregunta.'
         }
       ]);
     } finally {
@@ -324,32 +408,37 @@ Cuéntame con total libertad: ¿qué pasaje te gustaría explorar o qué inquiet
         )}
       </div>
 
-      {/* Input de Pregunta con Dictado por Voz */}
+      {/* Input de Pregunta con Dictado por Voz y Grabación Fluida */}
       <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
         <input
           type="text"
           className="sacred-input"
-          placeholder={isListening ? "Escuchando tu voz sagrada... (Habla ahora)" : "Escribe tu inquietud o pregunta bíblica aquí..."}
+          placeholder={
+            isRecording 
+              ? "🔴 Grabando tu voz... (Toca el micrófono para enviar a Ruaj)" 
+              : isTranscribing 
+                ? "✨ Transcribiendo tu voz con Whisper v3..." 
+                : "Escribe o háblale a Ruaj con tu voz..."
+          }
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-          disabled={isLoading}
+          disabled={isLoading || isRecording || isTranscribing}
           style={{
-            borderColor: isListening ? 'var(--gold-400)' : undefined,
-            boxShadow: isListening ? '0 0 15px rgba(212,175,55,0.3)' : undefined
+            borderColor: isRecording ? '#ef4444' : isTranscribing ? 'var(--gold-400)' : undefined,
+            boxShadow: isRecording ? '0 0 20px rgba(239,68,68,0.35)' : isTranscribing ? '0 0 15px rgba(212,175,55,0.3)' : undefined
           }}
         />
 
-        {/* Botón de Micrófono Dorado (Sin Saturación Visual) */}
+        {/* Interruptor de Respuesta por Voz Humana */}
         <button
-          onClick={toggleListening}
-          disabled={isLoading}
+          onClick={toggleAutoVoice}
           style={{
             padding: '12px 14px',
             borderRadius: 'var(--radius-md)',
-            background: isListening ? 'var(--gold-gradient)' : 'rgba(255,255,255,0.04)',
-            border: isListening ? 'none' : '1px solid var(--border-gold-subtle)',
-            color: isListening ? '#07080c' : 'var(--gold-300)',
+            background: autoVoice ? 'rgba(212,175,55,0.15)' : 'rgba(255,255,255,0.04)',
+            border: autoVoice ? '1px solid var(--gold-400)' : '1px solid var(--border-gold-subtle)',
+            color: autoVoice ? 'var(--gold-300)' : 'var(--text-muted)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -357,14 +446,37 @@ Cuéntame con total libertad: ¿qué pasaje te gustaría explorar o qué inquiet
             transition: 'all 0.2s',
             flexShrink: 0
           }}
-          title={isListening ? "Detener dictado" : "Hablar con voz a Ruaj"}
+          title={autoVoice ? "Voz activa: Ruaj te responderá hablando de forma natural" : "Voz desactivada (solo texto)"}
         >
-          {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+          {autoVoice ? <Volume2 size={18} /> : <VolumeX size={18} />}
+        </button>
+
+        {/* Botón de Micrófono Dorado / Grabación */}
+        <button
+          onClick={toggleListening}
+          disabled={isLoading || isTranscribing}
+          style={{
+            padding: '12px 14px',
+            borderRadius: 'var(--radius-md)',
+            background: isRecording ? '#dc2626' : 'rgba(255,255,255,0.04)',
+            border: isRecording ? 'none' : '1px solid var(--border-gold-subtle)',
+            color: isRecording ? '#ffffff' : 'var(--gold-300)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s',
+            flexShrink: 0,
+            boxShadow: isRecording ? '0 0 15px rgba(220,38,38,0.6)' : undefined
+          }}
+          title={isRecording ? "Detener y enviar audio a Ruaj" : "Hablar con voz fluida a Ruaj"}
+        >
+          {isRecording ? <MicOff size={18} className="animate-pulse" /> : <Mic size={18} />}
         </button>
 
         <button
           onClick={() => handleSendMessage()}
-          disabled={isLoading || !inputText.trim()}
+          disabled={isLoading || isRecording || isTranscribing || !inputText.trim()}
           className="btn-gold"
           style={{ padding: '12px 24px', flexShrink: 0 }}
         >
