@@ -1083,24 +1083,29 @@ export default function TheologicalApparatusDrawer({
               )}
 
               {/* =========================================================================
-                  MODO E: DIMENSIÓN 4 - GEOGRAFÍA SAGRADA & TOPOGRAFÍA INTERACTIVA
+                  MODO E: DIMENSIÓN 4 - GEOGRAFÍA SAGRADA & TOPOGRAFÍA INTERACTIVA (PANORÁMICA)
                  ========================================================================= */}
               {activeDimension === 'geography' && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(460px, 1fr))', gap: '24px', alignItems: 'start' }}>
-                  <SacredGeographyMap bookName={verseContext.book} chapter={verseContext.chapter} verseRef={displayRef} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
+                  <SacredGeographyMap 
+                    bookName={verseContext.book} 
+                    chapter={verseContext.chapter} 
+                    verseRef={displayRef} 
+                    variant="expansive" 
+                  />
                   
-                  <div style={{ background: 'rgba(10, 13, 20, 0.85)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '12px', padding: '24px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', borderBottom: '1px solid rgba(212,175,55,0.18)', paddingBottom: '10px' }}>
-                      <Compass size={18} color="var(--gold-400)" />
-                      <h4 className="font-cinzel gold-text-gradient" style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800' }}>
-                        Geografía Teológica & Relieve ({verseContext.book})
-                      </h4>
-                    </div>
+                  {getSectionContent(4) && (
+                    <div style={{ background: 'rgba(10, 13, 20, 0.92)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '12px', padding: '24px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', borderBottom: '1px solid rgba(212,175,55,0.18)', paddingBottom: '10px' }}>
+                        <Compass size={20} color="var(--gold-400)" />
+                        <h4 className="font-cinzel gold-text-gradient" style={{ margin: 0, fontSize: '1.25rem', fontWeight: '800' }}>
+                          Tratado Topográfico y Ecosistema ({verseContext.book})
+                        </h4>
+                      </div>
 
-                    {getSectionContent(4) && (
                       <SacredContentRenderer content={getSectionContent(4)} multiColumn={true} />
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               )}
 
