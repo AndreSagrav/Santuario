@@ -50,7 +50,7 @@ const GENESIS_SITES = [
     hebrew: 'שְׁכֶם (Shejem / Encinar de Moreh)',
     elevation: '+520 m (Paso entre los montes Ebal y Gerizim)',
     climate: 'Mediterráneo montañoso fértil, rico en manantiales',
-    archaeology: 'Tel Balata: Murallas ciclópeas del Bronce Medio (c. 1750 a.C.) y templo-fortaleza con estela sagrada (massebah).',
+    archaeology: 'Tel Balata: Ciudad cananea fortificada con murallas ciclópeas del Bronce Medio (c. 1900-1750 a.C.), documentada en los Textos de Execración egipcios (siglo XIX a.C.) contemporáneos a la época patriarcal.',
     secularNote: 'Encrucijada geográfica obligada que conecta las rutas de la costa con el valle del Jordán y la cordillera central de Samaria.',
     exegeticalConnection: 'Lugar del primer altar de Abram en la Tierra Prometida (Génesis 12:6-7) donde Yahweh se le apareció y prometió: «A tu simiente daré esta tierra».',
     coords: { x: 45, y: 48 }
@@ -61,7 +61,7 @@ const GENESIS_SITES = [
     hebrew: 'חֶבְרוֹן וְאֵלוֹנֵי מַמְרֵא (Jevrón u-Mamre)',
     elevation: '+930 m sobre el nivel del mar',
     climate: 'Templado de montaña con terrazas de viñas milenarias',
-    archaeology: 'Cueva de Macpela (recinto monumental herodiano intacto) y Tel Rumeida con niveles cananeos del Bronce Antiguo y Medio.',
+    archaeology: 'Tel Rumeida: Enorme muralla de piedra del Bronce Medio (c. 2000-1750 a.C.) que corrobora la existencia de Hebrón como ciudad fortificada en tiempos de Abraham. Recinto monumental de la Cueva de Macpela preservado.',
     secularNote: 'Única propiedad territorial que Abraham compró legalmente por plata a Efrón el hitita para sepulcro de Sara y los patriarcas.',
     exegeticalConnection: 'Epicentro del pacto de la circuncisión y la teofanía de los tres visitantes celestiales en las tiendas de Mamre (Génesis 18).',
     coords: { x: 42, y: 64 }
@@ -127,17 +127,35 @@ const JUDEA_SITES = [
   }
 ];
 
-export default function SacredGeographyMap({ bookName = '', verseRef = '' }) {
+export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRef = '' }) {
   const norm = (bookName || verseRef || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const isGenesis = norm.includes('genesis') || norm.includes('exodo') || norm.includes('levitico') || norm.includes('numeros') || norm.includes('deuteronomio');
   
   const sitesList = isGenesis ? GENESIS_SITES : JUDEA_SITES;
-  const [selectedSite, setSelectedSite] = useState(sitesList[0]);
 
-  // Si cambia el corpus, actualizar sitio activo
+  const getInitialSite = () => {
+    if (isGenesis) {
+      const c = Number(chapter) || 1;
+      if (c >= 13 && c <= 25) {
+        return GENESIS_SITES.find(s => s.id === 'hebron_mamre') || GENESIS_SITES[0];
+      }
+      if (c === 12) {
+        return GENESIS_SITES.find(s => s.id === 'siquem') || GENESIS_SITES[0];
+      }
+      if (c === 11) {
+        return GENESIS_SITES.find(s => s.id === 'ur_caldeos') || GENESIS_SITES[0];
+      }
+      return GENESIS_SITES[0];
+    }
+    return JUDEA_SITES[0];
+  };
+
+  const [selectedSite, setSelectedSite] = useState(getInitialSite());
+
+  // Si cambia el libro o el capítulo, sincronizar el sitio más relevante
   React.useEffect(() => {
-    setSelectedSite(sitesList[0]);
-  }, [isGenesis]);
+    setSelectedSite(getInitialSite());
+  }, [isGenesis, chapter]);
 
   return (
     <div style={{
@@ -188,6 +206,55 @@ export default function SacredGeographyMap({ bookName = '', verseRef = '' }) {
             {sitesList.length} Hitos Cartográficos
           </span>
         </div>
+      </div>
+
+      {/* Selector de Hitos Geográficos en Botones Claros y Accesibles */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        flexWrap: 'wrap',
+        padding: '10px 14px',
+        background: 'rgba(0,0,0,0.4)',
+        borderRadius: '8px',
+        border: '1px solid rgba(212,175,55,0.2)'
+      }}>
+        <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '5px', marginRight: '6px' }}>
+          <MapPin size={13} color="var(--gold-400)" />
+          <strong style={{ color: 'var(--gold-300)' }}>Hitos ({sitesList.length}):</strong>
+        </span>
+        {sitesList.map((site, index) => {
+          const isSelected = selectedSite.id === site.id;
+          return (
+            <button
+              key={site.id}
+              onClick={() => setSelectedSite(site)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '5px 12px',
+                borderRadius: '6px',
+                background: isSelected
+                  ? 'linear-gradient(135deg, var(--gold-400) 0%, #b8860b 100%)'
+                  : 'rgba(255,255,255,0.05)',
+                border: isSelected
+                  ? '1.5px solid #ffd700'
+                  : '1px solid rgba(255,255,255,0.1)',
+                color: isSelected ? '#05070a' : '#ffffff',
+                fontWeight: isSelected ? '800' : '500',
+                fontSize: '0.78rem',
+                cursor: 'pointer',
+                boxShadow: isSelected ? '0 0 12px rgba(212,175,55,0.4)' : 'none',
+                transition: 'all 0.15s ease'
+              }}
+              title={`Examinar hito: ${site.name}`}
+            >
+              <span style={{ fontSize: '0.7rem', opacity: isSelected ? 0.9 : 0.6 }}>{index + 1}.</span>
+              <span>{site.name.split('(')[0].trim()}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Grid: Canvas Topográfico Iluminado a la Izquierda + Ficha Arqueológica a la Derecha */}

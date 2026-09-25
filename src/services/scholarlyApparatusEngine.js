@@ -45,14 +45,34 @@ Morfosintaxis Clave:
 • גִּבּוֹרֵי חַיִל (gibbôrê ḥayil - H1368 / H2428): «Hombres valientes de poder y virtud moral-militar».
 • יְהוָה (H3068): El Tetragrámaton aparece como el garante soberano de la unificación nacional bajo la casa de David.`;
     } else if (corpus.book.includes('Génesis')) {
-      langAnalysis = `1. Exégesis Lingüística & Morfología Original:
+      const c = Number(chapter) || 1;
+      if (c === 15) {
+        langAnalysis = `1. Exégesis Lingüística & Morfología Original:
+Texto Hebreo Masorético (BHS / Codex Leningradensis B19A):
+אַחַר הַדְּבָרִים הָאֵלֶּה הָיָה דְבַר־יְהוָה אֶל־אַבְרָם בַּמַּחֲזֶה לֵאמֹר אַל־תִּירָא אַבְרָם אָנֹכִי מָגֵן לָךְ שְׂכָרְךָ הַרְבֵּה מְאֹד
+Morfosintaxis y Léxico Hebreo-Español para Génesis 15:
+• «No temas» — אַל־תִּירָא (Al-tirá - Strong H3372): Negación אַל seguida del verbo יָרֵא en aspecto Imperfecto Qal (Jussivo 2ms). Fórmula oracular de auxilio divino que apacigua el pánico existencial de Abram tras su victoria sobre los reyes mesopotámicos.
+• «Escudo / Protector» — מָגֵן (Magén - Strong H4043): Sustantivo masculino singular absoluto. Metáfora de soberanía defensiva: el Eterno no solo promete protección externa, sino que se ofrece a Sí mismo como el baluarte personal de Abram.
+• «Tu galardón / Tu recompensa» — שְׂכָרְךָ (Sekharkha - Strong H7939): Sustantivo masculino con sufijo pronominal 2ms. Abram había rechazado el botín del rey de Sodoma (Gén 14:22-23); aquí Dios declara que Él mismo es la ganancia suprema y trascendente del creyente.
+• «Visión profética» — בַּמַּחֲזֶה (Bammajazeh - Strong H4236): Sustantivo de la raíz חָזָה («percibir con discernimiento celestial»). Primera vez en el canon bíblico que se menciona la palabra en «visión», marcando la inauguración del ministerio profético.
+• «Palabra de Jehová» — דְּבַר־יְהוָה (Devar-YHVH - Strong H1697 / H3068): El instrumento creador y revelador soberano del Dios de la alianza.`;
+      } else if (c >= 12 && c <= 25) {
+        langAnalysis = `1. Exégesis Lingüística & Morfología Original:
+Texto Hebreo Masorético (BHS / Codex Leningradensis B19A - Ciclo de Abraham):
+Morfosintaxis y Vocabulario Pactual:
+• «Pacto / Alianza» — בְּרִית (Berit - Strong H1285): Término fundamental del tratado de Dios con Abraham que estructura toda la revelación bíblica.
+• «Fe / Creer» — אָמַן ('Amán - Strong H539): Raíz verbal que denota firmeza, certeza y descanso incondicional en la palabra divina.
+• «Justicia» — צְדָקָה (Tzedaqah - Strong H6666): Rectitud imputada por Dios a Abram por medio de la fe.`;
+      } else {
+        langAnalysis = `1. Exégesis Lingüística & Morfología Original:
 Texto Hebreo Masorético (BHS / Codex Leningradensis B19A):
 בְּרֵאשִׁית בָּרָא אֱלֹהִים אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ (Bereshit bara Elohim 'et hashamayim w'et ha'aretz).
 Morfosintaxis y Léxico Hebreo-Español:
-• «Creó» — בָּרָא (Bará - Strong H1254): Verbo en aspecto Perfecto Qal (3ª masc. singular). En toda la Biblia hebrea, el sujeto gramatical exclusivo de este verbo es Dios. Denota un acto creador soberano sin esfuerzo ni materia preexistente (creatio ex nihilo), a diferencia de «hacer» ('asah) o «formar» (yatsar).
-• «Dios» — אֱלֹהִים (Elohim - Strong H430): Sustantivo masculino plural que rige un verbo en singular (bará). Es el plural de majestad y plenitud ontológica suprema: el Dios único que trasciende toda multiplicidad pagana.
-• «En el principio» — בְּרֵאשִׁית (Bereshit - Strong H7225): Apertura solemne con prefijo preposicional Bet (בְּ): marca el origen absoluto del tiempo, el espacio y la materia.
-• «Los cielos y la tierra» — אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ: Merismo semítico canónico que abarca la totalidad del cosmos visible e invisible.`;
+• «Creó» — בָּרָא (Bará - Strong H1254): Verbo en aspecto Perfecto Qal (3ª masc. singular). En toda la Biblia hebrea, el sujeto gramatical exclusivo de este verbo es Dios. Denota un acto creador soberano sin esfuerzo ni materia preexistente (creatio ex nihilo).
+• «Dios» — אֱלֹהִים (Elohim - Strong H430): Sustantivo masculino plural que rige un verbo en singular (bará). Es el plural de majestad y plenitud ontológica suprema.
+• «En el principio» — בְּרֵאשִׁית (Bereshit - Strong H7225): Apertura solemne con prefijo preposicional Bet (בְּ): marca el origen absoluto del tiempo y el cosmos.
+• «Los cielos y la tierra» — אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ: Merismo semítico canónico que abarca la totalidad del cosmos creado.`;
+      }
     } else if (corpus.book.includes('Salmo')) {
       langAnalysis = `1. Exégesis Lingüística & Morfología Original:
 Texto Hebreo Masorético Tiberiense (BHS):
@@ -83,10 +103,18 @@ Morfosintaxis Clave:
   // 2. Contexto Histórico & Sociocultural ANE
   let historyAnalysis = '';
   if (corpus.book.includes('Génesis')) {
-    historyAnalysis = `2. Contexto Histórico & Sociocultural:
+    const c = Number(chapter) || 1;
+    if (c >= 12 && c <= 25) {
+      historyAnalysis = `2. Contexto Histórico & Sociocultural:
+• Época Patriarcal en el Bronce Medio (c. 2000–1600 a.C.): El relato de Abram se enmarca en las migraciones semíticas amorreas documentadas en los archivos cuneiformes de Mari (Siria) y Ebla. La ciudad de Hebrón (Tel Rumeida) y Siquem (Tel Balata) contaban ya en este período con masivas murallas ciclópeas y asentamientos consolidados, mencionados en los Textos de Execración egipcios.
+• Rito de Cortar Pacto en el Próximo Oriente Antiguo (Karath Berith): En la antigüedad semítica, sellar una alianza de vida o muerte exigía descuartizar animales por la mitad y que las partes caminaran en medio, invocando una auto-maldición: «Que así me suceda a mí si quebranto este pacto». En Génesis 15:17, un misterioso horno humeante y una antorcha de fuego (teofanía de la presencia divina) pasan en medio en solitario, significando que Dios asume unilateralmente la fidelidad del pacto.
+• Costumbres Legales Contemporáneas: El temor de Abram de no tener heredero y que su siervo Eliezer de Damasco heredase su casa refleja con exactitud las leyes familiares de adopción atestiguadas en las tablillas de Nuzi del segundo milenio a.C.`;
+    } else {
+      historyAnalysis = `2. Contexto Histórico & Sociocultural:
 • Horizonte de los Orígenes y Cosmogonía Comparada del ANE: Génesis 1 proclama la creación ex nihilo frente al horizonte mítico del Próximo Oriente Antiguo. A diferencia del Enuma Elish babilónico (donde el cosmos surge de los cadáveres despedazados de Tiamat y Kingu tras violentas guerras entre dioses), el texto bíblico presenta una ruptura epistemológica absoluta: un solo Dios trascendente que crea por Su sola palabra soberana y pura voluntad.
 • Desmitificación Cósmica Radical: Los astros no son deidades celestiales a las que temer o rendir culto (como el sol Shamash o la luna Sin), sino meras «lumbreras» y criaturas puestas al servicio del orden de los días y las estaciones.
 • Dignidad Inalienable del Ser Humano (Imago Dei): En los mitos mesopotámicos el ser humano fue creado para aliviar a los dioses de su trabajo manual como sirvientes; en la revelación bíblica, toda persona es creada a imagen y semejanza de Dios (Tselem Elohim), con dignidad real y vocación de mayordomía sagrada.`;
+    }
   } else if (corpus.book.includes('Crónicas')) {
     historyAnalysis = `2. Contexto Histórico & Sociocultural:
 • Trasfondo Histórico: 1 y 2 Crónicas fueron redactadas durante el período persa post-exílico (c. 450–400 a.C.), en los días de Esdras y Nehemías, para alentar a los repatriados de Babilonia.

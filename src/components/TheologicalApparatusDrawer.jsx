@@ -127,6 +127,41 @@ export default function TheologicalApparatusDrawer({
         };
       }
       if (corpus.book.includes('Génesis')) {
+        const chap = Number(verseContext?.chapter) || 1;
+        if (chap === 15) {
+          return {
+            primaryTitle: 'Texto Masorético (BHS / Codex Leningradensis B19A):',
+            primaryText: 'אַחַר הַדְּבָרִים הָאֵלֶּה הָיָה דְבַר־יְהוָה אֶל־אַבְרָם בַּמַּחֲזֶה לֵאמֹר אַל־תִּירָא אַבְרָם אָנֹכִי מָגֵן לָךְ שְׂכָרְךָ הַרְבֵּה מְאֹד',
+            primaryTranslit: "Ajar hadevarim ha'elleh hayah devar-YHVH 'el-Avram bammajazeh lemor: 'Al-tirá Avram, 'anoki magén lak, sekharka harbeh me'od",
+            secondaryTitle: 'Septuaginta Griega (Génesis 15 LXX):',
+            secondaryText: 'Μετὰ δὲ τὰ ῥήματα ταῦτα ἐγενήθη ῥῆμα κυρίου πρὸς Αβραμ ἐν ὁράματι λέγων Μὴ φοβοῦ, Αβραμ· ἐγὼ ὑπερασπίζω σου· ὁ μισθός σου πολὺς ἔσται σφόδρα',
+            secondaryTranslit: "Meta de ta rhēmata tauta egenēthē rhēma kyriou pros Abram en horamati legōn: Mē phobou, Abram; egō hyperaspizō sou; ho misthos sou polys estai sphodra",
+            morphologyItems: [
+              { spanish: 'No temas', term: 'אַל־תִּירָא', translit: 'Al-tirá', strong: 'H3372', grammar: 'Negación אַל + Qal Imperfecto 2ms (Jussivo)', note: 'Fórmula divina de oráculo de salvación: disipa el temor existencial de Abram garantizando paz absoluta.' },
+              { spanish: 'Escudo / Protector', term: 'מָגֵן', translit: 'Magén', strong: 'H4043', grammar: 'Sustantivo masculino absoluto', note: 'Metáfora de defensa soberana: Dios no solo da protección, sino que Él mismo es el escudo viviente de Abram.' },
+              { spanish: 'Tu galardón / Recompensa', term: 'שְׂכָרְךָ', translit: 'Sekharkha', strong: 'H7939', grammar: 'Sustantivo masculino con sufijo 2ms', note: 'Recompensa infinita: el Eterno mismo es la herencia viva de quien camina por fe ante la falta de heredero.' },
+              { spanish: 'Visión profética', term: 'בַּמַּחֲזֶה', translit: 'Bammajazeh', strong: 'H4236', grammar: 'Prefijo Bet + sustantivo masc. (raíz חָזָה)', note: 'Primera mención de revelación en visión en el canon bíblico; preludio al conteo de las estrellas en la noche.' },
+              { spanish: 'Palabra de Jehová', term: 'דְּבַר־יְהוָה', translit: 'Devar-YHVH', strong: 'H1697 / H3068', grammar: 'Constructo verbal + Tetragrámaton', note: 'La palabra viva y vinculante que precede a toda evidencia visible y sella la promesa del pacto.' }
+            ]
+          };
+        }
+
+        if (chap >= 12 && chap <= 25) {
+          return {
+            primaryTitle: 'Texto Masorético (BHS / Codex Leningradensis B19A):',
+            primaryText: 'וְאֶעֶשְׂךָ לְגוֹי גָּדוֹל וַאֲבָרֶכְךָ וַאֲגַדְּלָה שְׁמֶךָ וֶהְיֵה בְּרָכָה',
+            primaryTranslit: "We'e'eska legoy gadol wa'avarekheka wa'agaddelah shemeka wehyeh berakah",
+            secondaryTitle: 'Septuaginta Griega (LXX Patriarcal):',
+            secondaryText: 'καὶ ποιήσω σε εἰς ἔθνος μέγα καὶ εὐλογήσω σε καὶ μεγαλυνῶ τὸ ὄνομά σου',
+            secondaryTranslit: 'Kai poiēsō se eis ethnos mega kai eulogēsō se',
+            morphologyItems: [
+              { spanish: 'Vete por ti mismo', term: 'לֶךְ־לְךָ', translit: 'Lej-lejá', strong: 'H3212', grammar: 'Imperativo Qal 2ms + dativo ético', note: 'Llamamiento radical de ruptura con la idolatría de Ur para seguir la voz de Dios.' },
+              { spanish: 'Bendición / Sé bendición', term: 'בְּרָכָה', translit: 'Berajah', strong: 'H1293', grammar: 'Sustantivo femenino', note: 'El propósito del pacto no es acumular privilegio, sino irradiar redención a todas las naciones.' },
+              { spanish: 'Nación grande', term: 'גּוֹי גָּדוֹל', translit: 'Goy gadol', strong: 'H1471 / H1419', grammar: 'Sustantivo masc. + adjetivo', note: 'Promesa de descendencia incontable cumplida tipológicamente en Israel y espiritualmente en la Iglesia.' }
+            ]
+          };
+        }
+
         return {
           primaryTitle: 'Texto Masorético (BHS / Codex Leningradensis):',
           primaryText: 'בְּרֵאשִׁית בָּרָא אֱלֹהִים אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ',
@@ -240,6 +275,33 @@ export default function TheologicalApparatusDrawer({
       ];
     }
     if (corpus.book.includes('Génesis')) {
+      const chap = Number(verseContext?.chapter) || 1;
+      if (chap >= 12 && chap <= 25) {
+        return [
+          {
+            badge: 'Pacto Abrahámico Soberano (Génesis 15:1-18)',
+            color: 'var(--gold-400)',
+            bg: 'rgba(212,175,55,0.06)',
+            border: 'rgba(212,175,55,0.25)',
+            text: 'Dios sella el pacto unilateral pasando en fuego (horno humeante y antorcha) entre los animales divididos. Dios asume en solitario el juramento solemne de fidelidad hacia Abram y su descendencia.'
+          },
+          {
+            badge: 'La Justificación por la Fe (Génesis 15:6)',
+            color: '#93c5fd',
+            bg: 'rgba(59,130,246,0.06)',
+            border: 'rgba(147,197,253,0.25)',
+            text: '«Y creyó a Jehová, y le fue contado por justicia». Citado por el apóstol Pablo en Romanos 4 y Gálatas 3 como la piedra angular del evangelio: la salvación por la fe en Cristo, no por obras de la ley.'
+          },
+          {
+            badge: 'La Promesa de la Simiente Mesiánica',
+            color: '#4ade80',
+            bg: 'rgba(74,222,128,0.06)',
+            border: 'rgba(74,222,128,0.25)',
+            text: '«Mira ahora los cielos, y cuenta las estrellas... así será tu simiente». Gálatas 3:16 revela que la promesa definitiva no hablaba de muchos linajes, sino de uno: Jesucristo, salvador de todas las naciones.'
+          }
+        ];
+      }
+
       return [
         {
           badge: 'Pacto Edénico & Mandato Creacional (Gén 1-2)',
@@ -739,12 +801,12 @@ export default function TheologicalApparatusDrawer({
                     
                     {/* Dimensión 4: Geografía Sagrada & Topografía */}
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <SacredGeographyMap bookName={verseContext.book} verseRef={displayRef} />
+                      <SacredGeographyMap bookName={verseContext.book} chapter={verseContext.chapter} verseRef={displayRef} />
                     </div>
 
                     {/* Dimensión 2: Contexto Histórico & ANE (Línea de Tiempo) */}
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <HistoricalTimelineViewer bookName={verseContext.book} verseRef={displayRef} />
+                      <HistoricalTimelineViewer bookName={verseContext.book} chapter={verseContext.chapter} verseRef={displayRef} />
                     </div>
 
                     {/* Dimensión 5: Teología del Pacto */}
@@ -888,7 +950,7 @@ export default function TheologicalApparatusDrawer({
                  ========================================================================= */}
               {activeDimension === 'geography' && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(460px, 1fr))', gap: '24px', alignItems: 'start' }}>
-                  <SacredGeographyMap bookName={verseContext.book} verseRef={displayRef} />
+                  <SacredGeographyMap bookName={verseContext.book} chapter={verseContext.chapter} verseRef={displayRef} />
                   
                   <div style={{ background: 'rgba(10, 13, 20, 0.85)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: '12px', padding: '24px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', borderBottom: '1px solid rgba(212,175,55,0.18)', paddingBottom: '10px' }}>

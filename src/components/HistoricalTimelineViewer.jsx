@@ -104,16 +104,34 @@ const GENERAL_TIMELINE_ERAS = [
   }
 ];
 
-export default function HistoricalTimelineViewer({ bookName = '', verseRef = '' }) {
+export default function HistoricalTimelineViewer({ bookName = '', chapter = 1, verseRef = '' }) {
   const norm = (bookName || verseRef || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const isGenesis = norm.includes('genesis') || norm.includes('exodo') || norm.includes('creacion');
 
   const eras = isGenesis ? GENESIS_TIMELINE_ERAS : GENERAL_TIMELINE_ERAS;
-  const [selectedEra, setSelectedEra] = useState(eras[0]);
+
+  const getInitialEra = () => {
+    if (isGenesis) {
+      const c = Number(chapter) || 1;
+      if (c >= 12 && c <= 36) {
+        return GENESIS_TIMELINE_ERAS.find(e => e.id === 'patriarchs_bronze_middle') || eras[0];
+      }
+      if (c >= 37 && c <= 50) {
+        return GENESIS_TIMELINE_ERAS.find(e => e.id === 'sojourn_exodus') || eras[0];
+      }
+      if (c >= 6 && c <= 11) {
+        return GENESIS_TIMELINE_ERAS.find(e => e.id === 'flood_nations') || eras[0];
+      }
+      return GENESIS_TIMELINE_ERAS[0];
+    }
+    return GENERAL_TIMELINE_ERAS[0];
+  };
+
+  const [selectedEra, setSelectedEra] = useState(getInitialEra());
 
   React.useEffect(() => {
-    setSelectedEra(eras[0]);
-  }, [isGenesis]);
+    setSelectedEra(getInitialEra());
+  }, [isGenesis, chapter]);
 
   return (
     <div style={{
