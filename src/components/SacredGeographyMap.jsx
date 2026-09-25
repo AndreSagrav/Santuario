@@ -1,129 +1,144 @@
 import React, { useState } from 'react';
-import { Compass, MapPin, Mountain, Droplets } from 'lucide-react';
+import { Compass, MapPin, Mountain, Droplets, Globe, Layers, Navigation } from 'lucide-react';
 
 /**
  * SacredGeographyMap.jsx
- * Mapa topográfico y arqueológico interactivo contextualizado por libro bíblico:
- * - Génesis & Pentateuco: Cuenca Mesopotámica, Tigris, Éufrates y Canaán Patriarcal
- * - Salmos & Libros Históricos: Topografía de Judea, Sion, Belén, Desierto y Oasis
- * - Evangelios & Hechos: Galilea, Valle del Jordán, Judea y Mundo Grecorromano
+ * Mapa geográfico histórico con comparativa directa de países modernos:
+ * - Visión del Mundo Bíblico vs. Países Actuales (Irak, Turquía, Siria, Israel, Cisjordania, Jordania, Egipto)
+ * - Rutas reales de caravanas, distancias en jornadas de camino y arqueología accesible.
  */
 
-// Sitios para Génesis y Pentateuco (Mesopotamia, Edén, Creciente Fértil)
+// Hitos de Génesis y el Creciente Fértil
 const GENESIS_SITES = [
   {
     id: 'eden_mesopotamia',
     name: 'Cuenca de los Cuatro Ríos (Tigris y Éufrates)',
-    hebrew: 'נְהַר פְּרָת וְחִדֶּקֶל (Perat w-Jiddeqel)',
-    elevation: '+50 m (Llanura aluvial)',
-    climate: 'Aluvial subtropical desértico, regado por crecidas fluviales históricas',
-    archaeology: 'Estratos de Tell el-Obeid y Eridu (V-IV milenio a.C.). Complejo sistema de canales sumerios descritos en los textos cuneiformes más antiguos.',
-    secularNote: 'El Génesis sitúa la morada primordial en la fértil cuenca del Creciente Fértil, entre el Hiddekel (Tigris) y el Perat (Éufrates), el corazón agrícola de la civilización.',
-    exegeticalConnection: 'Enfatiza que la creación del ser humano no ocurrió en un vacío mítico abstracto, sino en un huerto real y deleitoso provisto de ríos abundantes para ser labrado y guardado.',
-    coords: { x: 75, y: 35 }
+    modernCountry: 'Irak (Centro y Sur)',
+    modernCity: 'Región entre Bagdad y Basora (Chatt al-Arab)',
+    historicalEra: 'Mesopotamia Antigua / Creciente Fértil',
+    travelDistance: 'Punto de origen de la agricultura fluvial en la Media Luna Fértil',
+    elevation: '+40 m (Llanura aluvial fértil)',
+    climate: 'Aluvial desértico, regado por las crecidas anuales de los dos ríos',
+    secularNote: 'En esta llanura entre el Tigris y el Éufrates nació la agricultura y la escritura cuneiforme hace más de 5.000 años. Los primeros pueblos construyeron diques y canales para convertir el desierto en un vergel productivo.',
+    biblicalRelation: 'Génesis sitúa el huerto del Edén en esta fértil cuenca fluvial para enseñar que la vida humana no comenzó en un desierto abstracto, sino en una tierra abundante y cultivable donde el ser humano debía cuidar de la creación.',
+    archaeology: 'Yacimientos de Tell el-Obeid y Eridu (sur de Irak). Canales sumerios y registros agrícolas milenarios.',
+    coords: { x: 74, y: 46 }
   },
   {
     id: 'ur_caldeos',
-    name: 'Ur de los Caldeos (Mesopotamia Meridional)',
-    hebrew: 'אוּר כַּשְׂדִּים (Ur Kasdim)',
-    elevation: '+10 m (Cerca del Golfo Pérsico)',
-    climate: 'Árido extremoso con tierras pantanosas aluviales',
-    archaeology: 'Gran Zigurat de Ur excavado por Sir Leonard Woolley. Archivos cuneiformes del III milenio a.C. dedicados al culto lunar del dios Nanna.',
-    secularNote: 'Metrópolis comercial y cosmopolita sumeria de donde partió Taré y su hijo Abram hacia la tierra que Dios le mostraría.',
-    exegeticalConnection: 'Punto de partida de la historia de la redención patriarcal: Abram fue llamado a renunciar al politeísmo urbano floreciente para caminar por fe.',
-    coords: { x: 82, y: 72 }
+    name: 'Ur de los Caldeos',
+    modernCountry: 'Irak (Sur)',
+    modernCity: 'Provincia de Di Qar, a 15 km de la moderna ciudad de Nasiriyah',
+    historicalEra: 'Civilización Sumeria y Babilonia',
+    travelDistance: 'Aprox. 950 km hasta Harán (mes y medio de viaje en caravana junto al río)',
+    elevation: '+12 m (Cerca de las marismas del Golfo Pérsico)',
+    climate: 'Muy caluroso y seco en verano, con tierras fértiles cerca del río',
+    secularNote: 'Era una de las metrópolis más avanzadas, comerciales y cosmopolitas del mundo antiguo, con un puerto fluvial activo y un gigantesco templo escalonado (el Zigurat de Ur) dedicado a la luna.',
+    biblicalRelation: 'De aquí salió Abraham con su padre Taré. Dejó atrás la comodidad y los cultos de una gran ciudad cosmopolita para obedecer el llamado de buscar una tierra nueva viviendo en tiendas.',
+    archaeology: 'Gran Zigurat de Ur excavado por Sir Leonard Woolley. Se descubrieron tumbas reales con joyas de oro, liras musicales y miles de contratos en tablillas de arcilla.',
+    coords: { x: 80, y: 70 }
   },
   {
     id: 'haran',
-    name: 'Harán en Padán-Aram (Alta Mesopotamia)',
-    hebrew: 'חָרָן (Jarán - «Encrucijada»)',
+    name: 'Harán en Padán-Aram',
+    modernCountry: 'Turquía (Frontera Sur)',
+    modernCity: 'Distrito de Harran, provincia de Şanlıurfa (a 18 km de la frontera con Siria)',
+    historicalEra: 'Reino de Mitani / Padán-Aram',
+    travelDistance: 'Aprox. 600 km hacia el sur hasta entrar en Canaán (un mes de marcha a pie)',
     elevation: '+375 m sobre el nivel del mar',
-    climate: 'Estepario continental con llanuras cerealistas',
-    archaeology: 'Mencionada en las tablillas de Ebla y Mari (siglo XVIII a.C.). Importante centro de rutas caravaneras entre Babilonia, Asiria y el Mediterráneo.',
-    secularNote: 'Lugar donde habitó la familia de Abram tras salir de Ur y donde murió Taré (Génesis 11:31-32). Cuna familiar de Rebeca, Lea y Raquel.',
-    exegeticalConnection: 'Escenario de la segunda confirmación del llamado divino: «Vete de tu tierra y de tu parentela... y haré de ti una nación grande».',
-    coords: { x: 60, y: 20 }
+    climate: 'Estepario continental con inviernos fríos y veranos templados',
+    secularNote: 'Crucero neurálgico de las grandes rutas de comerciantes entre Mesopotamia, Anatolia y el Mediterráneo. Célebre en la historia por sus casas tradicionales con techos en forma de cono de barro.',
+    biblicalRelation: 'Aquí vivió la familia de Abraham tras salir de Ur y aquí falleció su padre Taré. Años más tarde, el mayordomo de Abraham y su nieto Jacob volverían a esta misma región para buscar esposa.',
+    archaeology: 'Mencionada en las tablillas de Ebla (Siria) y Mari del segundo milenio a.C. como próspera estación caravanera.',
+    coords: { x: 50, y: 22 }
   },
   {
     id: 'siquem',
-    name: 'Siquem / Encinar de Moreh (Canaán Central)',
-    hebrew: 'שְׁכֶם (Shejem / Encinar de Moreh)',
-    elevation: '+520 m (Paso entre los montes Ebal y Gerizim)',
-    climate: 'Mediterráneo montañoso fértil, rico en manantiales',
-    archaeology: 'Tel Balata: Ciudad cananea fortificada con murallas ciclópeas del Bronce Medio (c. 1900-1750 a.C.), documentada en los Textos de Execración egipcios (siglo XIX a.C.) contemporáneos a la época patriarcal.',
-    secularNote: 'Encrucijada geográfica obligada que conecta las rutas de la costa con el valle del Jordán y la cordillera central de Samaria.',
-    exegeticalConnection: 'Lugar del primer altar de Abram en la Tierra Prometida (Génesis 12:6-7) donde Yahweh se le apareció y prometió: «A tu simiente daré esta tierra».',
-    coords: { x: 45, y: 48 }
+    name: 'Siquem (Valle de Moreh)',
+    modernCountry: 'Cisjordania / Palestina',
+    modernCity: 'Ciudad actual de Nablus, entre los montes Ebal y Gerizim',
+    historicalEra: 'Canaán Central (Edad del Bronce)',
+    travelDistance: 'Aprox. 45 km al sur de Hebrón (dos días de caminata a pie por el lomo montañoso)',
+    elevation: '+520 m en un paso estratégico de montaña',
+    climate: 'Mediterráneo de montaña, fresco y con abundantes manantiales naturales',
+    secularNote: 'Paso obligatorio para cualquier viajero que cruzara Canaán de norte a sur o que viajara del Mar Mediterráneo al Río Jordán.',
+    biblicalRelation: 'Fue la primera parada de Abraham al llegar a la Tierra Prometida. Allí levantó su primer altar y escuchó la promesa de que esa tierra sería para su descendencia.',
+    archaeology: 'Tel Balata: Murallas ciclópeas de piedra de la Edad del Bronce Medio (hacia 1900 a.C.) y puerta monumental de la ciudad, citada en los Textos de Execración egipcios.',
+    coords: { x: 34, y: 48 }
   },
   {
     id: 'hebron_mamre',
-    name: 'Hebrón y Encinar de Mamre (Sepulcro Patriarcal)',
-    hebrew: 'חֶבְרוֹן וְאֵלוֹנֵי מַמְרֵא (Jevrón u-Mamre)',
-    elevation: '+930 m sobre el nivel del mar',
-    climate: 'Templado de montaña con terrazas de viñas milenarias',
-    archaeology: 'Tel Rumeida: Enorme muralla de piedra del Bronce Medio (c. 2000-1750 a.C.) que corrobora la existencia de Hebrón como ciudad fortificada en tiempos de Abraham. Recinto monumental de la Cueva de Macpela preservado.',
-    secularNote: 'Única propiedad territorial que Abraham compró legalmente por plata a Efrón el hitita para sepulcro de Sara y los patriarcas.',
-    exegeticalConnection: 'Epicentro del pacto de la circuncisión y la teofanía de los tres visitantes celestiales en las tiendas de Mamre (Génesis 18).',
-    coords: { x: 42, y: 64 }
+    name: 'Hebrón y Encinar de Mamre',
+    modernCountry: 'Cisjordania / Palestina',
+    modernCity: 'Ciudad de Hebrón (Al-Khalil), a 30 km al sur de Jerusalén',
+    historicalEra: 'Montañas de Judea (Canaán del Sur)',
+    travelDistance: 'Campamento base principal de Abraham durante décadas',
+    elevation: '+930 m sobre el nivel del mar (una de las ciudades más altas de la región)',
+    climate: 'Clima de montaña con brisas frescas, noches despejadas y fértiles viñedos',
+    secularNote: 'Una de las poblaciones continuamente habitadas más antiguas del planeta, famosa por sus olivares, viñas y la gran mezquita/iglesia sobre la Cueva de Macpela.',
+    biblicalRelation: 'Escenario de Génesis 15: aquí acampaba Abraham cuando Dios lo invitó a salir de su tienda y mirar las estrellas. Más adelante, Abraham compró allí la Cueva de Macpela para enterrar a su esposa Sara.',
+    archaeology: 'Tel Rumeida: Muralla defensiva de piedra de más de 3 metros de espesor construida hacia el 1900 a.C., probando que Hebrón ya existía como ciudad fortificada en tiempos de Abraham.',
+    coords: { x: 33, y: 62 }
   }
 ];
 
-// Sitios para Salmos, Monarquía e Históricos (Judea y Desierto)
+// Hitos de Judea y Salmos
 const JUDEA_SITES = [
   {
     id: 'jerusalem',
-    name: 'Jerusalén (Monte Sion & Morada Divina)',
-    hebrew: 'יְרוּשָׁלַיִם (Yerushalayim)',
-    elevation: '+754 m',
-    climate: 'Mediterráneo semiárido montañoso, vientos del oeste',
-    archaeology: 'Manantial de Gihón, sistema de túneles cananeos del siglo XVIII a.C., Muro de Nehemías y Ciudad de David (Ophel).',
-    secularNote: 'Eje estratégico conquistado por David a los jebuseos para fundar la capital neutral unificada de las doce tribus de Israel.',
-    exegeticalConnection: 'Cima cósmica del culto y de la morada eterna del Eterno: «en la casa de Jehová moraré por largos días».',
-    coords: { x: 44, y: 42 }
-  },
-  {
-    id: 'wadi_qelt',
-    name: 'Wadi Qelt (Valle de Sombra de Muerte)',
-    hebrew: 'גֵּיא צַלְמָוֶת (Gey Tsalmaveth)',
-    elevation: '-120 m a +250 m',
-    climate: 'Desértico árido extremo, lluvia < 120 mm/año',
-    archaeology: 'Profundo desfiladero calizo de 45 km entre Jerusalén y Jericó con cuevas de pastores y acueductos asmoneos.',
-    secularNote: 'Garganta angosta donde la luz del sol apenas penetra 1 hora al día; paso peligroso por emboscadas y depredadores.',
-    exegeticalConnection: 'Arquetipo geográfico de «aunque ande en valle de sombra de muerte, no temeré mal alguno: tu vara y tu cayado me infunden aliento».',
-    coords: { x: 58, y: 44 }
+    name: 'Jerusalén (Monte Sion)',
+    modernCountry: 'Israel / Cisjordania',
+    modernCity: 'Jerusalén',
+    historicalEra: 'Monarquía Unida y Reino de Judá',
+    travelDistance: 'Núcleo central de Judea',
+    elevation: '+754 m en la divisoria de aguas',
+    climate: 'Mediterráneo montañoso, inviernos fríos y veranos secos',
+    secularNote: 'Fortaleza jebusea natural protegida por valles profundos (Cedrón y Hinom) que David convirtió en capital por su posición neutral e inexpugnable.',
+    biblicalRelation: 'Centro espiritual y político donde Salomón construyó el Templo y donde David compuso muchos de sus salmos litúrgicos.',
+    archaeology: 'Manantial de Gihón, túnel excavado en la roca viva por el rey Ezequías (701 a.C.) y muros de la Ciudad de David.',
+    coords: { x: 38, y: 42 }
   },
   {
     id: 'bethlehem',
-    name: 'Belén de Judá (Laderas del Efrata)',
-    hebrew: 'בֵּית לֶחֶם (Bet Léjem)',
+    name: 'Belén de Judá',
+    modernCountry: 'Cisjordania / Palestina',
+    modernCity: 'Belén (Beit Lahm), a 10 km al sur de Jerusalén',
+    historicalEra: 'Colinas de Judá',
+    travelDistance: '2 horas a pie desde Jerusalén',
     elevation: '+775 m sobre el nivel del mar',
-    climate: 'Mediterráneo montañoso, inviernos fríos y lluvias estacionales',
-    archaeology: 'Trazas de asentamientos del Bronce Tardío y Hierro I con terrazas agrícolas escalonadas y corrales de piedra caliza.',
-    secularNote: 'Situada en la divisoria de aguas: colinas fértiles hacia el oeste y caída abrupta hacia el desierto desolado hacia el este.',
-    exegeticalConnection: 'Cuna del pastoreo de David donde experimentó la defensa de sus rebaños frente a leones y osos, forjando su fe inquebrantable.',
-    coords: { x: 42, y: 56 }
+    climate: 'Mediterráneo fértil hacia el oeste, con caída hacia el desierto al este',
+    secularNote: 'Pueblo de pastores y agricultores situado en terrazas de cultivo de cebada, trigo y olivos.',
+    biblicalRelation: 'Cuna del rey David, donde cuidaba los rebaños de ovejas de su padre y aprendió a confiar en Dios frente al león y al oso.',
+    archaeology: 'Sellos reales de barro con la inscripción «Belén» del siglo VIII a.C. y restos de terrazas agrícolas milenarias.',
+    coords: { x: 37, y: 52 }
+  },
+  {
+    id: 'wadi_qelt',
+    name: 'Wadi Qelt (Desfiladero del Desierto)',
+    modernCountry: 'Cisjordania / Palestina',
+    modernCity: 'Desfiladero natural entre Jerusalén y la ciudad de Jericó',
+    historicalEra: 'Desierto de Judea',
+    travelDistance: 'Descenso abrupto de 1.000 metros de altura en solo 25 km',
+    elevation: 'De +700 m a -250 m bajo el nivel del mar',
+    climate: 'Desértico árido y sofocante, donde la luz solar penetra pocas horas al día',
+    secularNote: 'Cañón estrecho y peligroso de paredes calizas verticales, famoso por haber sido históricamente guarida de asaltantes de caminos.',
+    biblicalRelation: 'El paisaje que inspiró la frase del Salmo 23: «Aunque ande en valle de sombra de muerte, no temeré mal alguno, porque tú estarás conmigo».',
+    archaeology: 'Canales de agua excavados en los riscos por los reyes asmoneos y el Monasterio de San Jorge encastrado en la roca.',
+    coords: { x: 48, y: 44 }
   },
   {
     id: 'engedi',
-    name: 'Oasis de En-Gedi (Aguas de Reposo)',
-    hebrew: 'עֵין גֶּדִי (Ein Guedi - Manantial del Cabrito)',
-    elevation: '-200 m (Junto al Mar Muerto)',
-    climate: 'Hiperárido con manantiales de agua dulce perennes y cascadas',
-    archaeology: 'Santuario calcolítico, terrazas de bálsamo y cuevas de refugio davídico frente a Saúl (1 Samuel 24).',
-    secularNote: 'Oasis exuberante en medio de la desolación salina del Mar Muerto, donde la fauna del desierto encuentra sustento vital.',
-    exegeticalConnection: 'Ilustra con exactitud «junto a aguas de reposo me pastoreará»: corrientes mansas y puras donde el rebaño puede beber sin peligro.',
-    coords: { x: 68, y: 72 }
-  },
-  {
-    id: 'judean_wilderness',
-    name: 'Desierto de Judá (Midbar Yehuda)',
-    hebrew: 'מִדְבַּר יְהוּדָה (Midbar Yehuda)',
-    elevation: 'De +1000 m a -430 m',
-    climate: 'Sombra de lluvia orográfica, pluviosidad nula en verano',
-    archaeology: 'Cuevas de habitación de pastores trashumantes, manuscritos de Qumrán y fortalezas asmonéas.',
-    secularNote: 'Territorio inhóspito de supervivencia donde los senderos mal calculados conducen a precipicios mortales.',
-    exegeticalConnection: 'Marco de «me guiará por sendas de justicia»: caminos firmes y seguros trazados por el pastor experimentado para preservar la vida.',
-    coords: { x: 55, y: 62 }
+    name: 'Oasis de En-Gedi',
+    modernCountry: 'Israel',
+    modernCity: 'Costa occidental del Mar Muerto',
+    historicalEra: 'Límite oriental del Desierto de Judea',
+    travelDistance: 'Un día de marcha al este de Hebrón',
+    elevation: '-200 m bajo el nivel del mar',
+    climate: 'Calor tropical seco con manantiales perennes de agua dulce pura',
+    secularNote: 'Un oasis verde con cascadas naturales y vegetación exuberante que brota milagrosamente en medio de la desolación de sal del Mar Muerto.',
+    biblicalRelation: 'Lugar donde David y sus hombres se refugiaron en las cuevas mientras huían del rey Saúl, inspirando cantos de alivio y refugio seguro.',
+    archaeology: 'Templo calcolítico, terrazas de bálsamo aromático y cuevas naturales habitadas desde hace 4.000 años.',
+    coords: { x: 54, y: 68 }
   }
 ];
 
@@ -151,77 +166,131 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
   };
 
   const [selectedSite, setSelectedSite] = useState(getInitialSite());
+  const [mapLayer, setMapLayer] = useState('dual'); // 'dual' | 'ancient' | 'modern'
 
-  // Si cambia el libro o el capítulo, sincronizar el sitio más relevante
   React.useEffect(() => {
     setSelectedSite(getInitialSite());
   }, [isGenesis, chapter]);
 
   return (
     <div style={{
-      background: 'rgba(10, 13, 20, 0.95)',
-      border: '1px solid rgba(212,175,55,0.25)',
+      background: 'rgba(9, 12, 19, 0.96)',
+      border: '1px solid rgba(212,175,55,0.28)',
       borderRadius: '12px',
       padding: '22px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '18px',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+      gap: '16px',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.6)'
     }}>
-      {/* Encabezado del Mapa */}
+      {/* 1. Encabezado Claro con Título y Modos de Vista */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
-            width: '34px',
-            height: '34px',
+            width: '36px',
+            height: '36px',
             borderRadius: '50%',
             background: 'rgba(212,175,55,0.15)',
-            border: '1px solid var(--gold-400)',
+            border: '1.5px solid var(--gold-400)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0
           }}>
-            <Compass size={17} color="var(--gold-400)" />
+            <Compass size={18} color="var(--gold-400)" />
           </div>
           <div>
-            <h4 className="font-cinzel gold-text-gradient" style={{ margin: 0, fontSize: '1.15rem', fontWeight: '800' }}>
+            <h4 className="font-cinzel gold-text-gradient" style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800' }}>
               {isGenesis 
-                ? 'Geografía Histórica de los Orígenes & Creciente Fértil' 
-                : 'Cartografía Topográfica & Arqueológica de Judea'}
+                ? 'Geografía Real: Del Mundo Antiguo a los Países de Hoy' 
+                : 'Mapa Topográfico de Judea y Países Modernos'}
             </h4>
-            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-              {isGenesis 
-                ? 'Mesopotamia, cuenca fluvial del Edén y rutas migratorias patriarcales'
-                : 'Orografía física, desfiladeros, precipitaciones y yacimientos del entorno bíblico'}
+            <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+              Ubicación física en el terreno y equivalencia con las fronteras y naciones actuales
             </span>
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <span style={{ fontSize: '0.74rem', color: '#93c5fd', background: 'rgba(59,130,246,0.12)', padding: '3px 9px', borderRadius: '4px', border: '1px solid rgba(147,197,253,0.3)', fontWeight: '600' }}>
-            {isGenesis ? 'Región: Tigris, Éufrates & Canaán' : 'Elevaciones: +1000m a -430m'}
-          </span>
-          <span style={{ fontSize: '0.74rem', color: 'var(--gold-300)', background: 'rgba(212,175,55,0.08)', padding: '3px 9px', borderRadius: '4px', border: '1px solid rgba(212,175,55,0.3)', fontWeight: '600' }}>
-            {sitesList.length} Hitos Cartográficos
-          </span>
+        {/* Conmutador de Modos de Mapa: Bíblico vs Países Actuales vs Ambos */}
+        <div style={{
+          display: 'flex',
+          background: 'rgba(0,0,0,0.45)',
+          padding: '3px',
+          borderRadius: '8px',
+          border: '1px solid rgba(212,175,55,0.25)',
+          gap: '4px'
+        }}>
+          <button
+            onClick={() => setMapLayer('dual')}
+            style={{
+              padding: '5px 11px',
+              borderRadius: '6px',
+              fontSize: '0.74rem',
+              fontWeight: mapLayer === 'dual' ? '700' : '500',
+              background: mapLayer === 'dual' ? 'rgba(212,175,55,0.22)' : 'transparent',
+              border: `1px solid ${mapLayer === 'dual' ? 'var(--gold-400)' : 'transparent'}`,
+              color: mapLayer === 'dual' ? '#ffffff' : 'var(--text-muted)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px'
+            }}
+          >
+            <Layers size={13} color={mapLayer === 'dual' ? 'var(--gold-400)' : 'currentColor'} />
+            <span>Comparativa Doble (Recomendada)</span>
+          </button>
+
+          <button
+            onClick={() => setMapLayer('modern')}
+            style={{
+              padding: '5px 11px',
+              borderRadius: '6px',
+              fontSize: '0.74rem',
+              fontWeight: mapLayer === 'modern' ? '700' : '500',
+              background: mapLayer === 'modern' ? 'rgba(59,130,246,0.25)' : 'transparent',
+              border: `1px solid ${mapLayer === 'modern' ? '#60a5fa' : 'transparent'}`,
+              color: mapLayer === 'modern' ? '#ffffff' : 'var(--text-muted)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px'
+            }}
+          >
+            <Globe size={13} color={mapLayer === 'modern' ? '#60a5fa' : 'currentColor'} />
+            <span>Solo Países de Hoy</span>
+          </button>
+
+          <button
+            onClick={() => setMapLayer('ancient')}
+            style={{
+              padding: '5px 11px',
+              borderRadius: '6px',
+              fontSize: '0.74rem',
+              fontWeight: mapLayer === 'ancient' ? '700' : '500',
+              background: mapLayer === 'ancient' ? 'rgba(212,175,55,0.22)' : 'transparent',
+              border: `1px solid ${mapLayer === 'ancient' ? 'var(--gold-400)' : 'transparent'}`,
+              color: mapLayer === 'ancient' ? '#ffffff' : 'var(--text-muted)',
+              cursor: 'pointer'
+            }}
+          >
+            <span>Solo Nombres Bíblicos</span>
+          </button>
         </div>
       </div>
 
-      {/* Selector de Hitos Geográficos en Botones Claros y Accesibles */}
+      {/* 2. Barra de Botones de Lugares (Clickeables, Claros, con Número y País de Hoy) */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
         flexWrap: 'wrap',
         padding: '10px 14px',
-        background: 'rgba(0,0,0,0.4)',
+        background: 'rgba(0,0,0,0.5)',
         borderRadius: '8px',
-        border: '1px solid rgba(212,175,55,0.2)'
+        border: '1px solid rgba(212,175,55,0.18)'
       }}>
-        <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '5px', marginRight: '6px' }}>
-          <MapPin size={13} color="var(--gold-400)" />
-          <strong style={{ color: 'var(--gold-300)' }}>Hitos ({sitesList.length}):</strong>
+        <span style={{ fontSize: '0.78rem', color: 'var(--gold-400)', fontWeight: '700', marginRight: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <MapPin size={14} /> Lugares del Relato:
         </span>
         {sitesList.map((site, index) => {
           const isSelected = selectedSite.id === site.id;
@@ -233,250 +302,350 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                padding: '5px 12px',
+                padding: '6px 12px',
                 borderRadius: '6px',
                 background: isSelected
                   ? 'linear-gradient(135deg, var(--gold-400) 0%, #b8860b 100%)'
-                  : 'rgba(255,255,255,0.05)',
-                border: isSelected
-                  ? '1.5px solid #ffd700'
-                  : '1px solid rgba(255,255,255,0.1)',
-                color: isSelected ? '#05070a' : '#ffffff',
+                  : 'rgba(255,255,255,0.04)',
+                border: isSelected ? '1.5px solid #ffd700' : '1px solid rgba(255,255,255,0.1)',
+                color: isSelected ? '#030508' : '#ffffff',
                 fontWeight: isSelected ? '800' : '500',
                 fontSize: '0.78rem',
                 cursor: 'pointer',
-                boxShadow: isSelected ? '0 0 12px rgba(212,175,55,0.4)' : 'none',
+                boxShadow: isSelected ? '0 0 14px rgba(212,175,55,0.45)' : 'none',
                 transition: 'all 0.15s ease'
               }}
-              title={`Examinar hito: ${site.name}`}
             >
-              <span style={{ fontSize: '0.7rem', opacity: isSelected ? 0.9 : 0.6 }}>{index + 1}.</span>
+              <span style={{ opacity: isSelected ? 1 : 0.6, fontWeight: '700' }}>{index + 1}.</span>
               <span>{site.name.split('(')[0].trim()}</span>
+              <span style={{
+                fontSize: '0.68rem',
+                background: isSelected ? 'rgba(0,0,0,0.25)' : 'rgba(59,130,246,0.18)',
+                color: isSelected ? '#000000' : '#93c5fd',
+                padding: '2px 5px',
+                borderRadius: '3px',
+                fontWeight: '700'
+              }}>
+                {site.modernCountry.split('(')[0].trim()}
+              </span>
             </button>
           );
         })}
       </div>
 
-      {/* Grid: Canvas Topográfico Iluminado a la Izquierda + Ficha Arqueológica a la Derecha */}
+      {/* 3. Panel de Visualización Doble: Mapa Cartográfico Realista + Ficha Pedagógica */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-        gap: '18px',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+        gap: '20px',
         alignItems: 'stretch'
       }}>
-        {/* Panel del Mapa Topográfico SVG de Alta Visibilidad */}
+        {/* Mapa SVG Auténtico con Siluetas Geográficas y Fronteras Modernas */}
         <div style={{
           position: 'relative',
-          minHeight: '340px',
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #090d16 100%)',
+          minHeight: '380px',
+          background: '#0a101d',
           borderRadius: '10px',
           border: '1.5px solid rgba(212,175,55,0.35)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          boxShadow: 'inset 0 0 40px rgba(0,0,0,0.7)'
+          boxShadow: 'inset 0 0 50px rgba(0,0,0,0.85)'
         }}>
-          {/* Gráfico Topográfico SVG Claro y Contrastado */}
-          <svg style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
+          <svg viewBox="0 0 500 340" style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }}>
             <defs>
-              <linearGradient id="riverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.8" />
-                <stop offset="100%" stopColor="#0284c7" stopOpacity="0.9" />
+              {/* Degradados de relieve y aguas */}
+              <linearGradient id="seaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#082f49" />
+                <stop offset="100%" stopColor="#0284c7" />
               </linearGradient>
-              <linearGradient id="reliefGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#d4af37" stopOpacity="0.15" />
-                <stop offset="100%" stopColor="#d4af37" stopOpacity="0.03" />
+              <linearGradient id="landGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#1e293b" />
+                <stop offset="50%" stopColor="#172033" />
+                <stop offset="100%" stopColor="#0f172a" />
               </linearGradient>
             </defs>
 
-            {isGenesis ? (
-              /* Mapa Fluvial de Mesopotamia y Creciente Fértil */
+            {/* Masa Continental Base */}
+            <rect width="500" height="340" fill="url(#landGradient)" />
+
+            {/* MAR MEDITERRÁNEO (Silueta reconocible: Egipto, Costa Levantina, Chipre y Turquía) */}
+            <path
+              d="M 0 0 L 170 0 Q 150 40 130 75 Q 120 120 115 190 Q 110 250 85 270 Q 50 285 0 290 Z"
+              fill="url(#seaGradient)"
+              stroke="rgba(56,189,248,0.4)"
+              strokeWidth="1.5"
+            />
+            {/* Isla de Chipre */}
+            <path d="M 60 75 L 85 68 L 95 76 L 75 84 Z" fill="url(#seaGradient)" stroke="#38bdf8" strokeWidth="1" />
+            <text x="68" y="78" fill="#7dd3fc" fontSize="7" fontWeight="600">Chipre</text>
+
+            <text x="25" y="160" fill="#38bdf8" fontSize="10" fontWeight="700" opacity="0.85" transform="rotate(-90, 25, 160)">
+              MAR MEDITERRÁNEO
+            </text>
+
+            {/* GOLFO PÉRSICO (Sur de Mesopotamia) */}
+            <path
+              d="M 400 240 Q 430 255 470 290 L 500 340 L 370 340 Q 380 290 400 240 Z"
+              fill="url(#seaGradient)"
+              stroke="rgba(56,189,248,0.4)"
+              strokeWidth="1.5"
+            />
+            <text x="430" y="315" fill="#7dd3fc" fontSize="9" fontWeight="700">Golfo Pérsico</text>
+
+            {/* MAR ROJO & GOLFO DE ÁQABA (Sur del Sinaí) */}
+            <path
+              d="M 20 340 L 70 310 Q 75 330 85 340 Z"
+              fill="url(#seaGradient)"
+              stroke="#38bdf8"
+              strokeWidth="1"
+            />
+            <text x="35" y="335" fill="#7dd3fc" fontSize="8">Mar Rojo</text>
+
+            {/* RÍOS TIGRIS Y ÉUFRATES CON SU TRAYECTO REAL */}
+            {/* Río Éufrates (Perat) */}
+            <path
+              d="M 180 30 Q 220 70 260 115 T 320 185 T 385 245 T 415 270"
+              fill="none"
+              stroke="#38bdf8"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+            />
+            {/* Río Tigris (Hiddekel) */}
+            <path
+              d="M 240 20 Q 280 60 320 110 T 360 175 T 405 240 T 415 270"
+              fill="none"
+              stroke="#0284c7"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+
+            {/* Nombres de los Ríos */}
+            <text x="215" y="85" fill="#bae6fd" fontSize="9" fontWeight="700">Río Éufrates</text>
+            <text x="310" y="80" fill="#7dd3fc" fontSize="9" fontWeight="700">Río Tigris</text>
+
+            {/* Cuenca Fluvial y Lago de Galilea / Río Jordán / Mar Muerto */}
+            <path d="M 118 175 Q 120 185 119 198" fill="none" stroke="#38bdf8" strokeWidth="2.5" />
+            <circle cx="118" cy="175" r="3" fill="#38bdf8" />
+            <ellipse cx="119" cy="205" rx="3.5" ry="8" fill="#0284c7" />
+            <text x="126" y="208" fill="#93c5fd" fontSize="7" fontWeight="700">Mar Muerto</text>
+
+            {/* RUTA HISTÓRICA DE ABRAHAM (Línea Dorada Punteada) */}
+            {isGenesis && (
               <>
-                {/* Cuenca Fluvial Éufrates */}
-                <path d="M 40 180 Q 55 120 70 80 T 85 40" fill="none" stroke="url(#riverGrad)" strokeWidth="4" />
-                <text x="56" y="90" fill="#7dd3fc" fontSize="11" fontWeight="700" fontFamily="sans-serif">Éufrates (Perat)</text>
-
-                {/* Cuenca Fluvial Tigris */}
-                <path d="M 65 240 Q 75 160 85 100 T 95 30" fill="none" stroke="url(#riverGrad)" strokeWidth="3" />
-                <text x="76" y="150" fill="#38bdf8" fontSize="11" fontWeight="700" fontFamily="sans-serif">Tigris (Hiddekel)</text>
-
-                {/* Arco del Creciente Fértil */}
-                <path d="M 30 260 Q 50 140 75 90 T 90 280" fill="none" stroke="rgba(212,175,55,0.25)" strokeWidth="18" opacity="0.35" />
-                
-                {/* Costa Mediterránea */}
-                <path d="M 32 60 Q 36 180 34 320" fill="none" stroke="#0ea5e9" strokeWidth="3" strokeDasharray="5 3" />
-                <text x="15" y="200" fill="#38bdf8" fontSize="10" transform="rotate(-90, 15, 200)" fontFamily="sans-serif">GRAN MAR (Mediterráneo)</text>
-              </>
-            ) : (
-              /* Mapa de Judea y Desierto */
-              <>
-                {/* Depresión del Mar Muerto */}
-                <path d="M 270 90 Q 310 190 290 310 Q 275 350 260 370 L 370 370 L 370 90 Z" fill="#0284c7" opacity="0.35" />
-                <text x="290" y="230" fill="#38bdf8" fontSize="11" fontWeight="700" transform="rotate(75, 290, 230)" fontFamily="sans-serif">MAR MUERTO (-430m)</text>
-
-                {/* Ruta del Cañón Wadi Qelt */}
-                <path d="M 170 150 Q 200 170 230 160 T 280 180" fill="none" stroke="#fbbf24" strokeWidth="3.5" strokeDasharray="4 3" />
-                <text x="195" y="148" fill="#fef08a" fontSize="11" fontWeight="700" fontFamily="sans-serif">Wadi Qelt</text>
-
-                {/* Cordillera de las Montañas de Judea */}
-                <path d="M 140 30 L 160 370" fill="none" stroke="rgba(212,175,55,0.25)" strokeWidth="22" strokeLinecap="round" opacity="0.4" />
-                <text x="130" y="55" fill="#e2e8f0" fontSize="11" fontWeight="600" fontFamily="sans-serif">Cordillera de Judea (+850m)</text>
+                <path
+                  d="M 400 240 Q 320 180 250 80 L 120 190 L 115 220"
+                  fill="none"
+                  stroke="#fbbf24"
+                  strokeWidth="2.5"
+                  strokeDasharray="6 4"
+                  opacity="0.75"
+                />
+                <text x="200" y="165" fill="#fef08a" fontSize="8" fontWeight="600" opacity="0.8">
+                  Ruta Caravanera de Abraham (Ur → Harán → Canaán)
+                </text>
               </>
             )}
+
+            {/* FRONTERAS Y NOMBRES DE PAÍSES ACTUALES (Capas Modernas) */}
+            {(mapLayer === 'dual' || mapLayer === 'modern') && (
+              <>
+                {/* Límite Turquía / Siria / Irak */}
+                <path d="M 140 50 L 300 55 L 450 110" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1" strokeDasharray="3 3" />
+                <path d="M 220 55 L 210 130 L 290 190" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1" strokeDasharray="3 3" />
+                
+                {/* Rótulos de Países Actuales en Letras Grandes y Claras */}
+                <rect x="235" y="15" width="65" height="18" rx="4" fill="rgba(15,23,42,0.85)" stroke="#60a5fa" strokeWidth="1" />
+                <text x="242" y="28" fill="#93c5fd" fontSize="9" fontWeight="800">🇹🇷 TURQUÍA</text>
+
+                <rect x="185" y="105" width="52" height="18" rx="4" fill="rgba(15,23,42,0.85)" stroke="#60a5fa" strokeWidth="1" />
+                <text x="193" y="118" fill="#93c5fd" fontSize="9" fontWeight="800">🇸🇾 SIRIA</text>
+
+                <rect x="330" y="145" width="50" height="18" rx="4" fill="rgba(15,23,42,0.85)" stroke="#60a5fa" strokeWidth="1" />
+                <text x="340" y="158" fill="#93c5fd" fontSize="9" fontWeight="800">🇮🇶 IRAK</text>
+
+                <rect x="75" y="225" width="70" height="18" rx="4" fill="rgba(15,23,42,0.85)" stroke="#4ade80" strokeWidth="1" />
+                <text x="80" y="238" fill="#86efac" fontSize="8" fontWeight="800">CISJORDANIA</text>
+
+                <rect x="135" y="250" width="65" height="18" rx="4" fill="rgba(15,23,42,0.85)" stroke="#60a5fa" strokeWidth="1" />
+                <text x="142" y="263" fill="#93c5fd" fontSize="8" fontWeight="800">🇯🇴 JORDANIA</text>
+
+                <rect x="15" y="295" width="55" height="18" rx="4" fill="rgba(15,23,42,0.85)" stroke="#60a5fa" strokeWidth="1" />
+                <text x="22" y="308" fill="#93c5fd" fontSize="8" fontWeight="800">🇪🇬 EGIPTO</text>
+              </>
+            )}
+
+            {/* Rótulos Antiguos Bíblicos (Cuando la capa lo permite) */}
+            {(mapLayer === 'dual' || mapLayer === 'ancient') && (
+              <>
+                <text x="325" y="215" fill="#fef08a" fontSize="10" fontWeight="700" opacity="0.65">MESOPOTAMIA</text>
+                <text x="110" y="145" fill="#fef08a" fontSize="9" fontWeight="700" opacity="0.65">CANAÁN</text>
+              </>
+            )}
+
+            {/* Marcadores Interactivos de los Hitos */}
+            {sitesList.map((site) => {
+              const isSelected = selectedSite.id === site.id;
+              // Ajustar coordenadas porcentuales al canvas 500x340
+              const cx = (site.coords.x / 100) * 500;
+              const cy = (site.coords.y / 100) * 340;
+
+              return (
+                <g key={site.id} onClick={() => setSelectedSite(site)} style={{ cursor: 'pointer' }}>
+                  {isSelected && (
+                    <circle cx={cx} cy={cy} r="18" fill="none" stroke="#ffd700" strokeWidth="2" opacity="0.8">
+                      <animate attributeName="r" values="8;24;8" dur="2s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0.9;0.2;0.9" dur="2s" repeatCount="indefinite" />
+                    </circle>
+                  )}
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={isSelected ? "9" : "6"}
+                    fill={isSelected ? "#ffd700" : "#0284c7"}
+                    stroke="#ffffff"
+                    strokeWidth={isSelected ? "2.5" : "1.5"}
+                  />
+                  <rect
+                    x={cx + 10}
+                    y={cy - 12}
+                    width={site.name.split('(')[0].trim().length * 7 + 16}
+                    height="20"
+                    rx="4"
+                    fill={isSelected ? "rgba(212,175,55,0.95)" : "rgba(10,15,26,0.85)"}
+                    stroke={isSelected ? "#ffffff" : "rgba(212,175,55,0.4)"}
+                    strokeWidth="1"
+                  />
+                  <text
+                    x={cx + 16}
+                    y={cy + 2}
+                    fill={isSelected ? "#000000" : "#ffffff"}
+                    fontSize="9.5"
+                    fontWeight="800"
+                    fontFamily="sans-serif"
+                  >
+                    {site.name.split('(')[0].trim()}
+                  </text>
+                </g>
+              );
+            })}
           </svg>
 
-          {/* Marcadores Luminosos de Sitios */}
-          {sitesList.map((site) => {
-            const isSelected = selectedSite.id === site.id;
-            return (
-              <button
-                key={site.id}
-                onClick={() => setSelectedSite(site)}
-                style={{
-                  position: 'absolute',
-                  top: `${site.coords.y}%`,
-                  left: `${site.coords.x}%`,
-                  transform: 'translate(-50%, -50%)',
-                  background: isSelected 
-                    ? 'linear-gradient(135deg, #ffd700 0%, #d4af37 100%)' 
-                    : 'rgba(10, 15, 26, 0.92)',
-                  color: isSelected ? '#040508' : '#fef08a',
-                  border: isSelected ? '2px solid #ffffff' : '1px solid rgba(212,175,55,0.5)',
-                  boxShadow: isSelected 
-                    ? '0 0 20px rgba(255,215,0,0.8), 0 0 8px #ffffff' 
-                    : '0 2px 8px rgba(0,0,0,0.8)',
-                  borderRadius: '9999px',
-                  padding: '5px 11px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  fontSize: '0.75rem',
-                  fontWeight: '800',
-                  cursor: 'pointer',
-                  zIndex: isSelected ? 10 : 2,
-                  transition: 'all 0.2s',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                <MapPin size={12} color={isSelected ? '#040508' : 'var(--gold-400)'} />
-                <span>{site.name.split(' ')[0]}</span>
-              </button>
-            );
-          })}
-
-          {/* Leyenda en la esquina del Mapa */}
+          {/* Leyenda Inferior del Mapa */}
           <div style={{
             position: 'absolute',
             bottom: '10px',
             left: '12px',
+            right: '12px',
             background: 'rgba(5, 7, 12, 0.92)',
             border: '1px solid rgba(212,175,55,0.3)',
             borderRadius: '6px',
-            padding: '6px 12px',
-            fontSize: '0.72rem',
+            padding: '7px 14px',
+            fontSize: '0.74rem',
             color: '#e2e8f0',
-            zIndex: 5
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '8px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ffd700', boxShadow: '0 0 6px #ffd700' }} />
-              <span>Clic en cualquier punto para examinar arqueología y orografía</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ display: 'inline-block', width: '9px', height: '9px', borderRadius: '50%', background: '#ffd700', boxShadow: '0 0 8px #ffd700' }} />
+              <span>Punto dorado pulsante: <strong>{selectedSite.name.split('(')[0]}</strong></span>
             </div>
+            <span style={{ color: 'var(--gold-300)' }}>
+              Toque cualquier punto del mapa o botón para ver detalles
+            </span>
           </div>
         </div>
 
-        {/* Ficha Arqueológica y Topográfica del Sitio Seleccionado */}
+        {/* Ficha Explicativa Clara y Concreta del Lugar Seleccionado */}
         <div style={{
-          background: 'rgba(11, 14, 22, 0.95)',
+          background: 'rgba(11, 15, 24, 0.95)',
           border: '1px solid rgba(212,175,55,0.25)',
           borderRadius: '10px',
-          padding: '20px',
+          padding: '22px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          gap: '14px'
+          gap: '16px'
         }}>
           <div>
+            {/* Banner de Equivalencia Actual Inmediata */}
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(59,130,246,0.18) 0%, rgba(37,99,235,0.08) 100%)',
+              border: '1px solid rgba(147,197,253,0.35)',
+              borderRadius: '8px',
+              padding: '10px 14px',
+              marginBottom: '14px'
+            }}>
+              <div style={{ fontSize: '0.7rem', color: '#93c5fd', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                📍 DÓNDE QUEDA EN EL MAPA DE HOY:
+              </div>
+              <div style={{ fontSize: '1.05rem', fontWeight: '800', color: '#ffffff', marginTop: '2px' }}>
+                {selectedSite.modernCountry} — {selectedSite.modernCity}
+              </div>
+            </div>
+
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
               <span style={{ fontSize: '0.72rem', color: 'var(--gold-400)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                Hito Geográfico Seleccionado
+                {selectedSite.historicalEra}
               </span>
-              <span style={{
-                fontFamily: "'SBL Hebrew', serif",
-                fontSize: '1.15rem',
-                color: '#fef08a',
-                direction: 'rtl'
-              }}>
-                {selectedSite.hebrew}
+              <span style={{ fontSize: '0.74rem', color: '#cbd5e1' }}>
+                {selectedSite.elevation}
               </span>
             </div>
 
-            <h3 className="font-cinzel gold-text-gradient" style={{ fontSize: '1.25rem', fontWeight: '800', margin: '2px 0 10px' }}>
+            <h3 className="font-cinzel gold-text-gradient" style={{ fontSize: '1.35rem', fontWeight: '800', margin: '4px 0 10px' }}>
               {selectedSite.name}
             </h3>
 
-            {/* Badges de Elevación y Clima */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                fontSize: '0.74rem',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                padding: '3px 9px',
-                borderRadius: '4px',
-                color: '#cbd5e1',
-                fontWeight: '600'
-              }}>
-                <Mountain size={12} color="#94a3b8" />
-                <span>Elevación: {selectedSite.elevation}</span>
-              </span>
-
-              <span style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                fontSize: '0.74rem',
-                background: 'rgba(212,175,55,0.08)',
-                border: '1px solid rgba(212,175,55,0.25)',
-                padding: '3px 9px',
-                borderRadius: '4px',
-                color: 'var(--gold-300)',
-                fontWeight: '600'
-              }}>
-                <Droplets size={12} color="var(--gold-400)" />
-                <span>{selectedSite.climate}</span>
-              </span>
+            {/* Distancia y Viaje en la Antigüedad */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '0.78rem',
+              color: 'var(--gold-300)',
+              background: 'rgba(212,175,55,0.08)',
+              padding: '6px 10px',
+              borderRadius: '6px',
+              border: '1px solid rgba(212,175,55,0.2)',
+              marginBottom: '14px'
+            }}>
+              <Navigation size={13} color="var(--gold-400)" />
+              <span><strong>Distancia y Viaje:</strong> {selectedSite.travelDistance}</span>
             </div>
 
-            {/* Texto Arqueológico Laico */}
-            <div style={{ marginBottom: '12px' }}>
-              <span style={{ fontSize: '0.76rem', color: '#93c5fd', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '3px' }}>
-                Arqueología & Geografía Física Laica:
+            {/* Explicación de la Vida e Historia en Lenguaje Común */}
+            <div style={{ marginBottom: '14px' }}>
+              <span style={{ fontSize: '0.74rem', color: '#93c5fd', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '3px' }}>
+                ¿Cómo era este lugar y qué pasaba allí?
               </span>
-              <p style={{ fontSize: '0.86rem', color: '#e2e8f0', lineHeight: 1.6, margin: 0 }}>
+              <p style={{ fontSize: '0.88rem', color: '#e2e8f0', lineHeight: 1.6, margin: 0 }}>
                 {selectedSite.secularNote}
               </p>
             </div>
 
-            {/* Conexión Exegética Rigurosa */}
+            {/* Relación con el Pasaje Bíblico */}
             <div>
-              <span style={{ fontSize: '0.76rem', color: 'var(--gold-400)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '3px' }}>
-                Conexión Exegética & Significado Bíblico:
+              <span style={{ fontSize: '0.74rem', color: 'var(--gold-400)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '3px' }}>
+                ¿Por qué es importante para este versículo?
               </span>
-              <p style={{ fontSize: '0.86rem', color: 'var(--gold-100)', lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>
-                {selectedSite.exegeticalConnection}
+              <p style={{ fontSize: '0.88rem', color: 'var(--gold-100)', lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>
+                {selectedSite.biblicalRelation}
               </p>
             </div>
           </div>
 
+          {/* Respaldo Arqueológico en Español Simple */}
           <div style={{
-            paddingTop: '10px',
+            paddingTop: '12px',
             borderTop: '1px solid rgba(255,255,255,0.08)',
-            fontSize: '0.76rem',
+            fontSize: '0.78rem',
             color: 'var(--text-muted)'
           }}>
-            <strong style={{ color: '#94a3b8' }}>Evidencia Arqueológica:</strong> {selectedSite.archaeology}
+            <strong style={{ color: '#cbd5e1' }}>🏛️ Descubrimientos Arqueológicos:</strong> {selectedSite.archaeology}
           </div>
         </div>
       </div>

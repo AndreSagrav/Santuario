@@ -32,157 +32,169 @@ export function generateScholarlyApparatus({ book, chapter = 1, verseNum = 1, ve
   const corpus = getBookCorpus(book);
   const ref = verseRange ? `${book} ${chapter}:${verseRange}` : `${book} ${chapter}:${verseNum}`;
 
-  // 1. Exégesis Lingüística & Morfología
+  // 1. Exégesis y el Significado Original
   let langAnalysis = '';
   if (corpus.isOldTestament) {
     if (corpus.book.includes('Crónicas')) {
-      langAnalysis = `1. Exégesis Lingüística & Morfología Original:
-Texto Hebreo Masorético (Codex Leningradensis B19A):
-דִּבְרֵי הַיָּמִים (Dibrê Hay-yamîm: «Las palabras de los días» / Anales oficiales del Reino).
-En 1 Crónicas 12, el relato registra la adhesión militar a David en Siclag (צִקְלַג - H6860) y Hebrón.
-Morfosintaxis Clave:
-• עֹזְרֵי הַמִּלְחָמָה ('ozrê ham-milḥamah): Participio plural constructo Qal de עָזַר (H5828: «ayudadores/aliados») con artículo definido y sustantivo femenino «de la batalla» (H4421). Describe una milicia leal cohesionada por juramento de fidelidad.
-• גִּבּוֹרֵי חַיִל (gibbôrê ḥayil - H1368 / H2428): «Hombres valientes de poder y virtud moral-militar».
-• יְהוָה (H3068): El Tetragrámaton aparece como el garante soberano de la unificación nacional bajo la casa de David.`;
+      langAnalysis = `1. Exégesis y el Significado Original:
+En 1 Crónicas 12, el relato describe el momento crucial en que guerreros de todas las tribus se unieron a David en Siclag y Hebrón.
+En el idioma original, no se les llama simplemente "soldados", sino «ayudadores en la batalla» (hombres que hicieron un pacto de lealtad absoluta de vida o muerte) y «valientes de poder», una expresión que en la cultura hebrea combinaba dos cualidades indispensables: destreza militar y firmeza de carácter moral.
+El texto subraya que esta unión no fue motivada por ambición de riquezas ni por imposición de la fuerza, sino por una convicción unánime de justicia: reconocían en David a un líder que protegía a los desvalidos y buscaba el bien común de la nación.`;
     } else if (corpus.book.includes('Génesis')) {
       const c = Number(chapter) || 1;
       if (c === 15) {
-        langAnalysis = `1. Exégesis Lingüística & Morfología Original:
-Texto Hebreo Masorético (BHS / Codex Leningradensis B19A):
-אַחַר הַדְּבָרִים הָאֵלֶּה הָיָה דְבַר־יְהוָה אֶל־אַבְרָם בַּמַּחֲזֶה לֵאמֹר אַל־תִּירָא אַבְרָם אָנֹכִי מָגֵן לָךְ שְׂכָרְךָ הַרְבֵּה מְאֹד
-Morfosintaxis y Léxico Hebreo-Español para Génesis 15:
-• «No temas» — אַל־תִּירָא (Al-tirá - Strong H3372): Negación אַל seguida del verbo יָרֵא en aspecto Imperfecto Qal (Jussivo 2ms). Fórmula oracular de auxilio divino que apacigua el pánico existencial de Abram tras su victoria sobre los reyes mesopotámicos.
-• «Escudo / Protector» — מָגֵן (Magén - Strong H4043): Sustantivo masculino singular absoluto. Metáfora de soberanía defensiva: el Eterno no solo promete protección externa, sino que se ofrece a Sí mismo como el baluarte personal de Abram.
-• «Tu galardón / Tu recompensa» — שְׂכָרְךָ (Sekharkha - Strong H7939): Sustantivo masculino con sufijo pronominal 2ms. Abram había rechazado el botín del rey de Sodoma (Gén 14:22-23); aquí Dios declara que Él mismo es la ganancia suprema y trascendente del creyente.
-• «Visión profética» — בַּמַּחֲזֶה (Bammajazeh - Strong H4236): Sustantivo de la raíz חָזָה («percibir con discernimiento celestial»). Primera vez en el canon bíblico que se menciona la palabra en «visión», marcando la inauguración del ministerio profético.
-• «Palabra de Jehová» — דְּבַר־יְהוָה (Devar-YHVH - Strong H1697 / H3068): El instrumento creador y revelador soberano del Dios de la alianza.`;
+        langAnalysis = `1. Exégesis y el Significado Original:
+En Génesis 15:1 encontramos una de las promesas de aliento más célebres de la literatura antigua: «No temas, Abram; yo soy tu escudo, y tu recompensa será sumamente grande».
+En el texto original hebreo, esta frase encierra matices fascinantes que una lectura rápida en español no siempre deja ver:
+• «No temas»: En el hebreo antiguo (Al-tirá) no es una simple frase de consuelo cordial; es un decreto de auxilio y pacificación. Abram acababa de arriesgar su vida rescatando a su sobrino Lot frente a una coalición de cuatro reyes poderosos de Mesopotamia, y vivía con el temor muy humano de una sangrienta venganza militar.
+• «Yo soy tu escudo»: La palabra original (Magén) se refiere a un escudo corporal completo que cubría al guerrero de pies a cabeza. Dios no le promete entregarle un arma o construirle una muralla de piedra; le dice que Él mismo será su protector personal e inseparable.
+• «Tu recompensa»: En el capítulo anterior (Génesis 14), Abram se había negado rotundamente a recibir ni siquiera un hilo de zapato del botín del rey de Sodoma para que nadie dijera que se había enriquecido a costa de injusticias. La palabra usada aquí (Sekharkha) responde a esa integridad ética: quien renuncia a la codicia descubre que su verdadera herencia es la comunión con Dios.
+• «En visión»: Es la primera vez en toda la Biblia en que la revelación divina ocurre a través de una experiencia contemplativa de visión, marcando el inicio de una conversación íntima que culminará bajo la noche estrellada.`;
       } else if (c >= 12 && c <= 25) {
-        langAnalysis = `1. Exégesis Lingüística & Morfología Original:
-Texto Hebreo Masorético (BHS / Codex Leningradensis B19A - Ciclo de Abraham):
-Morfosintaxis y Vocabulario Pactual:
-• «Pacto / Alianza» — בְּרִית (Berit - Strong H1285): Término fundamental del tratado de Dios con Abraham que estructura toda la revelación bíblica.
-• «Fe / Creer» — אָמַן ('Amán - Strong H539): Raíz verbal que denota firmeza, certeza y descanso incondicional en la palabra divina.
-• «Justicia» — צְדָקָה (Tzedaqah - Strong H6666): Rectitud imputada por Dios a Abram por medio de la fe.`;
+        langAnalysis = `1. Exégesis y el Significado Original:
+En los relatos de Abraham (Génesis 12 al 25), el vocabulario hebreo gira en torno a tres conceptos clave explicados con sencillez:
+• «Alianza o Pacto» (Berit): En el mundo antiguo, no era un frío contrato comercial, sino un lazo familiar sagrado de lealtad mutua donde dos partes se comprometían a cuidarse incondicionalmente.
+• «Fe y Confianza» ('Amán): De esta raíz proviene nuestra palabra cotidiana «Amén». No significa creer ideas abstractas, sino "apoyarse con firmeza en un suelo seguro", tener la certeza interna de que la palabra dada no fallará.
+• «Justicia» (Tzedaqah): Significa rectitud en las relaciones humanas y honestidad ante la vida, vivir en coherencia con el prójimo y con la verdad.`;
       } else {
-        langAnalysis = `1. Exégesis Lingüística & Morfología Original:
-Texto Hebreo Masorético (BHS / Codex Leningradensis B19A):
-בְּרֵאשִׁית בָּרָא אֱלֹהִים אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ (Bereshit bara Elohim 'et hashamayim w'et ha'aretz).
-Morfosintaxis y Léxico Hebreo-Español:
-• «Creó» — בָּרָא (Bará - Strong H1254): Verbo en aspecto Perfecto Qal (3ª masc. singular). En toda la Biblia hebrea, el sujeto gramatical exclusivo de este verbo es Dios. Denota un acto creador soberano sin esfuerzo ni materia preexistente (creatio ex nihilo).
-• «Dios» — אֱלֹהִים (Elohim - Strong H430): Sustantivo masculino plural que rige un verbo en singular (bará). Es el plural de majestad y plenitud ontológica suprema.
-• «En el principio» — בְּרֵאשִׁית (Bereshit - Strong H7225): Apertura solemne con prefijo preposicional Bet (בְּ): marca el origen absoluto del tiempo y el cosmos.
-• «Los cielos y la tierra» — אֵת הַשָּׁמַיִם וְאֵת הָאָרֶץ: Merismo semítico canónico que abarca la totalidad del cosmos creado.`;
+        langAnalysis = `1. Exégesis y el Significado Original:
+El primer versículo de Génesis («En el principio creó Dios los cielos y la tierra») plantea una visión revolucionaria para su época:
+• «Creó»: El verbo original hebreo (Bará) tiene una peculiaridad única en toda la literatura bíblica: solo se utiliza cuando el sujeto que actúa es Dios. A diferencia de las palabras comunes para "fabricar" o "moldear", este término describe una acción soberana, sin fatiga y sin necesidad de materiales preexistentes.
+• «Los cielos y la tierra»: En la lengua hebrea antigua no existía una palabra abstracta para decir "universo" o "cosmos". Por eso utilizaban esta figura poética que menciona los dos extremos (lo más alto y lo más profundo) para indicar la totalidad absoluta de todo cuanto existe.
+• «En el principio»: Señala el punto de partida del tiempo y del orden cósmico, presentando un universo con propósito y armonía.`;
       }
     } else if (corpus.book.includes('Salmo')) {
-      langAnalysis = `1. Exégesis Lingüística & Morfología Original:
-Texto Hebreo Masorético Tiberiense (BHS):
-Salterio Litúrgico Canónico (Tehilim - תְּהִלִּים).
-Morfosintaxis y Léxico Hebreo-Español:
-• «Mi Pastor» — רֹעִי (Ro'î - Strong H7462): Participio activo Qal con sufijo pronominal 1s: «pastoreándome de continuo con ternura y custodia activa».
-• «Amor Leal / Gracia» — חֶסֶד (Jésed - Strong H2617): Fidelidad de pacto inquebrantable que trasciende la debilidad humana.
-• «Paz / Plenitud» — שָׁלוֹם (Shalom - Strong H7965): Integridad, reposo y bienestar integral donde nada falta.`;
+      langAnalysis = `1. Exégesis y el Significado Original:
+En los Salmos (por ejemplo el Salmo 23, «Jehová es mi pastor; nada me faltará»), las palabras originales transmiten una experiencia viva y cotidiana:
+• «Mi Pastor»: En hebreo se expresa como una acción que nunca se detiene («el que me pastorea de continuo»). No es un título honorífico estático, sino una labor diaria de cuidado paciente, búsqueda del animal perdido y guía constante.
+• «Nada me faltará»: Expresa descanso pleno y serenidad interior; la seguridad de que las necesidades esenciales de la vida están cubiertas.
+• «Amor Leal y Bondad» (Jésed): Una de las palabras más ricas del hebreo bíblico, que describe el amor perseverante, inquebrantable y fiel que no depende de los méritos humanos.`;
     } else {
-      langAnalysis = `1. Exégesis Lingüística & Morfología Original:
-Texto Hebreo Masorético (Codex Leningradensis B19A / Biblia Hebraica Stuttgartensia):
-Corpus del Antiguo Testamento (Tanaj: Torá, Nevi'im, Ketuvim).
-Morfosintaxis Clave para ${ref}:
-• Base Léxica en Hebreo Bíblico: Vocabulario de pacto, soberanía divina y justicia comunitaria (Tzedaqah - צְדָקָה / Mishpat - מִשְׁפָּט).
-• Análisis Gramatical: Formas verbales semíticas en aspecto Perfectivo (acción vista en su totalidad) e Imperfectivo (duración y progresión), reflejando la fidelidad de Yahweh a lo largo de las generaciones.
-• Concordancia Strong: Cotejo con léxicos BDB (Brown-Driver-Briggs) y HALOT (Koehler-Baumgartner).`;
+      langAnalysis = `1. Exégesis y el Significado Original:
+Al analizar este pasaje en su lengua original, las palabras clave comunican conceptos directos y esenciales:
+• La fidelidad a los compromisos morales y la búsqueda de la justicia comunitaria.
+• La verdad como pilar fundamental de la vida social y espiritual.
+• Una redacción orientada a que cualquier oyente comprendiera el mensaje sin barreras elitistas.`;
     }
   } else {
-    langAnalysis = `1. Exégesis Lingüística & Morfología Original:
-Texto Griego Koiné (Novum Testamentum Graece - Nestle-Aland 28 / Textus Receptus):
-Lectura de ${ref} en el dialecto koiné del siglo I.
-Morfosintaxis Clave:
-• Lema Principal: Términos teológicos del Nuevo Pacto: χάρις (Jaris - G5485: Gracia inmerecida), πίστις (Pistis - G4102: Fe activa y lealtad a Cristo), e εἰρήνη (Eirene - G1515: Paz reconciliadora).
-• Análisis Verbal: Modos aoristos que denotan hechos históricos consumados en la cruz, y presentes indicativos que expresan la comunión ininterrumpida con el Espíritu Santo.
-• Cotejo Léxico: BDAG (Bauer-Danker-Arndt-Gingrich) y Thayer.`;
+    langAnalysis = `1. Exégesis y el Significado Original:
+En el Nuevo Testamento, escrito originalmente en el griego popular (koiné) que hablaba la gente común en las calles y mercados del siglo I:
+• «Gracia» (Jaris): Se refería al favor generoso y desinteresado que un benefactor otorgaba libremente a quien no tenía medios para pagarlo.
+• «Fe» (Pistis): En el mundo cotidiano de la época significaba lealtad, confianza mutua y confiabilidad en la palabra dada.
+• «Paz» (Eirene): Heredera del concepto hebreo de Shalom, no es simplemente la ausencia momentánea de guerra, sino la armonía social, el bienestar del alma y la reconciliación comunitaria.`;
   }
 
-  // 2. Contexto Histórico & Sociocultural ANE
+  // 2. Contexto Histórico y Vida Cotidiana
   let historyAnalysis = '';
   if (corpus.book.includes('Génesis')) {
     const c = Number(chapter) || 1;
     if (c >= 12 && c <= 25) {
-      historyAnalysis = `2. Contexto Histórico & Sociocultural:
-• Época Patriarcal en el Bronce Medio (c. 2000–1600 a.C.): El relato de Abram se enmarca en las migraciones semíticas amorreas documentadas en los archivos cuneiformes de Mari (Siria) y Ebla. La ciudad de Hebrón (Tel Rumeida) y Siquem (Tel Balata) contaban ya en este período con masivas murallas ciclópeas y asentamientos consolidados, mencionados en los Textos de Execración egipcios.
-• Rito de Cortar Pacto en el Próximo Oriente Antiguo (Karath Berith): En la antigüedad semítica, sellar una alianza de vida o muerte exigía descuartizar animales por la mitad y que las partes caminaran en medio, invocando una auto-maldición: «Que así me suceda a mí si quebranto este pacto». En Génesis 15:17, un misterioso horno humeante y una antorcha de fuego (teofanía de la presencia divina) pasan en medio en solitario, significando que Dios asume unilateralmente la fidelidad del pacto.
-• Costumbres Legales Contemporáneas: El temor de Abram de no tener heredero y que su siervo Eliezer de Damasco heredase su casa refleja con exactitud las leyes familiares de adopción atestiguadas en las tablillas de Nuzi del segundo milenio a.C.`;
+      historyAnalysis = `2. Contexto Histórico y Vida Cotidiana:
+• La Época de los Patriarcas (Edad del Bronce Medio, aprox. 2000–1750 a.C.): La historia de Abraham encaja con asombrosa precisión en las rutas comerciales y migraciones de familias semíticas nómadas que recorrían la Media Luna Fértil con rebaños de ovejas y cabras.
+• La angustia por un heredero y las leyes familiares de la época: Abram le expresa a Dios su desánimo porque no tiene hijos y su mayordomo, Eliezer de Damasco, sería su heredero por ley. Tablillas arqueológicas de arcilla halladas en Nuzi y Mari demuestran que en este milenio existía exactamente esa ley: si una pareja de hacendados no tenía descendencia, adoptaba formalmente a un siervo fiel como heredero a cambio de que cuidara de ellos en su vejez y les diera sepultura digna.
+• La ceremonia de pasar entre los animales divididos: En el siglo XVIII a.C., los tratados solemnes de alianza entre jefes de tribu no se firmaban en papel. Se partían animales a la mitad y los firmantes caminaban en medio, proclamando en voz alta un juramento de sangre: «Que me ocurra a mí lo que a estos animales si llego a quebrar mi palabra». En Génesis 15, un horno humeante y una antorcha encendida (símbolos de la presencia divina) pasan en solitario entre las piezas, lo que significaba que Dios asumía por cuenta propia y unilateral el compromiso de proteger a Abram y a su descendencia.`;
     } else {
-      historyAnalysis = `2. Contexto Histórico & Sociocultural:
-• Horizonte de los Orígenes y Cosmogonía Comparada del ANE: Génesis 1 proclama la creación ex nihilo frente al horizonte mítico del Próximo Oriente Antiguo. A diferencia del Enuma Elish babilónico (donde el cosmos surge de los cadáveres despedazados de Tiamat y Kingu tras violentas guerras entre dioses), el texto bíblico presenta una ruptura epistemológica absoluta: un solo Dios trascendente que crea por Su sola palabra soberana y pura voluntad.
-• Desmitificación Cósmica Radical: Los astros no son deidades celestiales a las que temer o rendir culto (como el sol Shamash o la luna Sin), sino meras «lumbreras» y criaturas puestas al servicio del orden de los días y las estaciones.
-• Dignidad Inalienable del Ser Humano (Imago Dei): En los mitos mesopotámicos el ser humano fue creado para aliviar a los dioses de su trabajo manual como sirvientes; en la revelación bíblica, toda persona es creada a imagen y semejanza de Dios (Tselem Elohim), con dignidad real y vocación de mayordomía sagrada.`;
+      historyAnalysis = `2. Contexto Histórico y Vida Cotidiana:
+• La época de la composición y el mundo del Próximo Oriente Antiguo: En el segundo milenio a.C., los pueblos vecinos de Israel (Babilonia, Egipto, Asiria) creían que el universo había surgido tras violentas guerras cósmicas entre dioses monstruosos (como el relato del Enuma Elish babilónico).
+• Una revolución cultural y ética: Frente a los mitos vecinos que afirmaban que los seres humanos eran esclavos creados para trabajar la tierra y alimentar a los dioses, el Génesis proclamó una idea radicalmente liberadora y dignificante: todos los seres humanos son creados a imagen y semejanza de Dios, con igual dignidad innata, libertad y mayordomía responsable sobre la naturaleza.
+• Los astros como lámparas, no como dioses: Para los babilonios, el sol, la luna y las estrellas eran deidades que controlaban el destino mediante el horóscopo. El texto bíblico los desmitifica con total naturalidad: son simples lumbreras puestas para iluminar y marcar las estaciones agrícolas del año.`;
     }
   } else if (corpus.book.includes('Crónicas')) {
-    historyAnalysis = `2. Contexto Histórico & Sociocultural:
-• Trasfondo Histórico: 1 y 2 Crónicas fueron redactadas durante el período persa post-exílico (c. 450–400 a.C.), en los días de Esdras y Nehemías, para alentar a los repatriados de Babilonia.
-• Enfoque de 1 Crónicas 12: Recuerda la épica congregación de valientes en Siclag (en territorio filisteo) y Hebrón, cuando guerreros de las doce tribus desertaron de la casa de Saúl para ungir a David como rey unificado.
-• Cultura y Dinámicas: Solidaridad tribal, alianzas de honor y pacto de vasallaje. El cronista enfatiza la unanimidad del pueblo («un solo corazón para hacer rey a David») como modelo para reconstruir la nación santa en torno al culto y el templo.`;
+    historyAnalysis = `2. Contexto Histórico y Vida Cotidiana:
+• La época de la reconstrucción (siglo V a.C., época persa): Los libros de Crónicas fueron escritos para los sobrevivientes judíos que regresaban del destierro en Babilonia a una Jerusalén en ruinas.
+• El valor de la memoria histórica: La comunidad que regresaba estaba empobrecida y desanimada. Recordar cómo siglos atrás David y sus valientes comenzaron desde la precariedad de una pequeña fortaleza en el desierto (Siclag) hasta forjar una nación unida y justa, funcionó como un motor moral y espiritual para reedificar sus hogares, sus murallas y su vida en sociedad.`;
   } else if (corpus.isOldTestament) {
-    historyAnalysis = `2. Contexto Histórico & Sociocultural:
-• Trasfondo del Antiguo Cercano Oriente (ANE): El pasaje se sitúa en el horizonte histórico de Israel interactuando con las potencias imperiales de la Media Luna Fértil (Egipto, Asiria, Babilonia, Persia).
-• Estructura Social & Jurídica: Convenciones de hospitalidad beduina, tratados de vasallaje tipo suzeranía hitita (prólogo histórico, estipulaciones, bendiciones y maldiciones), y leyes de rescate familiar (Go'el).
-• ArqueologíaGrounding: Sellos reales (LMLK), inscripciones de Tel Dan, estelas de victoria y textos de Ugarit que corroboran las instituciones sociopolíticas de la época.`;
+    historyAnalysis = `2. Contexto Histórico y Vida Cotidiana:
+• La vida en los pueblos del Levante antiguo: Una sociedad principalmente agrícola y pastoral que dependía enteramente de las lluvias del invierno y la primavera.
+• Las costumbres sociales: La hospitalidad hacia el forastero era un deber sagrado de honor. Los ancianos y jueces se sentaban en la puerta de la ciudad para dirimir disputas vecinales a la vista de toda la comunidad, garantizando la imparcialidad del juicio.`;
   } else {
-    historyAnalysis = `2. Contexto Histórico & Sociocultural:
-• Trasfondo del Mundo Grecorromano del Siglo I: Dominación de la Pax Romana, clientelismo imperial, ciudades-estado helenísticas y presencia militar de las legiones romanas.
-• Contexto Religioso Judío: Templo de Herodes en Jerusalén, sinagogas de la Diáspora, y debates teológicos entre fariseos, saduceos, esenios de Qumrán y celotes.
-• Impacto Social: El evangelio subvirtió las jerarquías de honor mundanas del imperio, declarando a Jesús crucificado como el único Κύριος (Kyrios / Señor) del universo.`;
+    historyAnalysis = `2. Contexto Histórico y Vida Cotidiana:
+• El mundo grecorromano del siglo I: Un imperio bajo el dominio de Roma, caracterizado por una eficiente red de calzadas marítimas y terrestres, pero también por una profunda desigualdad social entre ciudadanos libres, siervos y esclavos.
+• La vida cotidiana: El comercio fluía por el Mediterráneo y las ciudades albergaban diversas culturas y religiones. En este ambiente cosmopolita, el mensaje de reconciliación universal y compasión hacia los más vulnerables transformó radicalmente las comunidades urbanas.`;
   }
 
-  // 3. Crítica Textual & Manuscritos
+  // 3. Evidencia Documental y Manuscritos (Crítica Textual Laica)
   let textualAnalysis = '';
   if (corpus.isOldTestament) {
-    textualAnalysis = `3. Crítica Textual & Manuscritos:
-• Testigos Primarios del Pasaje:
-  - Texto Masorético Tiberiense (𝔐): Codex Leningradensis B19A (1008 d.C.) y Códice de Alepo (siglo X d.C.). Preserva la lectura consonántica fijada por los masoretas ben-asheríes.
-  - Septuaginta Alejandrina (𝔊 - LXX): Códices Vaticanus (B, siglo IV) y Sinaiticus (א, siglo IV). Testifica la tradición exegética judía de Alejandría.
-  - Rollos del Mar Muerto (𝔔): Manuscritos de Qumrán (siglo II a.C. – I d.C.), demostrando una asombrosa estabilidad textual de más del 95% mil años antes de los códices medievales.
-  - Versiones Hijas: Peshitta Siríaca (𝔖), Targum arameo de Jonatán/Onquelos y Vulgata Latina (𝔙) de San Jerónimo.
-• Variantes Críticas: No se identifican divergencias dogmáticas que alteren la doctrina de la fe; el aparato crítico confirma la integridad sustancial de la Palabra inspirada.`;
+    textualAnalysis = `3. Evidencia Documental y Manuscritos (Crítica Textual Laica):
+• ¿Cómo llegó este texto hasta nuestros días?
+La investigación histórica y arqueológica cuenta con tres familias de manuscritos antiguos fundamentales:
+1. El Texto Masorético Hebreo: Preservado en el famoso Códice de Leningrado (año 1008 d.C.), el manuscrito completo en hebreo más antiguo que sobrevive. Fue copiado meticulosamente por escribas judíos que contaban cada letra y palabra para evitar cualquier alteración.
+2. Los Rollos del Mar Muerto (Qumrán): Descubiertos en 1947 en cuevas junto al Mar Muerto, contienen fragmentos en pergamino que datan del siglo II a.C. al I d.C. Lo fascinante desde el punto de vista histórico es que el texto encontrado en Qumrán coincide en más de un 95% con el texto medieval copiado mil años después, demostrando una estabilidad documental excepcional en la historia de la literatura antigua.
+3. La Septuaginta Griega (LXX): Traducida en Alejandría (Egipto) hacia el siglo III a.C. para la comunidad judía de habla griega.
+• Variantes entre manuscritos:
+Las diferencias entre estos testigos son mínimas y de carácter gramatical (orden de ciertas palabras o uso de conjunciones como «y» o «pero»). Ninguna de estas variantes modifica los hechos históricos narrados ni el núcleo ético del relato.`;
   } else {
-    textualAnalysis = `3. Crítica Textual & Manuscritos:
-• Testigos Primarios del Pasaje:
-  - Papiros Antiguos (𝔓): Manuscritos sobre papiro de los siglos II y III (ej. Chester Beatty 𝔓46, Bodmer 𝔓66 y 𝔓75).
-  - Grandes Códices Unciales: Codex Vaticanus (B 03), Codex Sinaiticus (א 01), Codex Alexandrinus (A 02) y Codex Ephraemi Rescriptus (C 04).
-  - Tradición Textus Receptus: Compilada por Erasmo de Rotterdam (1516), base histórica de la traducción Reina-Valera (1569/1602/1960) y King James Version.
-• Cotejo Crítico: Coincidencia unánime en el mensaje teológico central; el aparato de Nestle-Aland 28 registra variantes menores de orden de palabras o partículas conectoras que no afectan el dogma.`;
+    textualAnalysis = `3. Evidencia Documental y Manuscritos (Crítica Textual Laica):
+• ¿Cómo se preservó el Nuevo Testamento?
+A diferencia de otros textos de la antigüedad clásica (donde a veces solo sobreviven dos o tres copias tardías), el Nuevo Testamento cuenta con más de 5.800 manuscritos griegos antiguos:
+1. Papiros tempranos (siglos II y III d.C.): Hallados enterrados en las arenas secas de Egipto (como los papiros Chester Beatty y Bodmer), copiados durante la época en que el cristianismo era una fe perseguida por el Imperio Romano.
+2. Grandes Códices en pergamino (siglo IV d.C.): Destacan el Códice Sinaítico (conservado en Londres) y el Códice Vaticano (en Roma), los primeros libros completos encuadernados en hojas de piel de animal.
+• Análisis crítico:
+Los historiadores comparan las copias para reconstruir la forma más antigua de las palabras de los autores. La inmensa mayoría de las variantes registradas son faltas de ortografía de copistas antiguos o variaciones en el orden de las palabras que no afectan el mensaje central.`;
   }
 
-  // 4. Geografía Teológica & Topografía
+  // 4. Geografía Física y Equivalencia con el Mapa Actual
   let geoAnalysis = '';
-  if (corpus.book.includes('Crónicas')) {
-    geoAnalysis = `4. Geografía Teológica & Topografía:
-• Topografía Específica: Siclag (al sur del Néguev, cerca de Gaza), las tierras montañosas de Judá, y la ciudad fortificada de Hebrón (a 927 msnm, la cuna del patriarca Abraham en Macpela).
-• Significado Teológico del Terreno: Siclag representa el desierto del entrenamiento de la fe, donde David aprendió a fortalecerse en Yahweh su Dios cuando todo parecía perdido; Hebrón representa la elevación de la promesa y la investidura real comunitaria.
-• Clima y Rutas: Región semiárida con valles secos (wadis) que en invierno florecen tras las lluvias tempranas (yoreh), metáfora de la gracia que brota en tierra sedienta.`;
+  if (corpus.book.includes('Génesis')) {
+    const c = Number(chapter) || 1;
+    if (c >= 12 && c <= 25) {
+      geoAnalysis = `4. Geografía Física y Equivalencia con el Mapa Actual:
+• ¿Dónde ocurrió esto en el mapa del mundo de hoy?
+El viaje de la familia de Abraham cruzó lo que hoy son cuatro países modernos de Medio Oriente:
+1. Ur de los Caldeos: Hoy se ubica en el sur de Irak (cerca de la ciudad de Nasiriyah y del Golfo Pérsico). Era una urbe portuaria y comercial sumeria.
+2. Harán: Hoy se encuentra en la provincia de Şanlıurfa, en el sur de Turquía, casi en la frontera con Siria. Era un oasis clave de descanso en la ruta caravanera.
+3. Siquem: Hoy es la ciudad de Nablus, en Cisjordania / Territorios Palestinos, enclavada en un valle fértil entre los montes Ebal y Gerizim.
+4. Hebrón y el Encinar de Mamre (escenario de Génesis 15): Hoy es la ciudad de Hebrón (Al-Khalil), en Cisjordania, situada en la cordillera a 930 metros sobre el nivel del mar, a unos 30 km al sur de Jerusalén.
+• Terreno y clima:
+En las tierras altas de Hebrón, las noches son frescas, secas y completamente despejadas de nubes, lo que permitía una visión impresionante de la Vía Láctea y las estrellas en medio del silencio del desierto.`;
+    } else {
+      geoAnalysis = `4. Geografía Física y Equivalencia con el Mapa Actual:
+• La cuenca de los orígenes: El relato del Edén y las genealogías tempranas ubican el origen de la agricultura en la llanura aluvial entre los ríos Tigris y Éufrates, territorios que hoy corresponden a Irak, el este de Siria y el sureste de Turquía.
+• La relación con el agua y la tierra: En esta región, la vida humana floreció gracias al desbordamiento periódico de los grandes ríos y a la fertilidad del suelo, cuna de los primeros asentamientos urbanos de la humanidad.`;
+    }
+  } else if (corpus.book.includes('Crónicas')) {
+    geoAnalysis = `4. Geografía Física y Equivalencia con el Mapa Actual:
+• Siclag: Antigua ciudadela ubicada al norte del desierto del Néguev, cerca de la actual Franja de Gaza.
+• Hebrón: Ciudad fortificada en las montañas de Judá (actual Cisjordania), situada en un punto estratégico que controlaba los pasos entre el desierto del sur y las tierras agrícolas del norte.`;
   } else if (corpus.isOldTestament) {
-    geoAnalysis = `4. Geografía Teológica & Topografía:
-• Paisaje Sagrado de la Tierra Prometida: La franja montañosa central de Canaán, flanqueada por la fosa tectónica del Jordán y la llanura costera filistea.
-• Orografía y Clima: Dependencia absoluta de la lluvia del cielo y del rocío del Hermón, a diferencia de Egipto irrigado por el Nilo. La geografía física de Israel fue diseñada por Dios como un instrumento de fe y dependencia moral constante.`;
+    geoAnalysis = `4. Geografía Física y Equivalencia con el Mapa Actual:
+• La franja montañosa central: Ocurre en el territorio que hoy comprende Israel, Cisjordania y Jordania.
+• Orografía y Clima: Una geografía contrastante que va desde las cumbres montañosas templadas hasta la depresión del Valle del Jordán y el Mar Muerto (-430 metros bajo el nivel del mar), donde el acceso al agua de lluvia determinaba la supervivencia de las cosechas.`;
   } else {
-    geoAnalysis = `4. Geografía Teológica & Topografía:
-• Cuenca del Mediterráneo Oriental: De las colinas de Galilea y las riberas del lago de Genesaret hasta las calzadas romanas de Asia Menor, Grecia y la metrópoli de Roma.
-• Geografía Redentora: El evangelio rompe los límites geográficos de Jerusalén para fluir por Judea, Samaria y hasta lo último de la tierra, derribando la pared intermedia de separación entre judíos y gentiles.`;
+    geoAnalysis = `4. Geografía Física y Equivalencia con el Mapa Actual:
+• El Mar Mediterráneo y sus costas: Las regiones de Galilea y Judea (actuales Israel y Palestina), extendiéndose luego hacia Siria, Turquía, Grecia e Italia.
+• Rutas marítimas y calzadas: Las rutas comerciales romanas permitieron que las cartas y viajeros cruzaran miles de kilómetros uniendo comunidades de diversos idiomas y culturas.`;
   }
 
-  // 5. Hermenéutica del Pacto & Cristología
+  // 5. Conclusión y Sentido de Vida
   let covenantAnalysis = '';
-  if (corpus.book.includes('Crónicas')) {
-    covenantAnalysis = `5. Hermenéutica del Pacto & Cumplimiento Cristológico:
-• Conexión con el Pacto Davídico (2 Samuel 7 / 1 Crónicas 17): La coronación y reunión de los valientes en torno a David prefigura la congregación universal de redimidos de toda tribu, lengua, pueblo y nación en torno al Hijo de David, Jesucristo.
-• Tipología Sagrada: David, el rey rechazado en Siclag antes de ser exaltado en gloria, es tipo profético de Cristo, quien fue despreciado por los hombres antes de recibir el nombre que es sobre todo nombre.
-• Aplicación Vital: Así como los hombres valientes de 1 Crónicas 12 supieron discernir los tiempos (v. 32) y consagraron sus destrezas a David, la Iglesia está llamada a una lealtad incondicional al Rey Jesús en la batalla espiritual de hoy.`;
+  if (corpus.book.includes('Génesis')) {
+    const c = Number(chapter) || 1;
+    if (c >= 12 && c <= 25) {
+      covenantAnalysis = `5. Conclusión y Sentido de Vida:
+• La síntesis de las 5 dimensiones:
+Cuando unimos las palabras originales (la promesa de ser un escudo protector), el contexto histórico (un hombre mayor sin hijos según las leyes de la época), los manuscritos antiguos y el cielo estrellado de Hebrón, el pasaje cobra un sentido profundamente humano:
+• La confianza por encima del miedo: Abram sentía miedo del futuro y de su propia fragilidad. La enseñanza que trasciende los siglos es que la fe no es la ausencia de dudas o de peligros, sino la decisión valiente de confiar en una promesa de bien aun cuando los ojos físicos todavía no vean los resultados.
+• Dignidad y generosidad: Haber rechazado el botín fácil de Sodoma demostró que los valores éticos de una persona están por encima del dinero, y que la mayor recompensa de la vida es mantener la conciencia en paz y el corazón íntegro.`;
+    } else {
+      covenantAnalysis = `5. Conclusión y Sentido de Vida:
+• La síntesis de las 5 dimensiones:
+El relato de los orígenes nos recuerda que el universo no es un accidente caótico ni el resultado de fuerzas ciegas de violencia:
+• El valor de la existencia: Todo ser humano posee un valor sagrado intrínseco que nadie puede arrebatarle, con la responsabilidad compartida de cuidar de la naturaleza y de procurar el bienestar de la comunidad humana.`;
+    }
+  } else if (corpus.book.includes('Crónicas')) {
+    covenantAnalysis = `5. Conclusión y Sentido de Vida:
+• La fuerza de la unidad:
+El pasaje enseña que cuando las personas dejan de lado sus rivalidades egoístas y se unen por un propósito noble de justicia y bienestar común, hasta las situaciones de mayor crisis nacional pueden superarse.`;
   } else if (corpus.isOldTestament) {
-    covenantAnalysis = `5. Hermenéutica del Pacto & Cumplimiento Cristológico:
-• Hilo Conductor del Pacto: El pasaje es un eslabón vital en la economía de la redención (Pacto Abrahámico de bendición universal y Pacto Davídico de gobierno eterno).
-• Cumplimiento en Cristo: La Ley y los Profetas testifican de Jesús (Lucas 24:44). Las sombras, sacrificios e instituciones del Antiguo Pacto hallan su plenitud definitiva en el Cordero de Dios que quita el pecado del mundo.`;
+    covenantAnalysis = `5. Conclusión y Sentido de Vida:
+• Justicia y esperanza:
+Las 5 dimensiones nos muestran que la historia humana avanza hacia la justicia y la dignidad, llamando a cada generación a actuar con honestidad, compasión y fidelidad hacia el prójimo.`;
   } else {
-    covenantAnalysis = `5. Hermenéutica del Pacto & Cumplimiento Cristológico:
-• El Nuevo Pacto Sellado en la Sangre de Jesús: Plenitud de Jeremías 31:31 y Hebreos 8. La justificación por fe y la inhabitación perpetua del Espíritu Santo en el creyente.
-• Esperanza Escatológica: Seguridad eterna en Cristo resucitado, sentado a la diestra del Padre e intercediendo como Sumo Sacerdote según el orden de Melquisedec.`;
+    covenantAnalysis = `5. Conclusión y Sentido de Vida:
+• El poder de la reconciliación:
+La culminación del mensaje bíblico invita al ser humano a derribar los muros del odio, la discriminación y el temor, viviendo en fraternidad, paz y servicio a los demás.`;
   }
 
   return `${langAnalysis}

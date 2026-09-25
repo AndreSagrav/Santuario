@@ -80,8 +80,57 @@ export default function TextualCriticismWorkbench({ verseRef = 'Génesis 1:1', v
     }
   ];
 
+  // Determinación de capítulo
+  const chap = Number(verseContext?.chapter) || (normRef.match(/(\d+):/)?.[1] ? Number(normRef.match(/(\d+):/)[1]) : 1);
+
   // Testigos de Génesis
-  const genesisWitnesses = [
+  const genesisWitnesses = chap === 15 ? [
+    {
+      siglum: '𝔐',
+      name: 'Texto Masorético (Codex Leningradensis B19A)',
+      date: '1008 d.C. (Copia fiel del texto tiberiense de Ben Asher)',
+      language: 'Hebreo Bíblico consonántico con niqud y cantilación',
+      transcription: 'אַחַר הַדְּבָרִים הָאֵלֶּה הָיָה דְבַר־יְהוָה אֶל־אַבְרָם בַּמַּחֲזֶה לֵאמֹר אַל־תִּירָא אַבְרָם אָנֹכִי מָגֵן לָךְ שְׂכָרְךָ הַרְבֵּה מְאֹד',
+      translation: '«Después de estas cosas vino la palabra de Jehová a Abram en visión, diciendo: No temas, Abram; yo soy tu escudo, y tu galardón será sobremanera grande»',
+      notes: 'Texto base oficial de la BHS. Preserva la fórmula de pacificación «No temas» (Al-tirá) y la metáfora de protección personal «Yo soy tu escudo» (Anoki magén lak).'
+    },
+    {
+      siglum: '𝔔',
+      name: 'Rollos del Mar Muerto (Qumrán 4QGen / 4Q252)',
+      date: 'c. 100 a.C. – 50 d.C. (Cueva 4 de Qumrán)',
+      language: 'Hebreo paleo-consonántico cuadrangular',
+      transcription: 'אחר הדברים האלה היה דבר יהוה אל אברם במחזה לאמר אל תירא אברם אנכי מגן לך',
+      translation: '«Ajar had-devarim ha\'elleh hayah devar-YHVH \'el-Avram bammajazeh lemor: \'Al-tirá Avram \'anoki magén lak...»',
+      notes: 'Manuscritos de las cuevas de Qumrán que confirman la fidelidad del texto hebreo consonántico mil años antes de los códices medievales de Leningrado.'
+    },
+    {
+      siglum: '𝔊 (LXX)',
+      name: 'Septuaginta Griega (Codex Vaticanus B / Alexandrinus A)',
+      date: 'c. 280 – 250 a.C. (Traducción alejandrina)',
+      language: 'Griego Koiné alejandrino',
+      transcription: 'Μετὰ δὲ τὰ ῥήματα ταῦτα ἐγενήθη ῥῆμα κυρίου πρὸς Αβραμ ἐν ὁράματι λέγων Μὴ φοβοῦ, Αβραμ· ἐγὼ ὑπερασπίζω σου· ὁ μισθός σου πολὺς ἔσται σφόδρα',
+      translation: '«Después de estas palabras vino la palabra del Señor a Abram en visión diciendo: No temas, Abram; yo te cubro con mi escudo; tu recompensa será muy grande»',
+      notes: 'Traduce «Yo soy tu escudo» con el verbo griego hyperaspizō («cubrir como con un escudo protector defensivo»), enfatizando la acción activa de guardia divina.'
+    },
+    {
+      siglum: '𝔖',
+      name: 'Peshitta Siríaca (Manuscrito Ambrosiano B.21)',
+      date: 'siglo II – IV d.C.',
+      language: 'Siríaco clásico (dialecto arameo oriental)',
+      transcription: 'ܒܬܪ ܦܬܓܡܐ ܗܠܝܢ ܗܘܐ ܦܬܓܡܗ ܕܡܪܝܐ ܥܠ ܐܒܪܡ ܒܚܙܘܐ ܘܐܡܪ ܠܐ ܬܕܚܠ ܐܒܪܡ ܐܢܐ ܐܢܐ ܬܪܣܟ',
+      translation: '«Batar petgame hallen hwa petgameh d-Marya \'al Abram b-ḥezwa...»',
+      notes: 'Traduce el hebreo a la lengua aramea hermana que se hablaba en Siria y Mesopotamia, empleando el término "Tarsej" para escudo defensivo.'
+    },
+    {
+      siglum: '𝔙',
+      name: 'Vulgata Latina (San Jerónimo)',
+      date: 'c. 390 – 405 d.C. (Traducido en Belén iuxta Hebraeos)',
+      language: 'Latín bíblico clásico',
+      transcription: 'Post haec autem verba factus est sermo Domini ad Abram per visionem dicens: Noli timere Abram, ego protector tuus sum et merces tua magna nimis',
+      translation: '«Después de estas palabras fue hecho el sermón del Señor a Abram por visión diciendo: No temas Abram, yo soy tu protector y tu merced es sobremanera grande»',
+      notes: 'San Jerónimo tradujo "magén" como "protector", expresando con exactitud la idea de que Dios mismo es el amparo vivo de quien camina por fe.'
+    }
+  ] : [
     {
       siglum: '𝔐',
       name: 'Texto Masorético (Codex Leningradensis B19A)',

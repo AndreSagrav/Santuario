@@ -368,12 +368,12 @@ export default function TheologicalApparatusDrawer({
   if (!isOpen || !verseContext) return null;
 
   const dimensions = [
-    { id: 'all', label: 'Aparato 5D', icon: Layers, badge: '5 Dim.' },
-    { id: 'exegesis', label: '1. Exégesis', icon: BookOpen, badge: 'Heb/Gr' },
-    { id: 'history', label: '2. Historia & ANE', icon: Landmark, badge: 'Línea Tiempo' },
-    { id: 'textual', label: '3. Crítica Textual', icon: Scale, badge: '5 Códices' },
-    { id: 'geography', label: '4. Geografía & Clima', icon: Compass, badge: 'Topografía' },
-    { id: 'covenant', label: '5. Pacto Sagrado', icon: ShieldCheck, badge: 'Cristocéntrico' }
+    { id: 'all', label: 'Panorama 5D', icon: Layers, badge: 'Compendio Conectado' },
+    { id: 'exegesis', label: '1. Exégesis', icon: BookOpen, badge: 'Significado en Español' },
+    { id: 'history', label: '2. Historia & ANE', icon: Landmark, badge: 'Vida Real en la Época' },
+    { id: 'textual', label: '3. Crítica Textual', icon: Scale, badge: 'Manuscritos & Evidencia' },
+    { id: 'geography', label: '4. Geografía & Clima', icon: Compass, badge: 'Mapa & Países de Hoy' },
+    { id: 'covenant', label: '5. Sentido & Vida', icon: ShieldCheck, badge: 'Conclusión Práctica' }
   ];
 
   return createPortal(
@@ -668,178 +668,315 @@ export default function TheologicalApparatusDrawer({
           ) : (
             <>
               {/* =========================================================================
-                  MODO A: APARATO COMPLETO 5D (REJILLA PANORÁMICA DE 2 COLUMNAS AMPLIAS)
+                  MODO A: COMPENDIO PANORÁMICO 5D (HILO NARRATIVO CONECTADO Y PEDAGÓGICO)
                  ========================================================================= */}
               {activeDimension === 'all' && (
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(460px, 1fr))',
-                  gap: '24px',
-                  alignItems: 'start'
-                }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
                   
-                  {/* COLUMNA IZQUIERDA: FILOLOGÍA, MORFOLOGÍA & CRÍTICA TEXTUAL */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    
-                    {/* Dimensión 1: Exégesis Morfosintáctica */}
-                    <div style={{
-                      background: 'rgba(10, 13, 20, 0.85)',
-                      border: '1px solid rgba(212,175,55,0.25)',
-                      borderRadius: '12px',
-                      padding: '22px',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', borderBottom: '1px solid rgba(212,175,55,0.18)', paddingBottom: '10px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <BookOpen size={18} color="var(--gold-400)" />
-                          <h4 className="font-cinzel gold-text-gradient" style={{ margin: 0, fontSize: '1.15rem', fontWeight: '800' }}>
-                            1. Exégesis Lingüística & Morfología
-                          </h4>
-                        </div>
-                        <span style={{ fontSize: '0.72rem', color: 'var(--gold-300)', background: 'rgba(212,175,55,0.1)', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(212,175,55,0.25)' }}>
-                          Hebreo Masorético & LXX
-                        </span>
+                  {/* Banner de Presentación Panorámica Concatenada */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, rgba(212,175,55,0.14) 0%, rgba(8,11,18,0.95) 100%)',
+                    border: '1.5px solid rgba(212,175,55,0.35)',
+                    borderRadius: '12px',
+                    padding: '18px 24px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '12px',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '0.74rem', color: 'var(--gold-400)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                        Compendio Panorámico Integrado
                       </div>
-
-                      {/* Tarjetas de Idiomas Originales */}
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', marginBottom: '16px' }}>
-                        <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(212,175,55,0.15)' }}>
-                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{origCards.primaryTitle}</span>
-                          <div style={{ fontFamily: corpus.isOldTestament ? "'SBL Hebrew', serif" : "'SBL Greek', serif", fontSize: '1.35rem', color: '#fef08a', direction: corpus.isOldTestament ? 'rtl' : 'ltr', marginTop: '4px' }}>
-                            {origCards.primaryText}
-                          </div>
-                          <span style={{ fontSize: '0.76rem', color: '#cbd5e1' }}>{origCards.primaryTranslit}</span>
-                        </div>
-
-                        <div style={{ background: 'rgba(0,0,0,0.4)', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(212,175,55,0.15)' }}>
-                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{origCards.secondaryTitle}</span>
-                          <div style={{ fontFamily: "'SBL Greek', serif", fontSize: '1.15rem', color: '#fef08a', marginTop: '4px' }}>
-                            {origCards.secondaryText}
-                          </div>
-                          <span style={{ fontSize: '0.76rem', color: '#cbd5e1' }}>{origCards.secondaryTranslit}</span>
-                        </div>
-                      </div>
-
-                      {/* Fichas Léxicas con Español Destacado, Original y Morfología */}
-                      <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                        gap: '12px',
-                        marginBottom: '16px'
-                      }}>
-                        {origCards.morphologyItems.map((item, idx) => (
-                          <div key={idx} style={{
-                            background: 'rgba(255,255,255,0.03)',
-                            border: '1px solid rgba(212,175,55,0.22)',
-                            borderRadius: '10px',
-                            padding: '14px 16px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '6px'
-                          }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                              <span style={{ fontSize: '1.1rem', fontWeight: '800', color: '#ffffff' }}>
-                                «{item.spanish || item.term}»
-                              </span>
-                              <span style={{
-                                fontSize: '0.72rem',
-                                color: 'var(--gold-400)',
-                                background: 'rgba(212,175,55,0.12)',
-                                border: '1px solid rgba(212,175,55,0.3)',
-                                padding: '2px 7px',
-                                borderRadius: '4px',
-                                fontWeight: '700'
-                              }}>
-                                {item.strong || ''}
-                              </span>
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{
-                                fontFamily: corpus.isOldTestament ? "'SBL Hebrew', serif" : "'SBL Greek', serif",
-                                color: '#fef08a',
-                                fontWeight: '700',
-                                fontSize: '1.2rem',
-                                direction: corpus.isOldTestament ? 'rtl' : 'ltr'
-                              }}>
-                                {item.term}
-                              </span>
-                              {item.translit && (
-                                <span style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.82rem' }}>
-                                  ({item.translit})
-                                </span>
-                              )}
-                            </div>
-
-                            {item.grammar && (
-                              <span style={{ fontSize: '0.74rem', color: '#60a5fa', fontWeight: '700' }}>
-                                {item.grammar}
-                              </span>
-                            )}
-
-                            <p style={{ margin: '4px 0 0', fontSize: '0.84rem', color: '#cbd5e1', lineHeight: '1.55' }}>
-                              {item.note}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-
-                      {getSectionContent(1) && (
-                        <SacredContentRenderer content={getSectionContent(1)} multiColumn={true} />
-                      )}
+                      <h4 className="font-cinzel gold-text-gradient" style={{ margin: '3px 0 0', fontSize: '1.35rem', fontWeight: '800' }}>
+                        El versículo explicado en 5 perspectivas conectadas
+                      </h4>
+                      <p style={{ margin: '4px 0 0', fontSize: '0.86rem', color: '#cbd5e1' }}>
+                        Cada apartado se apoya en el anterior: desde el significado de las palabras originales hasta su ubicación en el mapa actual y su enseñanza para la vida.
+                      </p>
                     </div>
 
-                    {/* Dimensión 3: Crítica Textual Real */}
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <TextualCriticismWorkbench verseRef={displayRef} verseContext={verseContext} />
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.76rem', color: '#4ade80', background: 'rgba(74,222,128,0.12)', padding: '5px 12px', borderRadius: '6px', border: '1px solid rgba(74,222,128,0.3)', fontWeight: '700' }}>
+                        ✓ Narrativa 100% en Español
+                      </span>
+                      <span style={{ fontSize: '0.76rem', color: '#93c5fd', background: 'rgba(59,130,246,0.12)', padding: '5px 12px', borderRadius: '6px', border: '1px solid rgba(147,197,253,0.3)', fontWeight: '700' }}>
+                        ✓ Evidencia Documental Laica
+                      </span>
                     </div>
-
                   </div>
 
-                  {/* COLUMNA DERECHA: GEOGRAFÍA, HISTORIA ANE & PACTO */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                    
-                    {/* Dimensión 4: Geografía Sagrada & Topografía */}
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <SacredGeographyMap bookName={verseContext.book} chapter={verseContext.chapter} verseRef={displayRef} />
-                    </div>
-
-                    {/* Dimensión 2: Contexto Histórico & ANE (Línea de Tiempo) */}
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <HistoricalTimelineViewer bookName={verseContext.book} chapter={verseContext.chapter} verseRef={displayRef} />
-                    </div>
-
-                    {/* Dimensión 5: Teología del Pacto */}
-                    <div style={{
-                      background: 'rgba(10, 13, 20, 0.85)',
-                      border: '1px solid rgba(212,175,55,0.25)',
-                      borderRadius: '12px',
-                      padding: '22px',
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', borderBottom: '1px solid rgba(212,175,55,0.18)', paddingBottom: '10px' }}>
-                        <ShieldCheck size={18} color="var(--gold-400)" />
-                        <h4 className="font-cinzel gold-text-gradient" style={{ margin: 0, fontSize: '1.15rem', fontWeight: '800' }}>
-                          5. Teología del Pacto & Cristología
+                  {/* 1. Paso 1: Lo que Realmente Dice el Texto (Explicado en Español) */}
+                  <div style={{
+                    background: 'rgba(10, 13, 20, 0.92)',
+                    border: '1px solid rgba(212,175,55,0.25)',
+                    borderRadius: '12px',
+                    padding: '22px',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.4)'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', borderBottom: '1px solid rgba(212,175,55,0.18)', paddingBottom: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(212,175,55,0.2)', border: '1px solid var(--gold-400)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', color: 'var(--gold-400)', fontSize: '0.85rem' }}>
+                          1
+                        </div>
+                        <h4 className="font-cinzel gold-text-gradient" style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800' }}>
+                          El Significado Original en su Idioma Materno
                         </h4>
                       </div>
-
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '12px', marginBottom: '12px' }}>
-                        {covCards.map((card, idx) => (
-                          <div key={idx} style={{ background: card.bg, padding: '12px 14px', borderRadius: '8px', border: `1px solid ${card.border}` }}>
-                            <span style={{ fontSize: '0.72rem', color: card.color, fontWeight: '700', textTransform: 'uppercase' }}>{card.badge}</span>
-                            <p style={{ fontSize: '0.84rem', color: '#e2e8f0', margin: '4px 0 0', lineHeight: 1.5 }}>
-                              {card.text}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-
-                      {getSectionContent(5) && (
-                        <SacredContentRenderer content={getSectionContent(5)} multiColumn={false} />
-                      )}
+                      <button
+                        onClick={() => setActiveDimension('exegesis')}
+                        style={{
+                          background: 'rgba(212,175,55,0.12)',
+                          border: '1px solid rgba(212,175,55,0.3)',
+                          color: 'var(--gold-300)',
+                          padding: '5px 12px',
+                          borderRadius: '6px',
+                          fontSize: '0.76rem',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <span>Ver Exégesis Profunda</span>
+                        <ArrowRight size={13} />
+                      </button>
                     </div>
 
+                    {/* Fichas Explicativas en Español Claro */}
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                      gap: '12px',
+                      marginBottom: '14px'
+                    }}>
+                      {origCards.morphologyItems.map((item, idx) => (
+                        <div key={idx} style={{
+                          background: 'rgba(255,255,255,0.03)',
+                          border: '1px solid rgba(212,175,55,0.2)',
+                          borderRadius: '8px',
+                          padding: '14px 16px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontSize: '1.05rem', fontWeight: '800', color: '#ffffff' }}>
+                              «{item.spanish || item.term}»
+                            </span>
+                            <span style={{ fontSize: '0.74rem', color: 'var(--gold-400)', background: 'rgba(212,175,55,0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                              {item.translit ? `En el original: ${item.translit}` : ''}
+                            </span>
+                          </div>
+                          <p style={{ margin: '4px 0 0', fontSize: '0.86rem', color: '#cbd5e1', lineHeight: '1.55' }}>
+                            {item.note}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {getSectionContent(1) && (
+                      <div style={{ marginTop: '10px' }}>
+                        <SacredContentRenderer content={getSectionContent(1)} multiColumn={true} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 2. Paso 2: El Momento en la Historia y la Vida Cotidiana */}
+                  <div style={{
+                    background: 'rgba(10, 13, 20, 0.92)',
+                    border: '1px solid rgba(212,175,55,0.25)',
+                    borderRadius: '12px',
+                    padding: '22px',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.4)'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', borderBottom: '1px solid rgba(212,175,55,0.18)', paddingBottom: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(212,175,55,0.2)', border: '1px solid var(--gold-400)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', color: 'var(--gold-400)', fontSize: '0.85rem' }}>
+                          2
+                        </div>
+                        <h4 className="font-cinzel gold-text-gradient" style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800' }}>
+                          El Momento en la Historia y la Vida Real de la Época
+                        </h4>
+                      </div>
+                      <button
+                        onClick={() => setActiveDimension('history')}
+                        style={{
+                          background: 'rgba(212,175,55,0.12)',
+                          border: '1px solid rgba(212,175,55,0.3)',
+                          color: 'var(--gold-300)',
+                          padding: '5px 12px',
+                          borderRadius: '6px',
+                          fontSize: '0.76rem',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <span>Ver Línea de Tiempo</span>
+                        <ArrowRight size={13} />
+                      </button>
+                    </div>
+
+                    {getSectionContent(2) ? (
+                      <SacredContentRenderer content={getSectionContent(2)} multiColumn={true} />
+                    ) : (
+                      <HistoricalTimelineViewer bookName={verseContext.book} chapter={verseContext.chapter} verseRef={displayRef} />
+                    )}
+                  </div>
+
+                  {/* 3. Paso 3: Evidencia Documental y Manuscritos (Crítica Textual Laica) */}
+                  <div style={{
+                    background: 'rgba(10, 13, 20, 0.92)',
+                    border: '1px solid rgba(212,175,55,0.25)',
+                    borderRadius: '12px',
+                    padding: '22px',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.4)'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', borderBottom: '1px solid rgba(212,175,55,0.18)', paddingBottom: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(212,175,55,0.2)', border: '1px solid var(--gold-400)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', color: 'var(--gold-400)', fontSize: '0.85rem' }}>
+                          3
+                        </div>
+                        <h4 className="font-cinzel gold-text-gradient" style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800' }}>
+                          Evidencia Documental y Manuscritos (Crítica Textual Laica)
+                        </h4>
+                      </div>
+                      <button
+                        onClick={() => setActiveDimension('textual')}
+                        style={{
+                          background: 'rgba(212,175,55,0.12)',
+                          border: '1px solid rgba(212,175,55,0.3)',
+                          color: 'var(--gold-300)',
+                          padding: '5px 12px',
+                          borderRadius: '6px',
+                          fontSize: '0.76rem',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <span>Cotejar Códices Antiguos</span>
+                        <ArrowRight size={13} />
+                      </button>
+                    </div>
+
+                    {getSectionContent(3) ? (
+                      <SacredContentRenderer content={getSectionContent(3)} multiColumn={true} />
+                    ) : (
+                      <div style={{ fontSize: '0.88rem', color: '#cbd5e1', lineHeight: 1.65 }}>
+                        Este pasaje se encuentra documentado en los fragmentos de los Rollos del Mar Muerto (siglos I a.C. y I d.C.), en el Códice de Leningrado B19A (1008 d.C.) y en la Septuaginta griega traducida en Alejandría (siglo III a.C.). Las investigaciones históricas y filológicas independientes demuestran una asombrosa estabilidad textual superior al 95% a lo largo de más de mil años de transmisión escrita.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 4. Paso 4: Dónde Ocurrió en el Mapa de Hoy (Geografía) */}
+                  <div style={{
+                    background: 'rgba(10, 13, 20, 0.92)',
+                    border: '1px solid rgba(212,175,55,0.25)',
+                    borderRadius: '12px',
+                    padding: '22px',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.4)'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', borderBottom: '1px solid rgba(212,175,55,0.18)', paddingBottom: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(212,175,55,0.2)', border: '1px solid var(--gold-400)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', color: 'var(--gold-400)', fontSize: '0.85rem' }}>
+                          4
+                        </div>
+                        <h4 className="font-cinzel gold-text-gradient" style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800' }}>
+                          Dónde Ocurrió Físicamente y su Ubicación en Países de Hoy
+                        </h4>
+                      </div>
+                      <button
+                        onClick={() => setActiveDimension('geography')}
+                        style={{
+                          background: 'rgba(212,175,55,0.12)',
+                          border: '1px solid rgba(212,175,55,0.3)',
+                          color: 'var(--gold-300)',
+                          padding: '5px 12px',
+                          borderRadius: '6px',
+                          fontSize: '0.76rem',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <span>Ver Mapa Cartográfico Completo</span>
+                        <ArrowRight size={13} />
+                      </button>
+                    </div>
+
+                    {/* Mapa Directo y Accesible */}
+                    <SacredGeographyMap bookName={verseContext.book} chapter={verseContext.chapter} verseRef={displayRef} />
+
+                    {getSectionContent(4) && (
+                      <div style={{ marginTop: '14px' }}>
+                        <SacredContentRenderer content={getSectionContent(4)} multiColumn={false} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 5. Paso 5: Conclusión y Sentido de Vida */}
+                  <div style={{
+                    background: 'rgba(10, 13, 20, 0.92)',
+                    border: '1px solid rgba(212,175,55,0.25)',
+                    borderRadius: '12px',
+                    padding: '22px',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.4)'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', borderBottom: '1px solid rgba(212,175,55,0.18)', paddingBottom: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(212,175,55,0.2)', border: '1px solid var(--gold-400)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '800', color: 'var(--gold-400)', fontSize: '0.85rem' }}>
+                          5
+                        </div>
+                        <h4 className="font-cinzel gold-text-gradient" style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800' }}>
+                          Conclusión y Sentido de Vida
+                        </h4>
+                      </div>
+                      <button
+                        onClick={() => setActiveDimension('covenant')}
+                        style={{
+                          background: 'rgba(212,175,55,0.12)',
+                          border: '1px solid rgba(212,175,55,0.3)',
+                          color: 'var(--gold-300)',
+                          padding: '5px 12px',
+                          borderRadius: '6px',
+                          fontSize: '0.76rem',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <span>Ver Reflexión Completa</span>
+                        <ArrowRight size={13} />
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '12px', marginBottom: '14px' }}>
+                      {covCards.map((card, idx) => (
+                        <div key={idx} style={{ background: card.bg, padding: '14px 16px', borderRadius: '8px', border: `1px solid ${card.border}` }}>
+                          <span style={{ fontSize: '0.74rem', color: card.color, fontWeight: '700', textTransform: 'uppercase' }}>{card.badge}</span>
+                          <p style={{ fontSize: '0.86rem', color: '#e2e8f0', margin: '6px 0 0', lineHeight: 1.55 }}>
+                            {card.text}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {getSectionContent(5) && (
+                      <SacredContentRenderer content={getSectionContent(5)} multiColumn={false} />
+                    )}
                   </div>
 
                 </div>
