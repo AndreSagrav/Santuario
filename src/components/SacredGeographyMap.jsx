@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Compass, MapPin, Mountain, Droplets, Globe, Layers, Navigation, Shield, ZoomIn, ZoomOut, RotateCcw, Maximize2, Minimize2, X, Sparkles } from 'lucide-react';
@@ -713,7 +714,7 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
       map.remove();
       mapInstanceRef.current = null;
     };
-  }, [bookName, chapter, isExpansive]);
+  }, [bookName, chapter, isExpansive, isFullscreen]);
 
   // Cambiar capa de tiles dinámicamente
   useEffect(() => {
@@ -862,7 +863,7 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
       }
     });
 
-  }, [selectedSite, sitesList, activeTrail, activeEra, isExpansive]);
+  }, [selectedSite, sitesList, activeTrail, activeEra, isExpansive, isFullscreen]);
 
   // Cambiar época histórica y recentrar el mapa
   const handleSwitchEra = (eraId) => {
@@ -912,11 +913,10 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
     }
   };
 
-  return (
+  const renderMapContent = (inFullscreen) => (
     <div
-      ref={wrapperRef}
       style={{
-        ...(isFullscreen ? {
+        ...(inFullscreen ? {
           position: 'fixed',
           top: 0,
           left: 0,
@@ -924,7 +924,7 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
           bottom: 0,
           width: '100vw',
           height: '100vh',
-          zIndex: 99999999,
+          zIndex: 2147483647,
           background: '#070a13',
           borderRadius: 0,
           border: 'none',
@@ -1052,9 +1052,9 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
               borderRadius: '8px',
               fontSize: '0.78rem',
               fontWeight: '800',
-              background: isFullscreen ? 'rgba(239, 68, 68, 0.25)' : 'rgba(212,175,55,0.22)',
-              border: `1.5px solid ${isFullscreen ? '#f87171' : 'var(--gold-400)'}`,
-              color: isFullscreen ? '#fca5a5' : 'var(--gold-200)',
+              background: inFullscreen ? 'rgba(239, 68, 68, 0.25)' : 'rgba(212,175,55,0.22)',
+              border: `1.5px solid ${inFullscreen ? '#f87171' : 'var(--gold-400)'}`,
+              color: inFullscreen ? '#fca5a5' : 'var(--gold-200)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -1062,11 +1062,33 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
               boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
               transition: 'all 0.15s ease'
             }}
-            title={isFullscreen ? "Presione Escape o haga clic para salir" : "Maximizar mapa a pantalla completa"}
+            title={inFullscreen ? "Presione Escape o haga clic para salir" : "Maximizar mapa a pantalla completa"}
           >
-            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-            <span>{isFullscreen ? 'Salir de Pantalla Completa' : 'Pantalla Completa'}</span>
+            {inFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            <span>{inFullscreen ? 'Salir de Pantalla Completa' : 'Pantalla Completa'}</span>
           </button>
+          {inFullscreen && (
+            <button
+              onClick={() => setIsFullscreen(false)}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '8px',
+                fontSize: '0.78rem',
+                fontWeight: '800',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.25)',
+                color: '#ffffff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              title="Cerrar pantalla completa (Escape)"
+            >
+              <X size={15} />
+              <span>Cerrar</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -1240,8 +1262,8 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
       <div style={{
         position: 'relative',
         width: '100%',
-        minHeight: isFullscreen ? 'calc(100vh - 210px)' : (isExpansive ? '540px' : '380px'),
-        height: isFullscreen ? 'calc(100vh - 210px)' : (isExpansive ? '560px' : '380px'),
+        minHeight: inFullscreen ? 'calc(100vh - 200px)' : (isExpansive ? '540px' : '380px'),
+        height: inFullscreen ? 'calc(100vh - 200px)' : (isExpansive ? '560px' : '380px'),
         borderRadius: '12px',
         border: '1.5px solid rgba(212,175,55,0.4)',
         overflow: 'hidden',
@@ -1321,11 +1343,11 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
           </button>
           <button
             onClick={handleToggleFullscreen}
-            title={isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
+            title={inFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
             style={{
-              background: isFullscreen ? 'rgba(212,175,55,0.3)' : 'transparent',
+              background: inFullscreen ? 'rgba(212,175,55,0.3)' : 'transparent',
               border: 'none',
-              color: isFullscreen ? '#ffd700' : 'var(--gold-300)',
+              color: inFullscreen ? '#ffd700' : 'var(--gold-300)',
               padding: '6px',
               borderRadius: '4px',
               cursor: 'pointer',
@@ -1335,7 +1357,7 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
               borderTop: '1px solid rgba(255,255,255,0.1)'
             }}
           >
-            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            {inFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </button>
         </div>
 
@@ -1547,4 +1569,48 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
       )}
     </div>
   );
+
+  if (isFullscreen && typeof document !== 'undefined' && document.body) {
+    return (
+      <>
+        {/* Placeholder en el flujo normal para evitar brincos de pantalla */}
+        <div style={{
+          height: isExpansive ? '560px' : '380px',
+          background: 'rgba(9, 12, 19, 0.75)',
+          border: '1.5px dashed rgba(212,175,55,0.35)',
+          borderRadius: '14px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '12px',
+          color: 'var(--gold-300)',
+          padding: '24px'
+        }}>
+          <Maximize2 size={32} />
+          <span style={{ fontSize: '1rem', fontWeight: '800' }}>El mapa está abierto en pantalla completa</span>
+          <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Presione Escape o haga clic en el botón superior para restaurar la vista</span>
+          <button
+            onClick={() => setIsFullscreen(false)}
+            style={{
+              marginTop: '4px',
+              padding: '8px 18px',
+              borderRadius: '8px',
+              background: 'rgba(212,175,55,0.2)',
+              border: '1.5px solid var(--gold-400)',
+              color: 'var(--gold-200)',
+              cursor: 'pointer',
+              fontSize: '0.84rem',
+              fontWeight: '700'
+            }}
+          >
+            Restaurar a vista normal
+          </button>
+        </div>
+        {createPortal(renderMapContent(true), document.body)}
+      </>
+    );
+  }
+
+  return renderMapContent(false);
 }
