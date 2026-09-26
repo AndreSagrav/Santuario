@@ -557,6 +557,7 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
 
   const [selectedSite, setSelectedSite] = useState(getInitialSite());
   const [tileLayerType, setTileLayerType] = useState('osm'); // 'osm' | 'satellite' | 'topo'
+  const wrapperRef = useRef(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const mapContainerRef = useRef(null);
@@ -568,10 +569,60 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
 
   const isExpansive = variant === 'expansive';
 
+  // Alternar pantalla completa real (Nativa del navegador con fallback reactivo)
+  const handleToggleFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement && !isFullscreen) {
+        if (wrapperRef.current?.requestFullscreen) {
+          await wrapperRef.current.requestFullscreen();
+        } else if (wrapperRef.current?.webkitRequestFullscreen) {
+          await wrapperRef.current.webkitRequestFullscreen();
+        } else {
+          setIsFullscreen(true);
+        }
+      } else {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
+        } else if (document.webkitFullscreenElement) {
+          await document.webkitExitFullscreen();
+        }
+        setIsFullscreen(false);
+      }
+    } catch (err) {
+      // Fallback a pantalla completa CSS si la política del navegador lo requiere
+      setIsFullscreen(prev => !prev);
+    }
+  };
+
+  // Sincronizar eventos nativos de pantalla completa
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isNowFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      setIsFullscreen(isNowFullscreen);
+      if (mapInstanceRef.current) {
+        setTimeout(() => mapInstanceRef.current?.invalidateSize(), 50);
+        setTimeout(() => mapInstanceRef.current?.invalidateSize(), 180);
+        setTimeout(() => mapInstanceRef.current?.invalidateSize(), 400);
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
   // Salir de pantalla completa con la tecla Escape
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isFullscreen) {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitFullscreenElement) {
+          document.webkitExitFullscreen().catch(() => {});
+        }
         setIsFullscreen(false);
       }
     };
@@ -582,9 +633,10 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
   // Recalcular tamaño de Leaflet al alternar pantalla completa
   useEffect(() => {
     if (mapInstanceRef.current) {
-      const t1 = setTimeout(() => mapInstanceRef.current.invalidateSize(), 80);
-      const t2 = setTimeout(() => mapInstanceRef.current.invalidateSize(), 300);
-      return () => { clearTimeout(t1); clearTimeout(t2); };
+      const t1 = setTimeout(() => mapInstanceRef.current?.invalidateSize(), 60);
+      const t2 = setTimeout(() => mapInstanceRef.current?.invalidateSize(), 200);
+      const t3 = setTimeout(() => mapInstanceRef.current?.invalidateSize(), 450);
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
     }
   }, [isFullscreen]);
 
@@ -861,32 +913,38 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
   };
 
   return (
-    <div style={{
-      ...(isFullscreen ? {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        zIndex: 999999,
-        background: '#070a13',
-        borderRadius: 0,
-        border: 'none',
-        padding: '16px 22px',
-        overflowY: 'auto'
-      } : {
-        background: 'rgba(9, 12, 19, 0.98)',
-        border: '1.5px solid rgba(212,175,55,0.35)',
-        borderRadius: '14px',
-        padding: isExpansive ? '26px' : '20px',
-        boxShadow: '0 6px 36px rgba(0,0,0,0.8)',
-        width: '100%'
-      }),
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '16px',
-      boxSizing: 'border-box'
-    }}>
+    <div
+      ref={wrapperRef}
+      style={{
+        ...(isFullscreen ? {
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: '100vw',
+          height: '100vh',
+          zIndex: 99999999,
+          background: '#070a13',
+          borderRadius: 0,
+          border: 'none',
+          padding: '16px 20px',
+          overflowY: 'auto',
+          boxSizing: 'border-box'
+        } : {
+          background: 'rgba(9, 12, 19, 0.98)',
+          border: '1.5px solid rgba(212,175,55,0.35)',
+          borderRadius: '14px',
+          padding: isExpansive ? '26px' : '20px',
+          boxShadow: '0 6px 36px rgba(0,0,0,0.8)',
+          width: '100%',
+          boxSizing: 'border-box'
+        }),
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '14px'
+      }}
+    >
       {/* 1. Barra Superior con Título, Conmutador de Capas y Pantalla Completa */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -988,7 +1046,7 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
 
           {/* Botón de Pantalla Completa */}
           <button
-            onClick={() => setIsFullscreen(!isFullscreen)}
+            onClick={handleToggleFullscreen}
             style={{
               padding: '6px 14px',
               borderRadius: '8px',
@@ -1262,7 +1320,7 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
             <RotateCcw size={16} />
           </button>
           <button
-            onClick={() => setIsFullscreen(!isFullscreen)}
+            onClick={handleToggleFullscreen}
             title={isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
             style={{
               background: isFullscreen ? 'rgba(212,175,55,0.3)' : 'transparent',
