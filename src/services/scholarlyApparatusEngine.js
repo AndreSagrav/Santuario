@@ -115,23 +115,77 @@ En el Nuevo Testamento, escrito originalmente en el griego popular (koiné) que 
 
   // 3. Evidencia Documental y Manuscritos (Crítica Textual Laica)
   let textualAnalysis = '';
-  if (corpus.isOldTestament) {
+  if (corpus.book.includes('Génesis')) {
+    const c = Number(chapter) || 1;
+    if (c >= 12 && c <= 25) {
+      textualAnalysis = `3. Evidencia Documental y Manuscritos (Crítica Textual Laica):
+• ¿Quiénes son los autores y cuándo se escribió este relato?
+El ciclo de Abraham (Génesis 12 al 25) se originó en tradiciones orales y memorias genealógicas de clanes nómadas del Bronce Medio (hacia 2000–1750 a.C.). La fijación por escrito comenzó en la corte de Judá entre los siglos X y VIII a.C. (fuente Yahvista J y Elohista E), reflejando con exactitud leyes familiares y costumbres del segundo milenio a.C.
+• ¿Quién lo recopiló y cuándo?
+Durante el exilio en Babilonia y el periodo persa (siglos VI–V a.C.), escribas sacerdotes (escuela P) en Jerusalén, bajo el liderazgo de figuras como Esdras el escriba, recopilaron y unificaron estas tradiciones para forjar la identidad del pueblo que regresaba del destierro.
+• ¿Qué dicen los manuscritos antiguos de este pasaje específico?
+1. Rollos del Mar Muerto (Qumrán, siglos II a.C.–I d.C.): Los fragmentos 4QGen y 4Q252 encontrados en la Cueva 4 de Qumrán contienen exactamente las frases de este capítulo en paleohebreo, demostrando que ya se leía idéntico mil años antes de la Edad Media.
+2. Texto Masorético Hebreo (Códice de Leningrado B19A, año 1008 d.C.): Es el manuscrito completo más antiguo en hebreo, copiado por la familia de escribas Ben Asher en Tiberíades con cada consonante y signo de entonación.
+3. Septuaginta Griega (LXX, siglo III a.C.): Traducida en Alejandría (Egipto).
+• Variantes textuales concretas:
+No existen variantes de fondo que cambien los hechos narrados. La única discrepancia menor entre el hebreo masorético y la Septuaginta griega radica en el tiempo verbal de «contó» / «fue contado» en Génesis 15:6, donde la traducción griega usa voz pasiva («le fue contado por justicia»), mientras que el hebreo usa voz activa («y se lo contó por justicia»).`;
+    } else {
+      textualAnalysis = `3. Evidencia Documental y Manuscritos (Crítica Textual Laica):
+• ¿Quiénes son los autores y cuándo se escribió?
+El relato de la Creación (Génesis 1:1 al 2:4a) es una solemne liturgia cosmogónica compuesta por la tradición sacerdotal hebrea (fuente P) durante el siglo VI a.C. (aprox. 550 a.C.), en el periodo en que los exiliados judíos vivían en Babilonia.
+• ¿Quién lo recopiló y cuándo?
+Hacia el siglo V a.C. (hacia el 450 a.C.), los escribas de Jerusalén vinculados a la reforma de Esdras unieron este himno sacerdotal de Génesis 1 con el relato del Edén (Génesis 2:4b-25, de origen yahvista más antiguo, siglo X a.C.), creando la obra maestra editorial que hoy encabeza la Biblia.
+• ¿Qué dicen los manuscritos originales de este versículo exacto?
+1. Rollos del Mar Muerto (Qumrán, fragmentos 4QGen^b y 4QGen^k, c. 100 a.C.): El texto hebreo de Génesis 1:1 («Bereshit bara Elohim 'et hashamayim w'et ha'aretz») aparece letra por letra idéntico al texto de nuestras Biblias actuales.
+2. Texto Masorético (Códice de Leningrado B19A, 1008 d.C. y Códice de Alepo, siglo X d.C.): Confirma la vocalización hebrea sin artículo en la primera palabra (Bereshit en estado constructo).
+3. Septuaginta Griega (LXX, c. 280 a.C.): Tradujo en Alejandría «En archē epoiēsen ho Theos ton ouranon kai tēn gēn» («En el principio hizo Dios el cielo y la tierra»).
+• Variantes textuales concretas:
+Existe consenso unánime entre todos los manuscritos antiguos (hebreos, griegos, samaritanos y siríacos) en las palabras de Génesis 1:1. El debate erudito entre hebraístas no radica en variantes de copias manuscritas, sino en sintaxis gramatical: si se traduce como frase absoluta («En el principio creó Dios los cielos y la tierra») o como cláusula temporal inicial («Cuando Dios comenzó a crear los cielos y la tierra...»).`;
+    }
+  } else if (corpus.book.includes('Éxodo') || corpus.book.includes('Exodo')) {
     textualAnalysis = `3. Evidencia Documental y Manuscritos (Crítica Textual Laica):
-• ¿Cómo llegó este texto hasta nuestros días?
-La investigación histórica y arqueológica cuenta con tres familias de manuscritos antiguos fundamentales:
-1. El Texto Masorético Hebreo: Preservado en el famoso Códice de Leningrado (año 1008 d.C.), el manuscrito completo en hebreo más antiguo que sobrevive. Fue copiado meticulosamente por escribas judíos que contaban cada letra y palabra para evitar cualquier alteración.
-2. Los Rollos del Mar Muerto (Qumrán): Descubiertos en 1947 en cuevas junto al Mar Muerto, contienen fragmentos en pergamino que datan del siglo II a.C. al I d.C. Lo fascinante desde el punto de vista histórico es que el texto encontrado en Qumrán coincide en más de un 95% con el texto medieval copiado mil años después, demostrando una estabilidad documental excepcional en la historia de la literatura antigua.
-3. La Septuaginta Griega (LXX): Traducida en Alejandría (Egipto) hacia el siglo III a.C. para la comunidad judía de habla griega.
-• Variantes entre manuscritos:
-Las diferencias entre estos testigos son mínimas y de carácter gramatical (orden de ciertas palabras o uso de conjunciones como «y» o «pero»). Ninguna de estas variantes modifica los hechos históricos narrados ni el núcleo ético del relato.`;
+• ¿Quiénes son los autores y cuándo se escribió?
+Los relatos del Éxodo conservan memorias históricas del siglo XIII a.C. (época de Ramsés II) preservadas por levitas y clanes del desierto. Se fijaron por escrito entre los siglos X a.C. y VI a.C., fusionando relatos de liberación con el código legal del Pacto del Sinaí.
+• ¿Quién lo recopiló y cuándo?
+La redacción final fue compilada por la escuela sacerdotal en Jerusalén en el siglo V a.C. tras el retorno del destierro, fijando la Ley de Moisés (Torá) como carta magna constitucional del judaísmo post-exílico.
+• ¿Qué dicen los manuscritos antiguos?
+1. Rollos de Qumrán (4QExod^b y 4QpaleoExod^m, siglos II–I a.C.): Manuscritos extraordinarios escritos en caracteres paleohebreos antiguos que preservan capítulos enteros del Éxodo con una concordancia textual del 98% con el texto medieval.
+2. Papiro Nash (siglo II a.C., Egipto): El texto más antiguo conocido del Decálogo (Los Diez Mandamientos) antes del descubrimiento de Qumrán.
+3. Septuaginta Griega (LXX, siglo III a.C.) y Pentateuco Samaritano.
+• Variantes textuales:
+En el Decálogo (Éxodo 20 frente a Deuteronomio 5), las variantes entre manuscritos se limitan al orden de los mandamientos sobre no codiciar la casa o la mujer del prójimo, sin alterar ningún principio moral ni teológico.`;
+  } else if (corpus.book.includes('Salmo')) {
+    textualAnalysis = `3. Evidencia Documental y Manuscritos (Crítica Textual Laica):
+• ¿Quiénes son los autores y cuándo se escribieron?
+El Salterio es una antología poética de más de seis siglos (desde himnos de la monarquía davídica, siglos X–IX a.C., hasta cánticos de los desterrados en Babilonia, siglo VI a.C.). Se atribuyen a David, Asaf, los hijos de Coré y músicos del Templo.
+• ¿Quién lo recopiló y cuándo?
+Los levitas y cantores del Segundo Templo en Jerusalén recopilaron y organizaron los salmos en 5 libros litúrgicos hacia el siglo III a.C.
+• ¿Qué dicen los manuscritos antiguos?
+1. El Gran Rollo de los Salmos de Qumrán (11QPs^a, c. 30–50 d.C.): Un rollo de piel de 4 metros de longitud que contiene más de 40 salmos en orden litúrgico para las fiestas judías.
+2. Códice de Alepo (año 930 d.C.) y Códice de Leningrado (1008 d.C.): Preservan los salmos con la notación musical y acentos poéticos masoréticos más rigurosos.
+• Variantes textuales:
+En la numeración de los salmos, la Septuaginta griega une los salmos 9 y 10 en uno solo, por lo que el célebre Salmo 23 («Jehová es mi pastor») aparece registrado como Salmo 22 en las Biblias católicas y griegas basadas en la LXX y Vulgata.`;
+  } else if (corpus.isNewTestament) {
+    textualAnalysis = `3. Evidencia Documental y Manuscritos (Crítica Textual Laica):
+• ¿Quiénes son los autores y cuándo se escribió?
+Los libros del Nuevo Testamento fueron escritos en griego koiné entre los años 48 d.C. (primeras cartas de Pablo) y 95 d.C. (Evangelio de Juan y Apocalipsis) por apóstoles y discípulos de primera y segunda generación.
+• ¿Quién los recopiló y cuándo?
+Las iglesias locales del Mediterráneo (Antioquía, Éfeso, Roma, Corinto) intercambiaron y compilaron las cartas y evangelios. El canon de los 27 libros se reconoció unánimemente hacia finales del siglo IV d.C. (Carta Festal de Atanasio del 367 d.C. y Concilios de Hipona y Cartago).
+• ¿Qué dicen los manuscritos más antiguos?
+1. Papiros primitivos (siglos II y III d.C.): Destacan el Papiro P52 (hacia 125 d.C., el manuscrito del Nuevo Testamento más antiguo del mundo, con Juan 18), y los papiros P46, P66 y P75.
+2. Grandes Códices Unciales (siglo IV d.C.): El Códice Sinaítico (en la Biblioteca Británica) y el Códice Vaticano (en Roma), que contienen el texto completo en pergamino de piel.
+• Variantes textuales:
+De las miles de variantes registradas por la crítica textual moderna (Nestle-Aland / UBS), el 99% son diferencias ortográficas, sinónimos o permutaciones de orden de palabras de los copistas antiguos, sin que ninguna doctrina histórica esencial dependa de una lectura disputada.`;
   } else {
     textualAnalysis = `3. Evidencia Documental y Manuscritos (Crítica Textual Laica):
-• ¿Cómo se preservó el Nuevo Testamento?
-A diferencia de otros textos de la antigüedad clásica (donde a veces solo sobreviven dos o tres copias tardías), el Nuevo Testamento cuenta con más de 5.800 manuscritos griegos antiguos:
-1. Papiros tempranos (siglos II y III d.C.): Hallados enterrados en las arenas secas de Egipto (como los papiros Chester Beatty y Bodmer), copiados durante la época en que el cristianismo era una fe perseguida por el Imperio Romano.
-2. Grandes Códices en pergamino (siglo IV d.C.): Destacan el Códice Sinaítico (conservado en Londres) y el Códice Vaticano (en Roma), los primeros libros completos encuadernados en hojas de piel de animal.
-• Análisis crítico:
-Los historiadores comparan las copias para reconstruir la forma más antigua de las palabras de los autores. La inmensa mayoría de las variantes registradas son faltas de ortografía de copistas antiguos o variaciones en el orden de las palabras que no afectan el mensaje central.`;
+• ¿Quiénes son los autores y cuándo se escribió?
+Este pasaje forma parte del corpus histórico y profético de Israel, originado en testimonios de profetas y cronistas reales entre los siglos VIII y V a.C.
+• ¿Quién lo recopiló y cuándo?
+Fue recopilado y editado por los escribas de Jerusalén tras el regreso de Babilonia (siglo V a.C.), custodiando los archivos sagrados de la nación.
+• Testigos documentales:
+Preservado en el Texto Masorético Hebreo (Códice de Leningrado B19A del 1008 d.C.), contrastado con fragmentos de las cuevas de Qumrán (siglos II a.C.–I d.C.) y la versión griega alejandrina de la Septuaginta (siglo III a.C.).
+• Variantes textuales:
+Las diferencias entre manuscritos son de precisión gramatical, demostrando una notable consistencia y fidelidad en la cadena de transmisión de escribas a lo largo de más de dos mil años.`;
   }
 
   // 4. Geografía Física y Equivalencia con el Mapa Actual

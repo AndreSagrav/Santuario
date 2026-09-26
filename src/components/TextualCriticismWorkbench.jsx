@@ -25,6 +25,7 @@ export default function TextualCriticismWorkbench({ verseRef = 'Génesis 1:1', v
   const normRef = (verseRef || '').toLowerCase();
   const isChronicles = normRef.includes('crónica') || normRef.includes('cronica');
   const isGenesis = normRef.includes('génesis') || normRef.includes('genesis');
+  const isExodus = normRef.includes('éxodo') || normRef.includes('exodo');
   const isPsalms = normRef.includes('salmo');
   const isNT = normRef.includes('mateo') || normRef.includes('juan') || normRef.includes('romanos') || normRef.includes('hechos') || normRef.includes('corintios') || normRef.includes('apocalipsis');
 
@@ -276,10 +277,59 @@ export default function TextualCriticismWorkbench({ verseRef = 'Génesis 1:1', v
     }
   ];
 
+  // Testigos de Éxodo y la Alianza del Sinaí
+  const exodusWitnesses = [
+    {
+      siglum: '𝔐',
+      name: 'Texto Masorético (Codex Leningradensis B19A)',
+      date: '1008 d.C. (Éxodo 20:1-2)',
+      language: 'Hebreo Bíblico consonántico con niqud',
+      transcription: 'וַיְדַבֵּר אֱלֹהִים אֵת כָּל־הַדְּבָרִים הָאֵלֶּה לֵאמֹר: אָנֹכִי יְהוָה אֱלֹהֶיךָ אֲשֶׁר הוֹצֵאתִיךָ מֵאֶרֶץ מִצְרַיִם מִבֵּית עֲבָדִים',
+      translation: '«Y habló Dios todas estas palabras, diciendo: Yo soy Jehová tu Dios, que te saqué de la tierra de Egipto, de casa de servidumbre»',
+      notes: 'Texto base oficial de la BHS. Preserva el preámbulo histórico de la Alianza del Sinaí donde la liberación precede al mandamiento.'
+    },
+    {
+      siglum: '𝔔',
+      name: 'Rollos del Mar Muerto (Qumrán 4QpaleoExod^m / 4QExod^c)',
+      date: 'c. 150 – 100 a.C. (Cueva 4 de Qumrán)',
+      language: 'Hebreo arcaico paleohebreo',
+      transcription: 'וידבר אלהים את כל הדברים האלה לאמר אנכי יהוה אלהיך אשר הוצאתיך מארץ מצרים',
+      translation: '«W-ydbr \'lhym \'t kl h-dbrym h-\'lh l\'mr: \'nky YHVH \'lhyk \'shr hwts\'tyk m-\'rts mtsrym...»',
+      notes: 'Manuscrito paleohebreo que preserva el Decálogo mil años antes del Códice de Leningrado con asombrosa fidelidad consonántica.'
+    },
+    {
+      siglum: '𝔊 (LXX)',
+      name: 'Septuaginta Griega (Codex Alexandrinus A / Vaticanus B)',
+      date: 'c. 250 a.C. (Alejandría)',
+      language: 'Griego Koiné alejandrino',
+      transcription: 'Καὶ ἐλάλησεν κύριος πάντας τοὺς λόγους τούτους λέγων Ἐγώ εἰμι κύριος ὁ θεός σου ὅστις ἐξήγαγόν σε ἐκ γῆς Αἰγύπτου ἐξ οἴκου δουλείας',
+      translation: '«Y habló el Señor todas estas palabras diciendo: Yo soy el Señor tu Dios que te saqué de tierra de Egipto, de casa de servidumbre»',
+      notes: 'Traduce «palabras» con lógoi (los Diez Mandamientos como las Diez Palabras o Decálogo) y usa oíkos douleías para casa de esclavitud.'
+    },
+    {
+      siglum: '𝔖',
+      name: 'Peshitta Siríaca (Manuscrito Ambrosiano B.21)',
+      date: 'siglo IV d.C.',
+      language: 'Siríaco clásico oriental',
+      transcription: 'ܘܡܠܠ ܐܠܗܐ ܟܠܗܝܢ ܡܠܐ ܗܠܝܢ ܘܐܡܪ ܐܢܐ ܐܢܐ ܡܪܝܐ ܐܠܗܟ ܕܐܦܩܬܟ ܡܢ ܐܪܥܐ ܕܡܨܪܝܢ',
+      translation: '«W-mallel Alaha kulhen melle hallen w-\'emar: \'ena \'ana Marya Alahak...»',
+      notes: 'Traducción directa de códices hebreos preservando con reverencia el prefacio del Decálogo.'
+    },
+    {
+      siglum: '𝔙',
+      name: 'Vulgata Latina (San Jerónimo)',
+      date: 'c. 395 d.C. (Traducido en Belén)',
+      language: 'Latín bíblico clásico',
+      transcription: 'Locutusque est Dominus cunctos sermones hos: Ego sum Dominus Deus tuus, qui eduxi te de terra Aegypti, de domo servitutis',
+      translation: '«Y habló el Señor todas estas palabras: Yo soy el Señor tu Dios, que te saqué de la tierra de Egipto, de la casa de servidumbre»',
+      notes: 'Jerónimo tradujo directamente del hebreo bíblico con gran solemnidad jurídica ("de domo servitutis").'
+    }
+  ];
+
   // Testigos primarios adaptados según el pasaje
   const witnesses = isChronicles 
     ? chroniclesWitnesses 
-    : (isGenesis ? genesisWitnesses : (isNT ? ntWitnesses : (isPsalms ? psalmsWitnesses : chroniclesWitnesses)));
+    : (isGenesis ? genesisWitnesses : (isExodus ? exodusWitnesses : (isNT ? ntWitnesses : (isPsalms ? psalmsWitnesses : genesisWitnesses))));
 
   const selectedWitness = witnesses.find(w => w.siglum === selectedWitnessSiglum) || witnesses[0];
 
@@ -341,9 +391,24 @@ export default function TextualCriticismWorkbench({ verseRef = 'Génesis 1:1', v
     }
   ];
 
+  const exodusVariants = [
+    {
+      locus: 'Éxodo 20:2 - Preámbulo de la Alianza (אָנֹכִי יְהוָה אֱלֹהֶיךָ)',
+      masoretic: 'אָנֹכִי יְהוָה אֱלֹהֶיךָ (Anoki YHVH Eloheja)',
+      witnesses: '𝔐, 𝔔 (4QExod), 𝔊 (Ἐγώ εἰμι κύριος ὁ θεός σου), 𝔙 (Ego sum Dominus Deus tuus)',
+      analysis: 'Unanimidad absoluta en todos los manuscritos antiguos. La identidad del Dios libertador fundamenta la autoridad ética de la Ley.'
+    },
+    {
+      locus: 'Éxodo 20:17 vs Deuteronomio 5:21 - Orden del mandato sobre no codiciar',
+      masoretic: 'Éxodo: «No codiciarás la casa de tu prójimo; no codiciarás la mujer...» | Dt: «No codiciarás la mujer... no desearás la casa...»',
+      witnesses: 'Papiro Nash (siglo II a.C.) y Septuaginta armonizan poniendo primero a la esposa',
+      analysis: 'Variación de orden compositivo en los testigos antiguos: en Éxodo "casa" incluye toda la hacienda familiar como conjunto patriarcal, mientras que en Deuteronomio se prioriza a la mujer como persona.'
+    }
+  ];
+
   const variants = isChronicles
     ? chroniclesVariants
-    : (isGenesis ? genesisVariants : (isPsalms ? psalmsVariants : chroniclesVariants));
+    : (isGenesis ? genesisVariants : (isExodus ? exodusVariants : (isPsalms ? psalmsVariants : chroniclesVariants)));
 
   return (
     <div style={{

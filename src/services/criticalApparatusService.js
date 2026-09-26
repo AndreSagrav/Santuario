@@ -34,10 +34,15 @@ Explica con palabras sencillas qué decía la frase original en su idioma matern
 Explica en qué siglo ocurrió esto, quiénes vivían allí, qué leyes, costumbres o tratados de la época existían y qué problemas reales enfrentaba la gente común en ese momento.
 
 3. Evidencia Documental y Manuscritos (Crítica Textual Laica):
-Explica de forma histórica y científica qué manuscritos antiguos existen de este pasaje (como los Rollos del Mar Muerto, el Códice de Leningrado o la Septuaginta griega), en qué siglos se copiaron y si existen diferencias de palabras entre ellos, explicando con honestidad qué significan esas diferencias.
+Responde obligatoria y detalladamente a estas 5 preguntas históricas para este pasaje exacto (${refString}):
+• ¿Quiénes son los autores o fuentes originales de este pasaje? (Ejemplo: tradición oral patriarcal, fuente yahvista J, elohista E, sacerdotal P, escuela profética o autor del siglo I).
+• ¿Cuándo fue escrito originalmente? (Siglo o periodo histórico exacto de su composición por escrito).
+• ¿Quién lo recopiló y cuándo lo recopiló? (Quiénes unieron las fuentes y editaron el texto final, como los escribas de Jerusalén en época de Esdras tras el exilio babilónico, o las primeras comunidades apostólicas).
+• ¿Qué dicen los manuscritos antiguos de este pasaje específico? (Menciona expresamente los testimonios reales: el Códice de Leningrado del 1008 d.C., los Rollos de Qumrán del Mar Muerto del siglo II a.C., la Septuaginta griega del siglo III a.C., o los grandes códices en el caso del Nuevo Testamento).
+• ¿Existen variantes textuales en este versículo? (Explica si hay diferencias de palabras entre los manuscritos hebreos, griegos o latinos y qué significado tienen).
 
 4. Geografía Física y Equivalencia con el Mapa Actual:
-Describe el lugar físico de los hechos: el terreno, las rutas de viaje, el clima, y explica con total precisión en qué países modernos se encuentra hoy esa región (por ejemplo: Irak, Turquía, Siria, Israel, Cisjordania, Jordania, Egipto) y cuánta distancia implicaba recorrerla.
+Describe el lugar físico de los hechos: el terreno, las rutas de viaje, el clima, y explica con total precisión en qué países modernos se encuentra hoy esa región (por ejemplo: Irak, Turquía, Siria, Israel, Cisjordania, Jordania, Egipto, Grecia o Italia) y cuánta distancia implicaba recorrerla.
 
 5. Conclusión y Sentido de Vida:
 Sintetiza los 4 puntos anteriores en una sola idea clara: qué nos enseña todo este contexto histórico y literario para la vida y la reflexión ética del ser humano hoy.`;

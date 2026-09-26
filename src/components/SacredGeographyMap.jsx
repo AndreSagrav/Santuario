@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Compass, MapPin, Mountain, Droplets, Globe, Layers, Navigation, Shield, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { Compass, MapPin, Mountain, Droplets, Globe, Layers, Navigation, Shield, ZoomIn, ZoomOut, RotateCcw, Maximize2, Minimize2, X } from 'lucide-react';
 
 /**
  * SacredGeographyMap.jsx
@@ -165,7 +165,259 @@ const JUDEA_SITES = [
   }
 ];
 
-// Ruta geodésica de la migración de Abraham: Ur -> Harán -> Canaán -> Egipto
+// Hitos de Éxodo y el Desierto del Sinaí
+const EXODUS_SITES = [
+  {
+    id: 'ramesses',
+    name: 'Ramesés / Avaris (Tierra de Gosén)',
+    modernCountry: 'Egipto',
+    modernCity: 'Qantir / Tell el-Dabaa (Delta Oriental del Nilo)',
+    historicalEra: 'Imperio Nuevo Egipcio (Siglos XIII-XII a.C.)',
+    travelDistance: 'Punto de partida de la marcha del Éxodo',
+    elevation: '+10 m (Delta fértil del Nilo)',
+    climate: 'Mediterráneo aluvial subtropical, canales de riego y cañaverales',
+    secularNote: 'Capital dinástica de los faraones ramésidas construida con ladrillos de barro y paja por cuadrillas de trabajadores semíticos forzados.',
+    biblicalRelation: 'Lugar donde los israelitas vivieron en servidumbre fabricando ladrillos hasta que Moisés los condujo en libertad tras la décima plaga.',
+    archaeology: 'Palacio de Tell el-Dabaa con tumbas de estilo cananeo y almacenes reales del segundo milenio a.C.',
+    lat: 30.7870,
+    lng: 31.8310,
+    zoom: 9
+  },
+  {
+    id: 'red_sea',
+    name: 'Mar Rojo / Pi-Hajirot',
+    modernCountry: 'Egipto',
+    modernCity: 'Norte del Golfo de Suez (cerca del actual Canal de Suez)',
+    historicalEra: 'Frontera oriental fortificada de Egipto',
+    travelDistance: 'Aprox. 80 km al este de Ramesés (3 jornadas a pie)',
+    elevation: '0 m (Nivel del mar)',
+    climate: 'Vientos secos del este, lagunas saladas y desierto costero',
+    secularNote: 'Zona de marismas de cañas (Yam Suf) protegida por fortalezas defensivas de la frontera egipcia llamadas Shur.',
+    biblicalRelation: 'Escenario donde las aguas se abrieron ante la vara de Moisés, permitiendo cruzar a pie en seco mientras los carros de guerra del Faraón quedaron atrapados.',
+    archaeology: 'Fortalezas fronterizas de Tell el-Borg y el Muro del Soberano registradas en papiros egipcios.',
+    lat: 29.9668,
+    lng: 32.5498,
+    zoom: 9
+  },
+  {
+    id: 'sinai_horeb',
+    name: 'Monte Sinaí / Horeb (Montaña de Dios)',
+    modernCountry: 'Egipto (Península del Sinaí)',
+    modernCity: 'Jabal Musa (Monte Moisés), a los pies del Monasterio de Santa Catalina',
+    historicalEra: 'Edad del Bronce Tardío (siglo XIII a.C.)',
+    travelDistance: 'Aprox. 250 km al sur por la costa del Golfo de Suez',
+    elevation: '+2.285 m sobre el nivel del mar (picos de granito rojo)',
+    climate: 'Desierto árido de montaña con noches heladas y vientos cortantes',
+    secularNote: 'Macizo imponente de roca granítica en medio de un silencio desértico absoluto, ruta de minas de turquesa y cobre egipcias de Serabit el-Khadim.',
+    biblicalRelation: 'Lugar de la zarza ardiente, la entrega de las tablas del Decálogo (Los Diez Mandamientos) y el pacto nacional que forjó a Israel como pueblo.',
+    archaeology: 'Inscripciones proto-sinaíticas alfabéticas (las más antiguas de la historia humana) y Monasterio fundado en el siglo VI d.C.',
+    lat: 28.5394,
+    lng: 33.9753,
+    zoom: 10
+  },
+  {
+    id: 'kadesh_barnea',
+    name: 'Cades-Barnea (Oasis de Meriba)',
+    modernCountry: 'Egipto / Israel (Frontera Néguev-Sinaí)',
+    modernCity: 'Ein el-Qudeirat / Ein Qadis',
+    historicalEra: 'Campamento del Desierto (38 años)',
+    travelDistance: 'A 11 jornadas de camino desde el monte Horeb',
+    elevation: '+350 m sobre el nivel del mar',
+    climate: 'Oasis fértil con manantial perenne rodeado de desierto absoluto',
+    secularNote: 'El mayor manantial natural de agua dulce del norte del Sinaí, estación estratégica en la ruta hacia Canaán.',
+    biblicalRelation: 'Base principal de los israelitas durante casi 40 años en el desierto; de aquí Moisés envió a los 12 espías a explorar la tierra prometida.',
+    archaeology: 'Fortaleza israelita de la Edad del Hierro con muros de casamatas y cerámicas locales.',
+    lat: 30.6500,
+    lng: 34.4200,
+    zoom: 10
+  },
+  {
+    id: 'mount_nebo',
+    name: 'Monte Nebo y Estepas de Moab',
+    modernCountry: 'Jordania',
+    modernCity: 'Gobernación de Madaba, frente a Jericó al otro lado del Río Jordán',
+    historicalEra: 'Frontera de Canaán',
+    travelDistance: 'A vista directa de Jericó y las montañas de Judea',
+    elevation: '+817 m sobre el nivel del mar',
+    climate: 'Meseta montañosa con brisas frescas y vista panorámica sobre el Valle del Jordán',
+    secularNote: 'Mirador geográfico natural desde donde se domina con la vista el Mar Muerto, el oasis de Jericó y los montes de Jerusalén.',
+    biblicalRelation: 'Cumbre donde Dios le mostró a Moisés toda la Tierra Prometida antes de fallecer, cediendo el liderazgo a Josué.',
+    archaeology: 'Mosaicos bizantinos del siglo VI y santuario conmemorativo con vista a Tierra Santa.',
+    lat: 31.7677,
+    lng: 35.7258,
+    zoom: 11
+  }
+];
+
+// Hitos de los Evangelios y el Ministerio de Jesús
+const GOSPEL_SITES = [
+  {
+    id: 'nazareth',
+    name: 'Nazaret de Galilea',
+    modernCountry: 'Israel',
+    modernCity: 'Ciudad de Nazaret (Baja Galilea)',
+    historicalEra: 'Época Romana y Herodiana (Siglo I d.C.)',
+    travelDistance: 'A unos 30 km al oeste del Mar de Galilea',
+    elevation: '+350 m en un anfiteatro natural de colinas',
+    climate: 'Mediterráneo templado con abundantes olivares e higueras',
+    secularNote: 'Aldea agrícola modesta habitada por familias campesinas y artesanos en piedra y madera (téktōn).',
+    biblicalRelation: 'Población donde creció Jesús de Nazaret, donde trabajó como carpintero y proclamó en la sinagoga la buena nueva a los pobres.',
+    archaeology: 'Viviendas del siglo I excavadas en roca caliza, aljibes de agua y prensas de aceite de oliva.',
+    lat: 32.7019,
+    lng: 35.3033,
+    zoom: 11
+  },
+  {
+    id: 'capernaum',
+    name: 'Capernaum (Kfar Najum / Aldea del Consuelo)',
+    modernCountry: 'Israel',
+    modernCity: 'Costa noroeste del Mar de Galilea (Lago Kineret)',
+    historicalEra: 'Centro del ministerio de Jesús en Galilea',
+    travelDistance: 'A 2 horas de caminata desde Nazaret',
+    elevation: '-210 m bajo el nivel del mar',
+    climate: 'Subtropical cálido lacustre, brisas suaves y aguas ricas en peces',
+    secularNote: 'Activo pueblo pesquero y aduanero fronterizo entre los territorios de Herodes Antipas y Filipo, en la ruta Vía Maris.',
+    biblicalRelation: 'Lugar donde Jesús estableció su hogar, sanó al paralítico bajado por el tejado y llamó a sus primeros discípulos pescadores.',
+    archaeology: 'Sinagoga blanca sobre cimientos de basalto negro del siglo I y restos de la casa octogonal atribuida a Simón Pedro.',
+    lat: 32.8804,
+    lng: 35.5750,
+    zoom: 12
+  },
+  {
+    id: 'sea_of_galilee',
+    name: 'Mar de Galilea (Lago de Genesaret / Kineret)',
+    modernCountry: 'Israel',
+    modernCity: 'Lago de agua dulce entre Tiberíades y los Altos del Golán',
+    historicalEra: 'Siglo I d.C.',
+    travelDistance: '21 km de largo por 13 km de ancho',
+    elevation: '-212 m bajo el nivel del mar',
+    climate: 'Aguas calmas propensas a repentinas tormentas de viento que bajan de las colinas',
+    secularNote: 'El lago de agua dulce más bajo del planeta, fuente vital de agua y pesca desde la prehistoria.',
+    biblicalRelation: 'Escenario donde Jesús calmó la tempestad, caminó sobre las aguas y enseñó desde una barca a las multitudes en la orilla.',
+    archaeology: 'La célebre «Barca de Jesús» del siglo I rescatada del lodo en 1986 durante una sequía.',
+    lat: 32.8250,
+    lng: 35.5850,
+    zoom: 11
+  },
+  {
+    id: 'jericho_gospels',
+    name: 'Jericó y el Valle del Jordán',
+    modernCountry: 'Cisjordania / Territorios Palestinos',
+    modernCity: 'Jericó (Tell es-Sultan), a 10 km al norte del Mar Muerto',
+    historicalEra: 'Palacios de invierno de Herodes el Grande',
+    travelDistance: 'Parada obligada antes de subir los 1.000 m de cuesta hacia Jerusalén',
+    elevation: '-258 m bajo el nivel del mar',
+    climate: 'Oasis subtropical de palmeras datileras, plátanos y manantiales perennes',
+    secularNote: 'La ciudad continuamente habitada más antigua del mundo y la más baja de la Tierra.',
+    biblicalRelation: 'Lugar donde Jesús devolvió la vista al ciego Bartimeo y se hospedó en la casa del recaudador de impuestos Zaqueo.',
+    archaeology: 'Tell es-Sultan (murallas neolíticas y de la Edad del Bronce) y suntuosos palacios de Herodes.',
+    lat: 31.8667,
+    lng: 35.4600,
+    zoom: 12
+  },
+  {
+    id: 'jerusalem_gospels',
+    name: 'Jerusalén (Monte de los Olivos y Gólgota)',
+    modernCountry: 'Israel / Cisjordania',
+    modernCity: 'Jerusalén',
+    historicalEra: 'Época del Segundo Templo (Poncio Pilato y Caifás)',
+    travelDistance: 'Destino final del camino de la cruz',
+    elevation: '+750 m sobre el nivel del mar',
+    climate: 'Mediterráneo montañoso, noches frescas en primavera',
+    secularNote: 'Metrópolis sagrada judía dominada por la monumental explanada del Templo herodiano y la Fortaleza Antonia romana.',
+    biblicalRelation: 'Lugar de la última cena, la agonía en Getsemaní, la crucifixión en el Calvario y la resurrección al tercer día.',
+    archaeology: 'Explanada del Templo, Estanque de Betesda, pavimento del Litóstrotos y sepulcros del siglo I.',
+    lat: 31.7780,
+    lng: 35.2354,
+    zoom: 12
+  }
+];
+
+// Hitos de Hechos de los Apóstoles y los Viajes Misioneros
+const APOSTOLIC_SITES = [
+  {
+    id: 'antioch_syria',
+    name: 'Antioquía de Siria (Cuna de las Misiones)',
+    modernCountry: 'Turquía (Frontera Sur con Siria)',
+    modernCity: 'Antakya (Provincia de Hatay)',
+    historicalEra: 'Tercera urbe del Imperio Romano (después de Roma y Alejandría)',
+    travelDistance: 'Base de operaciones de Pablo y Bernabé para cruzar el mar',
+    elevation: '+67 m junto al río Orontes',
+    climate: 'Mediterráneo cálido y fértil',
+    secularNote: 'Metrópolis cosmopolita de más de 300.000 habitantes donde confluían griegos, romanos, judíos y sirios.',
+    biblicalRelation: 'Primera congregación donde creyentes judíos y gentiles compartieron la mesa como iguales, y donde por primera vez se les llamó «cristianos».',
+    archaeology: 'Gruta de San Pedro excavada en el monte Silpio y mosaicos romanos imperiales.',
+    lat: 36.2021,
+    lng: 36.1606,
+    zoom: 10
+  },
+  {
+    id: 'tarsus',
+    name: 'Tarso de Cilicia',
+    modernCountry: 'Turquía (Sur)',
+    modernCity: 'Ciudad de Tarso (Provincia de Mersin)',
+    historicalEra: 'Gran centro universitario y comercial del mundo romano',
+    travelDistance: 'A 200 km al oeste de Antioquía',
+    elevation: '+20 m en la fértil llanura de Cilicia',
+    climate: 'Mediterráneo costero templado',
+    secularNote: 'Famosa por sus escuelas de filosofía estoica y por la Puerta de Cleopatra en el río Cidno.',
+    biblicalRelation: 'Ciudad natal del apóstol Pablo, donde adquirió su ciudadanía romana y su destreza en el pensamiento grecorromano.',
+    archaeology: 'Calzada romana de basalto con columnas y el pozo tradicional de San Pablo.',
+    lat: 36.9170,
+    lng: 34.8950,
+    zoom: 10
+  },
+  {
+    id: 'ephesus',
+    name: 'Éfeso (Capital de Asia Menor)',
+    modernCountry: 'Turquía (Costa del Mar Egeo)',
+    modernCity: 'Selçuk (Provincia de Esmirna / Izmir)',
+    historicalEra: 'Metrópolis comercial y religiosa del Egeo',
+    travelDistance: 'Pablo residió allí casi 3 años enseñando diariamente',
+    elevation: '+15 m cerca de la desembocadura del río Caístro',
+    climate: 'Mediterráneo marítimo brillante',
+    secularNote: 'Hogar del Templo de Artemisa (una de las Siete Maravillas del Mundo Antiguo) y de un teatro para 25.000 espectadores.',
+    biblicalRelation: 'Epicentro misionero donde el evangelio transformó la cultura, provocando la rebelión de los plateros de ídolos de plata.',
+    archaeology: 'Biblioteca de Celso, gran teatro al aire libre, casas con mosaicos romanos y basílica de San Juan.',
+    lat: 37.9400,
+    lng: 27.3400,
+    zoom: 11
+  },
+  {
+    id: 'athens_areopagus',
+    name: 'Atenas y la Colina del Areópago',
+    modernCountry: 'Grecia',
+    modernCity: 'Ciudad de Atenas (a los pies del Partenón)',
+    historicalEra: 'Capital de la filosofía y el arte clásico',
+    travelDistance: 'Cruzando el Mar Egeo desde Turquía',
+    elevation: '+115 m sobre una colina de roca caliza',
+    climate: 'Mediterráneo ático seco y soleado',
+    secularNote: 'Sede del tribunal supremo ateniense y foro de debate de filósofos estoicos y epicúreos.',
+    biblicalRelation: 'Lugar donde Pablo pronunció su discurso sobre el «Dios No Conocido», Creador y Padre de todas las naciones que no vive en templos hechos por manos humanas.',
+    archaeology: 'Colina rocosa del Areópago con la placa grabada del discurso de Hechos 17 y la Acrópolis.',
+    lat: 37.9719,
+    lng: 23.7258,
+    zoom: 12
+  },
+  {
+    id: 'rome_apostolic',
+    name: 'Roma (Corazón del Imperio)',
+    modernCountry: 'Italia',
+    modernCity: 'Roma (Foro Romano y Vía Apia)',
+    historicalEra: 'Capital del Imperio Romano bajo Nerón',
+    travelDistance: 'Culminación del largo viaje como prisionero por el Mediterráneo',
+    elevation: '+30 m junto al río Tíber',
+    climate: 'Mediterráneo templado de las siete colinas',
+    secularNote: 'El centro del poder militar y político mundial del siglo I.',
+    biblicalRelation: 'Punto culminante del libro de Hechos, donde Pablo predicó bajo custodia militar «abiertamente y sin impedimento» el reino de Dios.',
+    archaeology: 'Vía Apia antigua, prisión Mamertina, Catacumbas romanas y Coliseo.',
+    lat: 41.8902,
+    lng: 12.4922,
+    zoom: 11
+  }
+];
+
+// Rutas geodésicas trazadas sobre el relieve real
 const ABRAHAM_TRAIL = [
   [30.9628, 46.1030], // Ur (Irak)
   [32.0000, 45.0000], // Mesopotamia central
@@ -185,43 +437,113 @@ const ABRAHAM_TRAIL = [
   [30.0444, 31.2357]  // Delta del Nilo / Egipto
 ];
 
+const EXODUS_TRAIL = [
+  [30.7870, 31.8310], // Ramesés (Egipto)
+  [30.3000, 32.1000], // Sucot
+  [29.9668, 32.5498], // Pi-Hajirot (Paso del Mar Rojo)
+  [29.5000, 32.8000], // Mara
+  [29.0500, 33.1500], // Elim
+  [28.5394, 33.9753], // Monte Sinaí / Horeb
+  [29.5000, 34.8000], // Desierto de Parán
+  [30.6500, 34.4200], // Cades-Barnea
+  [31.1000, 35.6000], // Borde de Edom y Moab
+  [31.7677, 35.7258]  // Monte Nebo (Jordania)
+];
+
+const GOSPEL_TRAIL = [
+  [32.7019, 35.3033], // Nazaret
+  [32.7470, 35.3380], // Caná
+  [32.8804, 35.5750], // Capernaum
+  [32.8250, 35.5850], // Mar de Galilea
+  [32.3000, 35.4000], // Samaria (Sicar)
+  [31.8667, 35.4600], // Jericó
+  [31.7700, 35.2600], // Betania
+  [31.7780, 35.2354]  // Jerusalén (Gólgota)
+];
+
+const PAUL_MISSION_TRAIL = [
+  [31.7780, 35.2354], // Jerusalén
+  [36.2021, 36.1606], // Antioquía de Siria (Turquía)
+  [36.9170, 34.8950], // Tarso (Turquía)
+  [37.9400, 27.3400], // Éfeso (Turquía)
+  [40.6400, 22.9400], // Tesalónica (Grecia)
+  [41.0130, 24.2860], // Filipos (Grecia)
+  [37.9719, 23.7258], // Atenas (Grecia)
+  [37.9050, 22.8800], // Corinto (Grecia)
+  [41.8902, 12.4922]  // Roma (Italia)
+];
+
 // Países modernos de la región para marcadores de referencia política
 const MODERN_COUNTRIES = [
-  { name: 'TURQUÍA', flag: '🇹🇷', lat: 38.5, lng: 35.0, note: 'Anatolia y Padán-Aram' },
-  { name: 'SIRIA', flag: '🇸🇾', lat: 35.2, lng: 38.5, note: 'Aram y Éufrates Medio' },
-  { name: 'IRAK', flag: '🇮🇶', lat: 33.2, lng: 43.8, note: 'Antigua Mesopotamia y Babilonia' },
-  { name: 'CISJORDANIA', flag: '🇵🇸', lat: 31.95, lng: 35.25, note: 'Hebrón, Siquem, Jericó' },
-  { name: 'ISRAEL', flag: '🇮🇱', lat: 31.3, lng: 34.8, note: 'Costa de Canaán y Néguev' },
-  { name: 'JORDANIA', flag: '🇯🇴', lat: 31.2, lng: 36.8, note: 'Al este del Río Jordán' },
-  { name: 'EGIPTO', flag: '🇪🇬', lat: 29.8, lng: 31.3, note: 'Delta del Nilo y Sinaí' },
-  { name: 'ARABIA SAUDITA', flag: '🇸🇦', lat: 28.5, lng: 40.5, note: 'Península Arábiga' }
+  { name: 'TURQUÍA', flag: '🇹🇷', lat: 38.8, lng: 35.2, note: 'Anatolia, Harán, Éfeso y Tarso' },
+  { name: 'SIRIA', flag: '🇸🇾', lat: 35.0, lng: 38.0, note: 'Aram, Damasco y Éufrates Medio' },
+  { name: 'IRAK', flag: '🇮🇶', lat: 33.2, lng: 43.8, note: 'Antigua Mesopotamia, Ur y Babilonia' },
+  { name: 'CISJORDANIA', flag: '🇵🇸', lat: 31.95, lng: 35.25, note: 'Hebrón, Siquem, Belén, Jericó' },
+  { name: 'ISRAEL', flag: '🇮🇱', lat: 31.5, lng: 34.8, note: 'Jerusalén, Nazaret, Galilea y Carmelo' },
+  { name: 'JORDANIA', flag: '🇯🇴', lat: 31.2, lng: 36.8, note: 'Monte Nebo, Galaad y Moab' },
+  { name: 'EGIPTO', flag: '🇪🇬', lat: 29.5, lng: 31.5, note: 'Delta del Nilo, Gosén y Sinaí' },
+  { name: 'GRECIA', flag: '🇬🇷', lat: 38.8, lng: 22.8, note: 'Atenas, Corinto, Filipos y Macedonia' },
+  { name: 'ITALIA', flag: '🇮🇹', lat: 41.9, lng: 12.5, note: 'Roma imperial' },
+  { name: 'LÍBANO', flag: '🇱🇧', lat: 33.9, lng: 35.8, note: 'Tiro, Sidón y montes del Líbano' },
+  { name: 'ARABIA SAUDITA', flag: '🇸🇦', lat: 27.5, lng: 40.5, note: 'Península Arábiga' }
 ];
 
 export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRef = '', variant = 'compact' }) {
   const norm = (bookName || verseRef || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  const isGenesis = norm.includes('genesis') || norm.includes('exodo') || norm.includes('levitico') || norm.includes('numeros') || norm.includes('deuteronomio');
   
-  const sitesList = isGenesis ? GENESIS_SITES : JUDEA_SITES;
+  // Clasificación inteligente del corpus bíblico
+  const isGenesis = norm.includes('genesis');
+  const isExodus = norm.includes('exodo') || norm.includes('levitico') || norm.includes('numero') || norm.includes('deuteronomio') || norm.includes('josue');
+  const isGospels = norm.includes('mateo') || norm.includes('marcos') || norm.includes('lucas') || norm.includes('juan') && !norm.includes('1 juan') && !norm.includes('2 juan') && !norm.includes('3 juan');
+  const isApostolic = norm.includes('hecho') || norm.includes('romano') || norm.includes('corintio') || norm.includes('galatas') || norm.includes('efesios') || norm.includes('filipenses') || norm.includes('colosenses') || norm.includes('tesalonicenses') || norm.includes('timoteo') || norm.includes('tito') || norm.includes('hebreos') || norm.includes('apocalipsis');
+
+  // Selección de lista de sitios y ruta
+  let sitesList = JUDEA_SITES;
+  let activeTrail = null;
+  let trailName = 'Hitos Bíblicos de Judea y Jerusalén';
+  let defaultCenter = [31.7, 35.3];
+  let defaultZoom = 9;
+
+  if (isGenesis) {
+    sitesList = GENESIS_SITES;
+    activeTrail = ABRAHAM_TRAIL;
+    trailName = 'Ruta de Abraham (~2.000 km: Ur → Harán → Canaán → Egipto)';
+    defaultCenter = [33.5, 41.5];
+    defaultZoom = 5;
+  } else if (isExodus) {
+    sitesList = EXODUS_SITES;
+    activeTrail = EXODUS_TRAIL;
+    trailName = 'Ruta del Éxodo (Ramesés → Sinaí → Cades → Monte Nebo)';
+    defaultCenter = [29.8, 33.8];
+    defaultZoom = 7;
+  } else if (isGospels) {
+    sitesList = GOSPEL_SITES;
+    activeTrail = GOSPEL_TRAIL;
+    trailName = 'Ministerio de Jesús (Nazaret → Galilea → Jericó → Jerusalén)';
+    defaultCenter = [32.3, 35.3];
+    defaultZoom = 8;
+  } else if (isApostolic) {
+    sitesList = APOSTOLIC_SITES;
+    activeTrail = PAUL_MISSION_TRAIL;
+    trailName = 'Viajes Misioneros y Expansión (Jerusalén → Turquía → Grecia → Roma)';
+    defaultCenter = [38.0, 26.0];
+    defaultZoom = 5;
+  }
 
   const getInitialSite = () => {
     if (isGenesis) {
       const c = Number(chapter) || 1;
-      if (c >= 13 && c <= 25) {
-        return GENESIS_SITES.find(s => s.id === 'hebron_mamre') || GENESIS_SITES[0];
-      }
-      if (c === 12) {
-        return GENESIS_SITES.find(s => s.id === 'siquem') || GENESIS_SITES[0];
-      }
-      if (c === 11) {
-        return GENESIS_SITES.find(s => s.id === 'ur_caldeos') || GENESIS_SITES[0];
-      }
+      if (c >= 13 && c <= 25) return GENESIS_SITES.find(s => s.id === 'hebron_mamre') || GENESIS_SITES[0];
+      if (c === 12) return GENESIS_SITES.find(s => s.id === 'siquem') || GENESIS_SITES[0];
+      if (c === 11) return GENESIS_SITES.find(s => s.id === 'ur_caldeos') || GENESIS_SITES[0];
       return GENESIS_SITES[0];
     }
-    return JUDEA_SITES[0];
+    return sitesList[0] || JUDEA_SITES[0];
   };
 
   const [selectedSite, setSelectedSite] = useState(getInitialSite());
   const [tileLayerType, setTileLayerType] = useState('osm'); // 'osm' | 'satellite' | 'topo'
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -231,6 +553,26 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
   const polylineRef = useRef(null);
 
   const isExpansive = variant === 'expansive';
+
+  // Salir de pantalla completa con la tecla Escape
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen]);
+
+  // Recalcular tamaño de Leaflet al alternar pantalla completa
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      const t1 = setTimeout(() => mapInstanceRef.current.invalidateSize(), 80);
+      const t2 = setTimeout(() => mapInstanceRef.current.invalidateSize(), 300);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    }
+  }, [isFullscreen]);
 
   // Configuración de capas de mapa real y vibrante
   const TILE_SERVERS = {
@@ -264,13 +606,10 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
       delete mapContainerRef.current._leaflet_id;
     }
 
-    // Centro inicial: Medio Oriente y Creciente Fértil
-    const initialCenter = isGenesis ? [33.5, 41.5] : [31.7, 35.3];
-    const initialZoom = isGenesis ? (isExpansive ? 5 : 5) : 8;
-
+    // Centro inicial adaptado al corpus bíblico actual
     const map = L.map(mapContainerRef.current, {
-      center: initialCenter,
-      zoom: initialZoom,
+      center: defaultCenter,
+      zoom: defaultZoom,
       minZoom: 3,
       maxZoom: 16,
       scrollWheelZoom: true,
@@ -308,7 +647,7 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
       map.remove();
       mapInstanceRef.current = null;
     };
-  }, [isGenesis, isExpansive]);
+  }, [bookName, chapter, isExpansive]);
 
   // Cambiar capa de tiles dinámicamente
   useEffect(() => {
@@ -331,12 +670,13 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
     markersGroupRef.current.clearLayers();
     countriesGroupRef.current.clearLayers();
 
-    // 1. Trazar la Ruta de Abraham sobre los países
-    if (isGenesis) {
-      if (polylineRef.current) {
-        map.removeLayer(polylineRef.current);
-      }
-      polylineRef.current = L.polyline(ABRAHAM_TRAIL, {
+    // 1. Trazar la Ruta Histórica sobre los países
+    if (polylineRef.current) {
+      map.removeLayer(polylineRef.current);
+      polylineRef.current = null;
+    }
+    if (activeTrail && activeTrail.length > 0) {
+      polylineRef.current = L.polyline(activeTrail, {
         color: '#dc2626',
         weight: 4,
         opacity: 0.95,
@@ -345,35 +685,33 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
       }).addTo(map);
     }
 
-    // 2. Rótulos de Naciones Vecinas (Turquía, Siria, Irak, Jordania, etc.)
-    if (isGenesis) {
-      MODERN_COUNTRIES.forEach((c) => {
-        const countryIcon = L.divIcon({
-          className: 'country-label-icon',
-          html: `<div style="
-            background: rgba(15, 23, 42, 0.92);
-            border: 1.5px solid #38bdf8;
-            color: #ffffff;
-            font-size: 11px;
-            font-weight: 900;
-            padding: 3px 9px;
-            border-radius: 6px;
-            white-space: nowrap;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.7);
-            letter-spacing: 0.5px;
-            pointer-events: auto;
-            cursor: pointer;
-          ">${c.flag} ${c.name}</div>`,
-          iconSize: [100, 24],
-          iconAnchor: [50, 12]
-        });
-        L.marker([c.lat, c.lng], { icon: countryIcon })
-          .addTo(countriesGroupRef.current)
-          .on('click', () => {
-            map.flyTo([c.lat, c.lng], 6, { duration: 1.2 });
-          });
+    // 2. Rótulos de Naciones Vecinas Actuales (Turquía, Siria, Irak, Jordania, Egipto, etc.)
+    MODERN_COUNTRIES.forEach((c) => {
+      const countryIcon = L.divIcon({
+        className: 'country-label-icon',
+        html: `<div style="
+          background: rgba(15, 23, 42, 0.92);
+          border: 1.5px solid #38bdf8;
+          color: #ffffff;
+          font-size: 11px;
+          font-weight: 900;
+          padding: 3px 9px;
+          border-radius: 6px;
+          white-space: nowrap;
+          box-shadow: 0 3px 10px rgba(0,0,0,0.7);
+          letter-spacing: 0.5px;
+          pointer-events: auto;
+          cursor: pointer;
+        ">${c.flag} ${c.name}</div>`,
+        iconSize: [100, 24],
+        iconAnchor: [50, 12]
       });
-    }
+      L.marker([c.lat, c.lng], { icon: countryIcon })
+        .addTo(countriesGroupRef.current)
+        .on('click', () => {
+          map.flyTo([c.lat, c.lng], 6, { duration: 1.2 });
+        });
+    });
 
     // 3. Marcadores de Hitos Bíblicos
     sitesList.forEach((site, index) => {
@@ -473,26 +811,38 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
 
   const handleResetView = () => {
     if (mapInstanceRef.current) {
-      const initialCenter = isGenesis ? [33.8, 41.5] : [31.7, 35.3];
-      const initialZoom = isGenesis ? (isExpansive ? 5 : 5) : 9;
-      mapInstanceRef.current.flyTo(initialCenter, initialZoom, { duration: 1 });
+      mapInstanceRef.current.flyTo(defaultCenter, defaultZoom, { duration: 1.2 });
     }
   };
 
   return (
     <div style={{
-      background: 'rgba(9, 12, 19, 0.98)',
-      border: '1.5px solid rgba(212,175,55,0.35)',
-      borderRadius: '14px',
-      padding: isExpansive ? '26px' : '20px',
+      ...(isFullscreen ? {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 999999,
+        background: '#070a13',
+        borderRadius: 0,
+        border: 'none',
+        padding: '16px 22px',
+        overflowY: 'auto'
+      } : {
+        background: 'rgba(9, 12, 19, 0.98)',
+        border: '1.5px solid rgba(212,175,55,0.35)',
+        borderRadius: '14px',
+        padding: isExpansive ? '26px' : '20px',
+        boxShadow: '0 6px 36px rgba(0,0,0,0.8)',
+        width: '100%'
+      }),
       display: 'flex',
       flexDirection: 'column',
-      gap: '18px',
-      boxShadow: '0 6px 36px rgba(0,0,0,0.8)',
-      width: '100%',
+      gap: '16px',
       boxSizing: 'border-box'
     }}>
-      {/* 1. Barra Superior con Título y Conmutador de Capas Reales */}
+      {/* 1. Barra Superior con Título, Conmutador de Capas y Pantalla Completa */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
@@ -511,146 +861,169 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
           </div>
           <div>
             <h4 className="font-cinzel gold-text-gradient" style={{ margin: 0, fontSize: isExpansive ? '1.45rem' : '1.2rem', fontWeight: '800' }}>
-              {isGenesis 
-                ? 'Mapa Cartográfico Real: Del Mundo Bíblico a los Países de Hoy' 
-                : 'Cartografía Física y Satelital de Judea'}
+              {trailName}
             </h4>
             <span style={{ fontSize: isExpansive ? '0.86rem' : '0.8rem', color: 'var(--text-muted)' }}>
-              Mapa cartográfico auténtico interactivo con fotografía satelital real y división política contemporánea
+              Cartografía interactiva real con OpenStreetMap y satélite de la NASA conectada a {bookName || verseRef || 'la Biblia'}
             </span>
           </div>
         </div>
 
-        {/* Selector de Tipo de Mapa Real (Color OpenStreetMap vs Satélite NASA vs Topo) */}
-        <div style={{
-          display: 'flex',
-          background: 'rgba(0,0,0,0.6)',
-          padding: '4px',
-          borderRadius: '8px',
-          border: '1px solid rgba(212,175,55,0.25)',
-          gap: '6px'
-        }}>
-          <button
-            onClick={() => setTileLayerType('osm')}
-            style={{
-              padding: '6px 12px',
-              borderRadius: '6px',
-              fontSize: '0.76rem',
-              fontWeight: tileLayerType === 'osm' ? '800' : '500',
-              background: tileLayerType === 'osm' ? 'rgba(59,130,246,0.3)' : 'transparent',
-              border: `1px solid ${tileLayerType === 'osm' ? '#60a5fa' : 'transparent'}`,
-              color: tileLayerType === 'osm' ? '#ffffff' : 'var(--text-muted)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <Globe size={14} color={tileLayerType === 'osm' ? '#60a5fa' : 'currentColor'} />
-            <span>🗺️ Mapa a Color & Países (OpenStreetMap)</span>
-          </button>
+        {/* Acciones de la barra superior: Selector de Capas y Botón de Pantalla Completa */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {/* Selector de Tipo de Mapa Real (Color OpenStreetMap vs Satélite NASA vs Topo) */}
+          <div style={{
+            display: 'flex',
+            background: 'rgba(0,0,0,0.6)',
+            padding: '4px',
+            borderRadius: '8px',
+            border: '1px solid rgba(212,175,55,0.25)',
+            gap: '6px'
+          }}>
+            <button
+              onClick={() => setTileLayerType('osm')}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '0.76rem',
+                fontWeight: tileLayerType === 'osm' ? '800' : '500',
+                background: tileLayerType === 'osm' ? 'rgba(59,130,246,0.3)' : 'transparent',
+                border: `1px solid ${tileLayerType === 'osm' ? '#60a5fa' : 'transparent'}`,
+                color: tileLayerType === 'osm' ? '#ffffff' : 'var(--text-muted)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Globe size={14} color={tileLayerType === 'osm' ? '#60a5fa' : 'currentColor'} />
+              <span>🗺️ Mapa a Color & Países (OpenStreetMap)</span>
+            </button>
 
-          <button
-            onClick={() => setTileLayerType('satellite')}
-            style={{
-              padding: '6px 12px',
-              borderRadius: '6px',
-              fontSize: '0.76rem',
-              fontWeight: tileLayerType === 'satellite' ? '800' : '500',
-              background: tileLayerType === 'satellite' ? 'rgba(212,175,55,0.3)' : 'transparent',
-              border: `1px solid ${tileLayerType === 'satellite' ? 'var(--gold-400)' : 'transparent'}`,
-              color: tileLayerType === 'satellite' ? '#ffffff' : 'var(--text-muted)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <Layers size={14} color={tileLayerType === 'satellite' ? 'var(--gold-400)' : 'currentColor'} />
-            <span>🛰️ Satélite Real de la Tierra (NASA/Esri)</span>
-          </button>
+            <button
+              onClick={() => setTileLayerType('satellite')}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '0.76rem',
+                fontWeight: tileLayerType === 'satellite' ? '800' : '500',
+                background: tileLayerType === 'satellite' ? 'rgba(212,175,55,0.3)' : 'transparent',
+                border: `1px solid ${tileLayerType === 'satellite' ? 'var(--gold-400)' : 'transparent'}`,
+                color: tileLayerType === 'satellite' ? '#ffffff' : 'var(--text-muted)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Layers size={14} color={tileLayerType === 'satellite' ? 'var(--gold-400)' : 'currentColor'} />
+              <span>🛰️ Satélite Real de la Tierra (NASA/Esri)</span>
+            </button>
 
+            <button
+              onClick={() => setTileLayerType('topo')}
+              style={{
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '0.76rem',
+                fontWeight: tileLayerType === 'topo' ? '800' : '500',
+                background: tileLayerType === 'topo' ? 'rgba(74,222,128,0.25)' : 'transparent',
+                border: `1px solid ${tileLayerType === 'topo' ? '#4ade80' : 'transparent'}`,
+                color: tileLayerType === 'topo' ? '#ffffff' : 'var(--text-muted)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Mountain size={14} color={tileLayerType === 'topo' ? '#4ade80' : 'currentColor'} />
+              <span>⛰️ Físico Topográfico</span>
+            </button>
+          </div>
+
+          {/* Botón de Pantalla Completa */}
           <button
-            onClick={() => setTileLayerType('topo')}
+            onClick={() => setIsFullscreen(!isFullscreen)}
             style={{
-              padding: '6px 12px',
-              borderRadius: '6px',
-              fontSize: '0.76rem',
-              fontWeight: tileLayerType === 'topo' ? '800' : '500',
-              background: tileLayerType === 'topo' ? 'rgba(74,222,128,0.25)' : 'transparent',
-              border: `1px solid ${tileLayerType === 'topo' ? '#4ade80' : 'transparent'}`,
-              color: tileLayerType === 'topo' ? '#ffffff' : 'var(--text-muted)',
+              padding: '6px 14px',
+              borderRadius: '8px',
+              fontSize: '0.78rem',
+              fontWeight: '800',
+              background: isFullscreen ? 'rgba(239, 68, 68, 0.25)' : 'rgba(212,175,55,0.22)',
+              border: `1.5px solid ${isFullscreen ? '#f87171' : 'var(--gold-400)'}`,
+              color: isFullscreen ? '#fca5a5' : 'var(--gold-200)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '6px',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
+              transition: 'all 0.15s ease'
             }}
+            title={isFullscreen ? "Presione Escape o haga clic para salir" : "Maximizar mapa a pantalla completa"}
           >
-            <Mountain size={14} color={tileLayerType === 'topo' ? '#4ade80' : 'currentColor'} />
-            <span>⛰️ Físico Topográfico</span>
+            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            <span>{isFullscreen ? 'Salir de Pantalla Completa' : 'Pantalla Completa'}</span>
           </button>
         </div>
       </div>
 
       {/* 2. Barra de Países Vecinos Actuales para Ubicación Instantánea */}
-      {isGenesis && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          flexWrap: 'wrap',
-          padding: '8px 14px',
-          background: 'rgba(15, 23, 42, 0.75)',
-          borderRadius: '8px',
-          border: '1px solid rgba(56, 189, 248, 0.35)'
-        }}>
-          <span style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: '800', marginRight: '4px' }}>
-            🌍 Países Vecinos de Hoy:
-          </span>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        flexWrap: 'wrap',
+        padding: '8px 14px',
+        background: 'rgba(15, 23, 42, 0.75)',
+        borderRadius: '8px',
+        border: '1px solid rgba(56, 189, 248, 0.35)'
+      }}>
+        <span style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: '800', marginRight: '4px' }}>
+          🌍 Países Vecinos de Hoy:
+        </span>
+        <button
+          onClick={() => handleResetView()}
+          style={{
+            padding: '4px 10px',
+            borderRadius: '5px',
+            fontSize: '0.75rem',
+            fontWeight: '700',
+            background: 'rgba(255,255,255,0.08)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            color: '#ffffff',
+            cursor: 'pointer'
+          }}
+        >
+          🌐 Toda la Región
+        </button>
+        {MODERN_COUNTRIES.map((c) => (
           <button
-            onClick={() => handleResetView()}
+            key={c.name}
+            onClick={() => {
+              if (mapInstanceRef.current) {
+                mapInstanceRef.current.flyTo([c.lat, c.lng], 6, { duration: 1.2 });
+              }
+            }}
             style={{
-              padding: '4px 10px',
+              padding: '4px 9px',
               borderRadius: '5px',
               fontSize: '0.75rem',
               fontWeight: '700',
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              color: '#ffffff',
-              cursor: 'pointer'
+              background: 'rgba(56, 189, 248, 0.12)',
+              border: '1px solid rgba(56, 189, 248, 0.35)',
+              color: '#e0f2fe',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px'
             }}
+            title={`Ver ${c.name} en el mapa`}
           >
-            🌐 Toda la Región
+            <span>{c.flag}</span>
+            <span>{c.name}</span>
           </button>
-          {MODERN_COUNTRIES.map((c) => (
-            <button
-              key={c.name}
-              onClick={() => {
-                if (mapInstanceRef.current) {
-                  mapInstanceRef.current.flyTo([c.lat, c.lng], 6, { duration: 1.2 });
-                }
-              }}
-              style={{
-                padding: '4px 9px',
-                borderRadius: '5px',
-                fontSize: '0.75rem',
-                fontWeight: '700',
-                background: 'rgba(56, 189, 248, 0.12)',
-                border: '1px solid rgba(56, 189, 248, 0.35)',
-                color: '#e0f2fe',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-              title={`Ver ${c.name} en el mapa`}
-            >
-              <span>{c.flag}</span>
-              <span>{c.name}</span>
-            </button>
-          ))}
-        </div>
-      )}
+        ))}
+      </div>
 
       {/* 3. Botonera Táctil de Hitos Geográficos del Relato */}
       <div style={{
@@ -707,12 +1080,12 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
         })}
       </div>
 
-      {/* 3. CONTENEDOR DEL MAPA REAL LEAFLET (ALTA DEFINICIÓN & INTERACTIVO) */}
+      {/* 4. CONTENEDOR DEL MAPA REAL LEAFLET (ALTA DEFINICIÓN & INTERACTIVO) */}
       <div style={{
         position: 'relative',
         width: '100%',
-        minHeight: isExpansive ? '540px' : '380px',
-        height: isExpansive ? '560px' : '380px',
+        minHeight: isFullscreen ? 'calc(100vh - 210px)' : (isExpansive ? '540px' : '380px'),
+        height: isFullscreen ? 'calc(100vh - 210px)' : (isExpansive ? '560px' : '380px'),
         borderRadius: '12px',
         border: '1.5px solid rgba(212,175,55,0.4)',
         overflow: 'hidden',
@@ -724,7 +1097,7 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
           style={{ width: '100%', height: '100%', zIndex: 1 }}
         />
 
-        {/* Botones de Control de Zoom / Recentrado Flotantes */}
+        {/* Botones de Control de Zoom / Recentrado / Fullscreen Flotantes */}
         <div style={{
           position: 'absolute',
           top: '16px',
@@ -789,6 +1162,24 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
             }}
           >
             <RotateCcw size={16} />
+          </button>
+          <button
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            title={isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
+            style={{
+              background: isFullscreen ? 'rgba(212,175,55,0.3)' : 'transparent',
+              border: 'none',
+              color: isFullscreen ? '#ffd700' : 'var(--gold-300)',
+              padding: '6px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderTop: '1px solid rgba(255,255,255,0.1)'
+            }}
+          >
+            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </button>
         </div>
 
