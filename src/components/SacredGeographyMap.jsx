@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Compass, MapPin, Mountain, Droplets, Globe, Layers, Navigation, Shield, ZoomIn, ZoomOut, RotateCcw, Maximize2, Minimize2, X } from 'lucide-react';
+import { Compass, MapPin, Mountain, Droplets, Globe, Layers, Navigation, Shield, ZoomIn, ZoomOut, RotateCcw, Maximize2, Minimize2, X, Sparkles } from 'lucide-react';
 
 /**
  * SacredGeographyMap.jsx
@@ -488,57 +488,71 @@ const MODERN_COUNTRIES = [
   { name: 'ARABIA SAUDITA', flag: '🇸🇦', lat: 27.5, lng: 40.5, note: 'Península Arábiga' }
 ];
 
-export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRef = '', variant = 'compact' }) {
+export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRef = '', variant = 'compact', initialEra = null, onConsultAI = null }) {
   const norm = (bookName || verseRef || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   
-  // Clasificación inteligente del corpus bíblico
-  const isGenesis = norm.includes('genesis');
-  const isExodus = norm.includes('exodo') || norm.includes('levitico') || norm.includes('numero') || norm.includes('deuteronomio') || norm.includes('josue');
-  const isGospels = norm.includes('mateo') || norm.includes('marcos') || norm.includes('lucas') || norm.includes('juan') && !norm.includes('1 juan') && !norm.includes('2 juan') && !norm.includes('3 juan');
-  const isApostolic = norm.includes('hecho') || norm.includes('romano') || norm.includes('corintio') || norm.includes('galatas') || norm.includes('efesios') || norm.includes('filipenses') || norm.includes('colosenses') || norm.includes('tesalonicenses') || norm.includes('timoteo') || norm.includes('tito') || norm.includes('hebreos') || norm.includes('apocalipsis');
+  const getDetectedEra = () => {
+    if (initialEra) return initialEra;
+    if (norm.includes('genesis')) return 'genesis';
+    if (norm.includes('exodo') || norm.includes('levitico') || norm.includes('numero') || norm.includes('deuteronomio') || norm.includes('josue')) return 'exodus';
+    if (norm.includes('mateo') || norm.includes('marcos') || norm.includes('lucas') || (norm.includes('juan') && !norm.includes('1 juan') && !norm.includes('2 juan') && !norm.includes('3 juan'))) return 'gospels';
+    if (norm.includes('hecho') || norm.includes('romano') || norm.includes('corintio') || norm.includes('galatas') || norm.includes('efesios') || norm.includes('filipenses') || norm.includes('colosenses') || norm.includes('tesalonicenses') || norm.includes('timoteo') || norm.includes('tito') || norm.includes('hebreos') || norm.includes('apocalipsis')) return 'apostolic';
+    if (norm.includes('salmo') || norm.includes('samuel') || norm.includes('reyes') || norm.includes('cronica')) return 'judea';
+    return 'genesis';
+  };
 
-  // Selección de lista de sitios y ruta
-  let sitesList = JUDEA_SITES;
-  let activeTrail = null;
-  let trailName = 'Hitos Bíblicos de Judea y Jerusalén';
-  let defaultCenter = [31.7, 35.3];
-  let defaultZoom = 9;
+  const [activeEra, setActiveEra] = useState(getDetectedEra);
 
-  if (isGenesis) {
-    sitesList = GENESIS_SITES;
-    activeTrail = ABRAHAM_TRAIL;
-    trailName = 'Ruta de Abraham (~2.000 km: Ur → Harán → Canaán → Egipto)';
-    defaultCenter = [33.5, 41.5];
-    defaultZoom = 5;
-  } else if (isExodus) {
+  useEffect(() => {
+    if (initialEra) {
+      setActiveEra(initialEra);
+    } else if (bookName || verseRef) {
+      setActiveEra(getDetectedEra());
+    }
+  }, [bookName, verseRef, initialEra]);
+
+  // Selección de lista de sitios y ruta según la época activa
+  let sitesList = GENESIS_SITES;
+  let activeTrail = ABRAHAM_TRAIL;
+  let trailName = 'Ruta de Abraham (~2.000 km: Ur → Harán → Canaán → Egipto)';
+  let defaultCenter = [33.5, 41.5];
+  let defaultZoom = 5;
+
+  if (activeEra === 'exodus') {
     sitesList = EXODUS_SITES;
     activeTrail = EXODUS_TRAIL;
     trailName = 'Ruta del Éxodo (Ramesés → Sinaí → Cades → Monte Nebo)';
     defaultCenter = [29.8, 33.8];
     defaultZoom = 7;
-  } else if (isGospels) {
+  } else if (activeEra === 'gospels') {
     sitesList = GOSPEL_SITES;
     activeTrail = GOSPEL_TRAIL;
     trailName = 'Ministerio de Jesús (Nazaret → Galilea → Jericó → Jerusalén)';
     defaultCenter = [32.3, 35.3];
     defaultZoom = 8;
-  } else if (isApostolic) {
+  } else if (activeEra === 'apostolic') {
     sitesList = APOSTOLIC_SITES;
     activeTrail = PAUL_MISSION_TRAIL;
     trailName = 'Viajes Misioneros y Expansión (Jerusalén → Turquía → Grecia → Roma)';
     defaultCenter = [38.0, 26.0];
     defaultZoom = 5;
+  } else if (activeEra === 'judea') {
+    sitesList = JUDEA_SITES;
+    activeTrail = null;
+    trailName = 'Hitos Bíblicos de Judea y Jerusalén (Monarquía & Salmos)';
+    defaultCenter = [31.7, 35.3];
+    defaultZoom = 9;
   }
 
   const getInitialSite = () => {
-    if (isGenesis) {
+    if (activeEra === 'genesis') {
       const c = Number(chapter) || 1;
       if (c >= 13 && c <= 25) return GENESIS_SITES.find(s => s.id === 'hebron_mamre') || GENESIS_SITES[0];
       if (c === 12) return GENESIS_SITES.find(s => s.id === 'siquem') || GENESIS_SITES[0];
       if (c === 11) return GENESIS_SITES.find(s => s.id === 'ur_caldeos') || GENESIS_SITES[0];
       return GENESIS_SITES[0];
     }
-    return sitesList[0] || JUDEA_SITES[0];
+    return sitesList[0] || GENESIS_SITES[0];
   };
 
   const [selectedSite, setSelectedSite] = useState(getInitialSite());
@@ -796,7 +810,38 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
       }
     });
 
-  }, [selectedSite, sitesList, isGenesis, isExpansive]);
+  }, [selectedSite, sitesList, activeTrail, activeEra, isExpansive]);
+
+  // Cambiar época histórica y recentrar el mapa
+  const handleSwitchEra = (eraId) => {
+    setActiveEra(eraId);
+    let targetSites = GENESIS_SITES;
+    let center = [33.5, 41.5];
+    let zoom = 5;
+
+    if (eraId === 'exodus') {
+      targetSites = EXODUS_SITES;
+      center = [29.8, 33.8];
+      zoom = 7;
+    } else if (eraId === 'gospels') {
+      targetSites = GOSPEL_SITES;
+      center = [32.3, 35.3];
+      zoom = 8;
+    } else if (eraId === 'apostolic') {
+      targetSites = APOSTOLIC_SITES;
+      center = [38.0, 26.0];
+      zoom = 5;
+    } else if (eraId === 'judea') {
+      targetSites = JUDEA_SITES;
+      center = [31.7, 35.3];
+      zoom = 9;
+    }
+
+    setSelectedSite(targetSites[0]);
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.flyTo(center, zoom, { duration: 1.2 });
+    }
+  };
 
   // Centrar y volar suavemente hacia el sitio seleccionado
   const handleSelectSite = (site) => {
@@ -967,7 +1012,60 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
         </div>
       </div>
 
-      {/* 2. Barra de Países Vecinos Actuales para Ubicación Instantánea */}
+      {/* 2. Selector de Rutas y Grandes Épocas Bíblicas */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        flexWrap: 'wrap',
+        padding: '10px 14px',
+        background: 'rgba(212,175,55,0.06)',
+        borderRadius: '10px',
+        border: '1px solid rgba(212,175,55,0.2)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginRight: '4px' }}>
+          <Compass size={16} color="var(--gold-400)" />
+          <span style={{ fontSize: '0.8rem', fontWeight: '800', color: 'var(--gold-300)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Rutas y Épocas:
+          </span>
+        </div>
+        {[
+          { id: 'genesis', label: 'Patriarcas (Abraham)', icon: '🐪', desc: 'Ruta de Abraham: Ur → Harán → Canaán → Egipto' },
+          { id: 'exodus', label: 'Éxodo & Sinaí', icon: '⛰️', desc: 'Ruta del Éxodo: Ramesés → Sinaí → Cades → Nebo' },
+          { id: 'judea', label: 'David & Salmos', icon: '👑', desc: 'Monarquía de Judá: Jerusalén, Belén, Wadi Qelt, En-Gedi' },
+          { id: 'gospels', label: 'Jesús & Galilea', icon: '🐟', desc: 'Ministerio de Jesús: Nazaret, Galilea, Jericó, Jerusalén' },
+          { id: 'apostolic', label: 'Pablo & Misiones', icon: '⛵', desc: 'Viajes Misioneros: Antioquía, Éfeso, Atenas, Corinto, Roma' },
+        ].map((era) => {
+          const isSelected = activeEra === era.id;
+          return (
+            <button
+              key={era.id}
+              onClick={() => handleSwitchEra(era.id)}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '7px 14px',
+                borderRadius: '8px',
+                fontSize: '0.82rem',
+                fontWeight: isSelected ? '800' : '600',
+                background: isSelected ? 'linear-gradient(135deg, rgba(212,175,55,0.3) 0%, rgba(212,175,55,0.1) 100%)' : 'rgba(255,255,255,0.03)',
+                border: isSelected ? '1.5px solid var(--gold-400)' : '1px solid rgba(255,255,255,0.1)',
+                color: isSelected ? 'var(--gold-200)' : 'var(--text-muted)',
+                cursor: 'pointer',
+                boxShadow: isSelected ? '0 0 14px rgba(212,175,55,0.25)' : 'none',
+                transition: 'all 0.2s'
+              }}
+              title={era.desc}
+            >
+              <span>{era.icon}</span>
+              <span>{era.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 3. Barra de Países Vecinos Actuales para Ubicación Instantánea */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -1325,6 +1423,34 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
               {selectedSite.biblicalRelation}
             </div>
           </div>
+
+          {/* Botón de Profundización con Ruaj si está disponible */}
+          {onConsultAI && (
+            <div style={{ gridColumn: '1 / -1', marginTop: '6px' }}>
+              <button
+                onClick={() => onConsultAI({
+                  passage: { title: selectedSite.name, book: selectedSite.modernCountry, chapter: 'Geografía Sagrada' },
+                  mood: 'Exploración Histórica'
+                })}
+                className="gold-btn-gradient"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontSize: '0.88rem',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
+              >
+                <Sparkles size={16} />
+                <span>Profundizar con Ruaj sobre {selectedSite.name.split('(')[0].trim()}</span>
+              </button>
+            </div>
+          )}
         </div>
       ) : (
         /* Variante Compacta (Para Paso 4 del Compendio) */
