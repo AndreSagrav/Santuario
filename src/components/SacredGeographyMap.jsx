@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Compass, MapPin, Mountain, Droplets, Globe, Layers, Navigation, Shield, ZoomIn, ZoomOut, RotateCcw, Maximize2, Minimize2, X, Sparkles } from 'lucide-react';
+import { Compass, MapPin, Mountain, Droplets, Globe, Layers, Navigation, Shield, ZoomIn, ZoomOut, RotateCcw, Maximize2, Minimize2, X, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 
 /**
  * SacredGeographyMap.jsx
@@ -474,19 +474,26 @@ const PAUL_MISSION_TRAIL = [
   [41.8902, 12.4922]  // Roma (Italia)
 ];
 
-// Países modernos de la región para marcadores de referencia política
+// Países modernos de la región para marcadores de referencia política en español
 const MODERN_COUNTRIES = [
-  { name: 'TURQUÍA', flag: '🇹🇷', lat: 38.8, lng: 35.2, note: 'Anatolia, Harán, Éfeso y Tarso' },
-  { name: 'SIRIA', flag: '🇸🇾', lat: 35.0, lng: 38.0, note: 'Aram, Damasco y Éufrates Medio' },
-  { name: 'IRAK', flag: '🇮🇶', lat: 33.2, lng: 43.8, note: 'Antigua Mesopotamia, Ur y Babilonia' },
-  { name: 'CISJORDANIA', flag: '🇵🇸', lat: 31.95, lng: 35.25, note: 'Hebrón, Siquem, Belén, Jericó' },
-  { name: 'ISRAEL', flag: '🇮🇱', lat: 31.5, lng: 34.8, note: 'Jerusalén, Nazaret, Galilea y Carmelo' },
-  { name: 'JORDANIA', flag: '🇯🇴', lat: 31.2, lng: 36.8, note: 'Monte Nebo, Galaad y Moab' },
-  { name: 'EGIPTO', flag: '🇪🇬', lat: 29.5, lng: 31.5, note: 'Delta del Nilo, Gosén y Sinaí' },
-  { name: 'GRECIA', flag: '🇬🇷', lat: 38.8, lng: 22.8, note: 'Atenas, Corinto, Filipos y Macedonia' },
-  { name: 'ITALIA', flag: '🇮🇹', lat: 41.9, lng: 12.5, note: 'Roma imperial' },
-  { name: 'LÍBANO', flag: '🇱🇧', lat: 33.9, lng: 35.8, note: 'Tiro, Sidón y montes del Líbano' },
-  { name: 'ARABIA SAUDITA', flag: '🇸🇦', lat: 27.5, lng: 40.5, note: 'Península Arábiga' }
+  { name: 'EGIPTO', flag: '🇪🇬', lat: 29.8, lng: 31.3, sub: 'Nilo y Sinaí', note: 'Delta del Nilo, Gosén y Península del Sinaí' },
+  { name: 'ISRAEL / CANAÁN', flag: '🇮🇱', lat: 31.5, lng: 34.8, sub: 'Tierra Prometida', note: 'Jerusalén, Nazaret, Galilea y Carmelo' },
+  { name: 'JORDANIA', flag: '🇯🇴', lat: 31.2, lng: 36.8, sub: 'Monte Nebo', note: 'Monte Nebo, Galaad y Moab' },
+  { name: 'IRAK (MESOPOTAMIA)', flag: '🇮🇶', lat: 33.2, lng: 44.0, sub: 'Tigris y Éufrates', note: 'Antigua Mesopotamia, Ur y Babilonia' },
+  { name: 'SIRIA', flag: '🇸🇾', lat: 35.0, lng: 38.0, sub: 'Damasco', note: 'Aram, Damasco y Éufrates Medio' },
+  { name: 'TURQUÍA', flag: '🇹🇷', lat: 38.5, lng: 35.2, sub: 'Harán y Asia Menor', note: 'Anatolia, Harán, Éfeso y Tarso' },
+  { name: 'CISJORDANIA', flag: '🇵🇸', lat: 31.95, lng: 35.25, sub: 'Hebrón y Siquem', note: 'Hebrón, Siquem, Belén, Jericó' },
+  { name: 'LÍBANO', flag: '🇱🇧', lat: 33.9, lng: 35.8, sub: 'Tiro y Sidón', note: 'Tiro, Sidón y montes del Líbano' },
+  { name: 'ARABIA SAUDITA', flag: '🇸🇦', lat: 27.5, lng: 40.5, sub: 'Desierto', note: 'Península Arábiga' },
+  { name: 'GRECIA', flag: '🇬🇷', lat: 38.8, lng: 22.8, sub: 'Atenas y Corinto', note: 'Atenas, Corinto, Filipos y Macedonia' },
+  { name: 'ITALIA', flag: '🇮🇹', lat: 41.9, lng: 12.5, sub: 'Roma', note: 'Roma imperial' }
+];
+
+// Cuerpos de agua principales para orientación geográfica inmediata en español
+const WATER_BODIES = [
+  { name: 'MAR MEDITERRÁNEO', lat: 33.5, lng: 30.5 },
+  { name: 'MAR ROJO (GOLFO DE SUEZ)', lat: 27.8, lng: 34.2 },
+  { name: 'GOLFO PÉRSICO', lat: 27.0, lng: 51.0 }
 ];
 
 export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRef = '', variant = 'compact', initialEra = null, onConsultAI = null }) {
@@ -558,8 +565,8 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
 
   const [selectedSite, setSelectedSite] = useState(getInitialSite());
   const [tileLayerType, setTileLayerType] = useState('osm'); // 'osm' | 'satellite' | 'topo'
-  const wrapperRef = useRef(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isDetailsCollapsed, setIsDetailsCollapsed] = useState(false);
 
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -570,27 +577,31 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
 
   const isExpansive = variant === 'expansive';
 
-  // Alternar pantalla completa real (Nativa del navegador con fallback reactivo)
+  // Alternar pantalla completa real (Nativa del navegador con fallback de portal a 100vw x 100vh)
   const handleToggleFullscreen = async () => {
     try {
-      if (!document.fullscreenElement && !isFullscreen) {
-        if (wrapperRef.current?.requestFullscreen) {
-          await wrapperRef.current.requestFullscreen();
-        } else if (wrapperRef.current?.webkitRequestFullscreen) {
-          await wrapperRef.current.webkitRequestFullscreen();
-        } else {
-          setIsFullscreen(true);
+      if (!isFullscreen) {
+        setIsFullscreen(true);
+        if (document.documentElement?.requestFullscreen && !document.fullscreenElement) {
+          try {
+            await document.documentElement.requestFullscreen();
+          } catch (e) {
+            // Si el navegador bloquea la API nativa, el portal cubrirá 100vw x 100vh de forma impecable
+          }
         }
       } else {
         if (document.fullscreenElement) {
-          await document.exitFullscreen();
+          try {
+            await document.exitFullscreen();
+          } catch (e) {}
         } else if (document.webkitFullscreenElement) {
-          await document.webkitExitFullscreen();
+          try {
+            await document.webkitExitFullscreen();
+          } catch (e) {}
         }
         setIsFullscreen(false);
       }
     } catch (err) {
-      // Fallback a pantalla completa CSS si la política del navegador lo requiere
       setIsFullscreen(prev => !prev);
     }
   };
@@ -598,10 +609,13 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
   // Sincronizar eventos nativos de pantalla completa
   useEffect(() => {
     const handleFullscreenChange = () => {
-      const isNowFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
-      setIsFullscreen(isNowFullscreen);
+      const isNowNativeFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      // Si el usuario sale de pantalla completa mediante la tecla ESC nativa del navegador
+      if (!isNowNativeFullscreen && isFullscreen) {
+        setIsFullscreen(false);
+      }
       if (mapInstanceRef.current) {
-        setTimeout(() => mapInstanceRef.current?.invalidateSize(), 50);
+        setTimeout(() => mapInstanceRef.current?.invalidateSize(), 60);
         setTimeout(() => mapInstanceRef.current?.invalidateSize(), 180);
         setTimeout(() => mapInstanceRef.current?.invalidateSize(), 400);
       }
@@ -613,7 +627,7 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
     };
-  }, []);
+  }, [isFullscreen]);
 
   // Salir de pantalla completa con la tecla Escape
   useEffect(() => {
@@ -641,19 +655,19 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
     }
   }, [isFullscreen]);
 
-  // Configuración de capas de mapa real y vibrante
+  // Configuración de capas de mapa real legible en alfabeto latino / internacional (sin caligrafía árabe)
   const TILE_SERVERS = {
-    // OpenStreetMap Estándar: Mapa mundial vibrante, colores claros (mar azul brillante, países, carreteras y fronteras)
+    // Mapa Político y Geográfico Esri: Colores claros, sin marcas de agua, sin clave API y 100% en alfabeto latino internacional (legible en español: Egypt, Cairo, Jerusalem, Iraq, etc.)
     osm: {
-      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'
+      url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+      attribution: 'Tiles &copy; Esri &mdash; DeLorme, NAVTEQ, USGS'
     },
-    // Fotografía Satelital Real (Esri NASA): La Tierra real con desiertos, ríos y vegetación
+    // Fotografía Satelital Real (Esri NASA): La Tierra real con relieve y costas naturales
     satellite: {
       url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       attribution: 'Tiles &copy; Esri &mdash; NASA, USGS'
     },
-    // Físico Topográfico: Relieve montañoso y curvas de nivel
+    // Físico Topográfico: Relieve montañoso con nombres en alfabeto latino
     topo: {
       url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
       attribution: 'Tiles &copy; Esri &mdash; Topo Relief'
@@ -752,26 +766,56 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
       }).addTo(map);
     }
 
-    // 2. Rótulos de Naciones Vecinas Actuales (Turquía, Siria, Irak, Jordania, Egipto, etc.)
+    // 2. Rótulos de Cuerpos de Agua y Mares en Español
+    WATER_BODIES.forEach((w) => {
+      const waterIcon = L.divIcon({
+        className: 'water-label-icon',
+        html: `<div style="
+          background: rgba(8, 28, 56, 0.88);
+          border: 1px solid #38bdf8;
+          color: #93c5fd;
+          font-size: 10px;
+          font-weight: 800;
+          padding: 3px 8px;
+          border-radius: 5px;
+          white-space: nowrap;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.7);
+          letter-spacing: 0.5px;
+          pointer-events: none;
+        ">🌊 ${w.name}</div>`,
+        iconSize: [140, 22],
+        iconAnchor: [70, 11]
+      });
+      L.marker([w.lat, w.lng], { icon: waterIcon }).addTo(countriesGroupRef.current);
+    });
+
+    // 3. Rótulos de Naciones Vecinas Actuales en Español (Egipto, Israel, Jordania, Irak, etc.)
     MODERN_COUNTRIES.forEach((c) => {
       const countryIcon = L.divIcon({
         className: 'country-label-icon',
         html: `<div style="
-          background: rgba(15, 23, 42, 0.92);
+          background: rgba(11, 17, 32, 0.95);
           border: 1.5px solid #38bdf8;
           color: #ffffff;
           font-size: 11px;
           font-weight: 900;
-          padding: 3px 9px;
+          padding: 4px 10px;
           border-radius: 6px;
           white-space: nowrap;
-          box-shadow: 0 3px 10px rgba(0,0,0,0.7);
+          box-shadow: 0 4px 14px rgba(0,0,0,0.85);
           letter-spacing: 0.5px;
           pointer-events: auto;
           cursor: pointer;
-        ">${c.flag} ${c.name}</div>`,
-        iconSize: [100, 24],
-        iconAnchor: [50, 12]
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        ">
+          <span>${c.flag}</span>
+          <span style="color: #67e8f9;">${c.name}</span>
+          ${c.sub ? `<span style="font-size: 9px; color: #cbd5e1; font-weight: 600;">(${c.sub})</span>` : ''}
+        </div>`,
+        iconSize: [140, 26],
+        iconAnchor: [70, 13]
       });
       L.marker([c.lat, c.lng], { icon: countryIcon })
         .addTo(countriesGroupRef.current)
@@ -780,7 +824,7 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
         });
     });
 
-    // 3. Marcadores de Hitos Bíblicos
+    // 4. Marcadores de Hitos Bíblicos con Rótulo Claro en Español
     sitesList.forEach((site, index) => {
       const isSelected = selectedSite.id === site.id;
       const markerHtml = `
@@ -823,21 +867,23 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
             ${index + 1}
           </div>
           <div style="
-            background: ${isSelected ? 'rgba(212, 175, 55, 0.95)' : 'rgba(10, 15, 26, 0.88)'};
+            background: ${isSelected ? 'rgba(212, 175, 55, 0.98)' : 'rgba(10, 14, 24, 0.92)'};
             color: ${isSelected ? '#000000' : '#ffffff'};
-            border: 1px solid ${isSelected ? '#ffffff' : 'rgba(212,175,55,0.4)'};
-            padding: 3px 8px;
-            border-radius: 6px;
+            border: 1px solid ${isSelected ? '#ffd700' : 'rgba(212,175,55,0.3)'};
             font-size: 11px;
             font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
             white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.7);
-            z-index: ${isSelected ? 100 : 10};
+            box-shadow: 0 2px 10px rgba(0,0,0,0.7);
+            letter-spacing: 0.3px;
           ">
-            ${site.name.split('(')[0].trim()}
+            ${index + 1}. ${site.name.split('(')[0].trim()}
+            <span style="font-size: 9px; opacity: ${isSelected ? 0.85 : 0.65}; margin-left: 4px;">(${site.modernCountry.split('(')[0].trim()})</span>
           </div>
         </div>
       `;
+
 
       const customIcon = L.divIcon({
         className: 'biblical-site-marker',
@@ -913,33 +959,547 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
     }
   };
 
-  const renderMapContent = (inFullscreen) => (
+  // VISTA DEDICADA 100% PANTALLA COMPLETA (Canvas Edge-to-Edge con HUD Flotante de Lujo)
+  const renderFullscreenMap = () => (
     <div
       style={{
-        ...(inFullscreen ? {
-          position: 'fixed',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 2147483647,
+        background: '#030712',
+        overflow: 'hidden',
+        boxSizing: 'border-box',
+        margin: 0,
+        padding: 0
+      }}
+    >
+      {/* 1. LIENZO LEAFLET REAL (Ocupa exactamente el 100% de la pantalla) */}
+      <div
+        ref={mapContainerRef}
+        style={{
+          position: 'absolute',
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          width: '100vw',
-          height: '100vh',
-          zIndex: 2147483647,
-          background: '#070a13',
-          borderRadius: 0,
-          border: 'none',
-          padding: '16px 20px',
-          overflowY: 'auto',
-          boxSizing: 'border-box'
-        } : {
-          background: 'rgba(9, 12, 19, 0.98)',
-          border: '1.5px solid rgba(212,175,55,0.35)',
-          borderRadius: '14px',
-          padding: isExpansive ? '26px' : '20px',
-          boxShadow: '0 6px 36px rgba(0,0,0,0.8)',
           width: '100%',
-          boxSizing: 'border-box'
-        }),
+          height: '100%',
+          zIndex: 1
+        }}
+      />
+
+      {/* 2. BARRA SUPERIOR FLOTANTE */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '14px',
+          left: '16px',
+          right: '16px',
+          zIndex: 1000,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '12px',
+          pointerEvents: 'none',
+          flexWrap: 'wrap'
+        }}
+      >
+        {/* Panel Izquierdo: Título de la Ruta y Conmutador de Épocas */}
+        <div
+          style={{
+            pointerEvents: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            background: 'rgba(9, 13, 24, 0.94)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1.5px solid rgba(212,175,55,0.4)',
+            borderRadius: '12px',
+            padding: '6px 14px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.85)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Compass size={20} color="var(--gold-400)" />
+            <span className="font-cinzel gold-text-gradient" style={{ fontWeight: '800', fontSize: '0.95rem' }}>
+              {trailName.split('(')[0].trim()}
+            </span>
+          </div>
+
+          <div style={{ height: '20px', width: '1px', background: 'rgba(212,175,55,0.3)', margin: '0 4px' }} />
+
+          {/* Épocas bíblicas rápidas */}
+          <div style={{ display: 'flex', gap: '5px' }}>
+            {[
+              { id: 'genesis', label: 'Patriarcas', icon: '🐪' },
+              { id: 'exodus', label: 'Éxodo', icon: '⛰️' },
+              { id: 'judea', label: 'David', icon: '👑' },
+              { id: 'gospels', label: 'Jesús', icon: '🐟' },
+              { id: 'apostolic', label: 'Pablo', icon: '⛵' }
+            ].map(era => (
+              <button
+                key={era.id}
+                onClick={() => handleSwitchEra(era.id)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '5px 10px',
+                  borderRadius: '6px',
+                  fontSize: '0.76rem',
+                  fontWeight: activeEra === era.id ? '800' : '600',
+                  background: activeEra === era.id ? 'rgba(212,175,55,0.28)' : 'rgba(255,255,255,0.04)',
+                  border: activeEra === era.id ? '1px solid var(--gold-400)' : '1px solid rgba(255,255,255,0.1)',
+                  color: activeEra === era.id ? '#ffd700' : '#94a3b8',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <span>{era.icon}</span>
+                <span>{era.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Panel Derecho: Capas y Botón de Salida */}
+        <div
+          style={{
+            pointerEvents: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: 'rgba(9, 13, 24, 0.94)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1.5px solid rgba(212,175,55,0.4)',
+            borderRadius: '12px',
+            padding: '6px 12px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.85)'
+          }}
+        >
+          {/* Conmutador de Capas */}
+          <div style={{ display: 'flex', gap: '4px' }}>
+            <button
+              onClick={() => setTileLayerType('osm')}
+              style={{
+                padding: '5px 10px',
+                borderRadius: '6px',
+                fontSize: '0.74rem',
+                fontWeight: tileLayerType === 'osm' ? '800' : '500',
+                background: tileLayerType === 'osm' ? 'rgba(59,130,246,0.35)' : 'transparent',
+                border: `1px solid ${tileLayerType === 'osm' ? '#60a5fa' : 'transparent'}`,
+                color: tileLayerType === 'osm' ? '#ffffff' : '#94a3b8',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+              title="Mapa a Color con Fronteras y Países"
+            >
+              <Globe size={13} color={tileLayerType === 'osm' ? '#60a5fa' : 'currentColor'} />
+              <span>🗺️ Mapa Color</span>
+            </button>
+
+            <button
+              onClick={() => setTileLayerType('satellite')}
+              style={{
+                padding: '5px 10px',
+                borderRadius: '6px',
+                fontSize: '0.74rem',
+                fontWeight: tileLayerType === 'satellite' ? '800' : '500',
+                background: tileLayerType === 'satellite' ? 'rgba(212,175,55,0.35)' : 'transparent',
+                border: `1px solid ${tileLayerType === 'satellite' ? 'var(--gold-400)' : 'transparent'}`,
+                color: tileLayerType === 'satellite' ? '#ffffff' : '#94a3b8',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+              title="Fotografía Satelital Real (NASA)"
+            >
+              <Layers size={13} color={tileLayerType === 'satellite' ? 'var(--gold-400)' : 'currentColor'} />
+              <span>🛰️ Satélite NASA</span>
+            </button>
+
+            <button
+              onClick={() => setTileLayerType('topo')}
+              style={{
+                padding: '5px 10px',
+                borderRadius: '6px',
+                fontSize: '0.74rem',
+                fontWeight: tileLayerType === 'topo' ? '800' : '500',
+                background: tileLayerType === 'topo' ? 'rgba(74,222,128,0.3)' : 'transparent',
+                border: `1px solid ${tileLayerType === 'topo' ? '#4ade80' : 'transparent'}`,
+                color: tileLayerType === 'topo' ? '#ffffff' : '#94a3b8',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+              title="Relieve Topográfico"
+            >
+              <Mountain size={13} color={tileLayerType === 'topo' ? '#4ade80' : 'currentColor'} />
+              <span>⛰️ Topo</span>
+            </button>
+          </div>
+
+          <div style={{ height: '20px', width: '1px', background: 'rgba(255,255,255,0.2)', margin: '0 4px' }} />
+
+          {/* Botón Salir de Pantalla Completa */}
+          <button
+            onClick={handleToggleFullscreen}
+            style={{
+              padding: '6px 14px',
+              borderRadius: '8px',
+              fontSize: '0.8rem',
+              fontWeight: '800',
+              background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.4) 0%, rgba(185, 28, 28, 0.25) 100%)',
+              border: '1.5px solid #f87171',
+              color: '#fef2f2',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 12px rgba(239,68,68,0.35)',
+              transition: 'all 0.15s ease'
+            }}
+            title="Presione Escape o haga clic para salir de pantalla completa"
+          >
+            <Minimize2 size={15} />
+            <span>Salir de Pantalla Completa</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 3. BARRA HORIZONTAL FLOTANTE DE NAVEGACIÓN RÁPIDA (Lugares del relato y países) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '74px',
+          left: '16px',
+          right: '16px',
+          zIndex: 1000,
+          pointerEvents: 'none'
+        }}
+      >
+        <div
+          style={{
+            pointerEvents: 'auto',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            maxWidth: '100%',
+            overflowX: 'auto',
+            whiteSpace: 'nowrap',
+            flexWrap: 'nowrap',
+            padding: '6px 12px',
+            background: 'rgba(9, 13, 24, 0.88)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            border: '1px solid rgba(212,175,55,0.3)',
+            borderRadius: '10px',
+            boxShadow: '0 6px 24px rgba(0,0,0,0.7)',
+            scrollbarWidth: 'none'
+          }}
+        >
+          <span style={{ fontSize: '0.74rem', color: 'var(--gold-400)', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap', marginRight: '4px' }}>
+            <MapPin size={13} /> Hitos ({sitesList.length}):
+          </span>
+
+          {sitesList.map((site, index) => {
+            const isSelected = selectedSite.id === site.id;
+            return (
+              <button
+                key={site.id}
+                onClick={() => handleSelectSite(site)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  background: isSelected
+                    ? 'linear-gradient(135deg, var(--gold-400) 0%, #b8860b 100%)'
+                    : 'rgba(255,255,255,0.06)',
+                  border: isSelected ? '1px solid #ffd700' : '1px solid rgba(255,255,255,0.1)',
+                  color: isSelected ? '#030508' : '#e2e8f0',
+                  fontWeight: isSelected ? '800' : '500',
+                  fontSize: '0.74rem',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  boxShadow: isSelected ? '0 0 12px rgba(212,175,55,0.5)' : 'none',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <span style={{ opacity: isSelected ? 1 : 0.6 }}>{index + 1}.</span>
+                <span>{site.name.split('(')[0].trim()}</span>
+              </button>
+            );
+          })}
+
+          <div style={{ height: '16px', width: '1px', background: 'rgba(255,255,255,0.2)', margin: '0 4px' }} />
+
+          {/* Botones de Países Vecinos de Hoy */}
+          <span style={{ fontSize: '0.72rem', color: '#38bdf8', fontWeight: '800', whiteSpace: 'nowrap' }}>
+            🌍 Países:
+          </span>
+          {MODERN_COUNTRIES.slice(0, 7).map(c => (
+            <button
+              key={c.name}
+              onClick={() => mapInstanceRef.current?.flyTo([c.lat, c.lng], 6, { duration: 1.2 })}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '3px',
+                padding: '3px 8px',
+                borderRadius: '5px',
+                fontSize: '0.72rem',
+                fontWeight: '700',
+                background: 'rgba(56, 189, 248, 0.12)',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
+                color: '#e0f2fe',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <span>{c.flag}</span>
+              <span>{c.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 4. BOTONES FLOTANTES DE CONTROL DE ZOOM Y VISTA (Lateral Derecho) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '135px',
+          right: '16px',
+          zIndex: 1000,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '6px',
+          background: 'rgba(9, 13, 24, 0.92)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          border: '1px solid rgba(212,175,55,0.35)',
+          borderRadius: '10px',
+          padding: '5px',
+          boxShadow: '0 6px 20px rgba(0,0,0,0.7)'
+        }}
+      >
+        <button
+          onClick={() => mapInstanceRef.current?.zoomIn()}
+          title="Acercar mapa (+)"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--gold-300)',
+            padding: '8px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <ZoomIn size={18} />
+        </button>
+        <button
+          onClick={() => mapInstanceRef.current?.zoomOut()}
+          title="Alejar mapa (-)"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--gold-300)',
+            padding: '8px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <ZoomOut size={18} />
+        </button>
+        <button
+          onClick={handleResetView}
+          title="Recentrar y ver toda la región"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--gold-300)',
+            padding: '8px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderTop: '1px solid rgba(255,255,255,0.1)'
+          }}
+        >
+          <RotateCcw size={17} />
+        </button>
+        <button
+          onClick={handleToggleFullscreen}
+          title="Salir de pantalla completa (ESC)"
+          style={{
+            background: 'rgba(239, 68, 68, 0.25)',
+            border: 'none',
+            color: '#fca5a5',
+            padding: '8px',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderTop: '1px solid rgba(255,255,255,0.1)'
+          }}
+        >
+          <Minimize2 size={17} />
+        </button>
+      </div>
+
+      {/* 5. TARJETA FLOTANTE INFERIOR CON DETALLES HISTÓRICOS Y ARQUEOLÓGICOS */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '18px',
+          left: '18px',
+          maxWidth: '520px',
+          zIndex: 1000,
+          background: 'rgba(8, 12, 22, 0.94)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1.5px solid rgba(212,175,55,0.4)',
+          borderRadius: '12px',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.85)',
+          overflow: 'hidden',
+          transition: 'all 0.25s ease'
+        }}
+      >
+        {/* Cabecera de la tarjeta con botón de colapsar */}
+        <div
+          onClick={() => setIsDetailsCollapsed(prev => !prev)}
+          style={{
+            padding: '10px 16px',
+            background: 'rgba(212,175,55,0.12)',
+            borderBottom: isDetailsCollapsed ? 'none' : '1px solid rgba(212,175,55,0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            cursor: 'pointer'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%', background: '#ffd700', boxShadow: '0 0 10px #ffd700' }} />
+            <span style={{ fontSize: '0.92rem', fontWeight: '800', color: '#ffffff' }}>
+              {selectedSite.name}
+            </span>
+            <span style={{
+              fontSize: '0.72rem',
+              fontWeight: '700',
+              padding: '2px 7px',
+              borderRadius: '4px',
+              background: 'rgba(56, 189, 248, 0.2)',
+              color: '#38bdf8'
+            }}>
+              📍 {selectedSite.modernCountry}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--gold-300)', fontSize: '0.75rem', fontWeight: '700' }}>
+            <span>{isDetailsCollapsed ? 'Expandir' : 'Minimizar'}</span>
+            {isDetailsCollapsed ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </div>
+        </div>
+
+        {/* Contenido detallado desplegable */}
+        {!isDetailsCollapsed && (
+          <div style={{ padding: '14px 16px', maxHeight: '280px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
+              <strong>Ciudad actual:</strong> {selectedSite.modernCity} &bull; <strong>Época:</strong> {selectedSite.historicalEra}
+            </div>
+
+            <div style={{ fontSize: '0.85rem', color: '#e2e8f0', lineHeight: 1.5, background: 'rgba(255,255,255,0.03)', padding: '8px 10px', borderRadius: '6px' }}>
+              {selectedSite.secularNote}
+            </div>
+
+            <div style={{ fontSize: '0.84rem', color: '#fef08a', fontStyle: 'italic', lineHeight: 1.5 }}>
+              📖 <strong>Relevancia Bíblica:</strong> {selectedSite.biblicalRelation}
+            </div>
+
+            <div style={{ fontSize: '0.78rem', color: '#cbd5e1', lineHeight: 1.4 }}>
+              🏺 <strong>Arqueología:</strong> {selectedSite.archaeology}
+            </div>
+
+            {onConsultAI && (
+              <button
+                onClick={() => onConsultAI({
+                  passage: { title: selectedSite.name, book: selectedSite.modernCountry, chapter: 'Geografía Sagrada' },
+                  mood: 'Exploración Histórica'
+                })}
+                className="gold-btn-gradient"
+                style={{
+                  marginTop: '4px',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                  fontSize: '0.8rem',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
+              >
+                <Sparkles size={14} />
+                <span>Profundizar con Ruaj sobre {selectedSite.name.split('(')[0].trim()}</span>
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* 6. Indicador de atajo de teclado en la esquina inferior derecha */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '18px',
+          right: '18px',
+          zIndex: 999,
+          pointerEvents: 'none',
+          background: 'rgba(0,0,0,0.65)',
+          padding: '6px 12px',
+          borderRadius: '6px',
+          border: '1px solid rgba(255,255,255,0.1)',
+          fontSize: '0.72rem',
+          color: '#94a3b8'
+        }}
+      >
+        Presione <kbd style={{ background: 'rgba(255,255,255,0.15)', padding: '2px 5px', borderRadius: '4px', color: '#ffffff' }}>ESC</kbd> para salir de pantalla completa
+      </div>
+    </div>
+  );
+
+  // VISTA INLINE EMBEBIDA EN EL FLUJO NORMAL DE LA PÁGINA
+  const renderInlineMap = () => (
+    <div
+      style={{
+        background: 'rgba(9, 12, 19, 0.98)',
+        border: '1.5px solid rgba(212,175,55,0.35)',
+        borderRadius: '14px',
+        padding: isExpansive ? '26px' : '20px',
+        boxShadow: '0 6px 36px rgba(0,0,0,0.8)',
+        width: '100%',
+        boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
         gap: '14px'
@@ -1052,9 +1612,9 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
               borderRadius: '8px',
               fontSize: '0.78rem',
               fontWeight: '800',
-              background: inFullscreen ? 'rgba(239, 68, 68, 0.25)' : 'rgba(212,175,55,0.22)',
-              border: `1.5px solid ${inFullscreen ? '#f87171' : 'var(--gold-400)'}`,
-              color: inFullscreen ? '#fca5a5' : 'var(--gold-200)',
+              background: 'rgba(212,175,55,0.22)',
+              border: '1.5px solid var(--gold-400)',
+              color: 'var(--gold-200)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
@@ -1062,33 +1622,11 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
               boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
               transition: 'all 0.15s ease'
             }}
-            title={inFullscreen ? "Presione Escape o haga clic para salir" : "Maximizar mapa a pantalla completa"}
+            title="Maximizar mapa a pantalla completa"
           >
-            {inFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-            <span>{inFullscreen ? 'Salir de Pantalla Completa' : 'Pantalla Completa'}</span>
+            <Maximize2 size={16} />
+            <span>Pantalla Completa</span>
           </button>
-          {inFullscreen && (
-            <button
-              onClick={() => setIsFullscreen(false)}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '8px',
-                fontSize: '0.78rem',
-                fontWeight: '800',
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.25)',
-                color: '#ffffff',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
-              title="Cerrar pantalla completa (Escape)"
-            >
-              <X size={15} />
-              <span>Cerrar</span>
-            </button>
-          )}
         </div>
       </div>
 
@@ -1262,8 +1800,8 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
       <div style={{
         position: 'relative',
         width: '100%',
-        minHeight: inFullscreen ? 'calc(100vh - 200px)' : (isExpansive ? '540px' : '380px'),
-        height: inFullscreen ? 'calc(100vh - 200px)' : (isExpansive ? '560px' : '380px'),
+        minHeight: isExpansive ? '540px' : '380px',
+        height: isExpansive ? '560px' : '380px',
         borderRadius: '12px',
         border: '1.5px solid rgba(212,175,55,0.4)',
         overflow: 'hidden',
@@ -1343,11 +1881,11 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
           </button>
           <button
             onClick={handleToggleFullscreen}
-            title={inFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
+            title="Pantalla completa"
             style={{
-              background: inFullscreen ? 'rgba(212,175,55,0.3)' : 'transparent',
+              background: 'transparent',
               border: 'none',
-              color: inFullscreen ? '#ffd700' : 'var(--gold-300)',
+              color: 'var(--gold-300)',
               padding: '6px',
               borderRadius: '4px',
               cursor: 'pointer',
@@ -1357,7 +1895,7 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
               borderTop: '1px solid rgba(255,255,255,0.1)'
             }}
           >
-            {inFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            <Maximize2 size={16} />
           </button>
         </div>
 
@@ -1607,10 +2145,10 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
             Restaurar a vista normal
           </button>
         </div>
-        {createPortal(renderMapContent(true), document.body)}
+        {createPortal(renderFullscreenMap(), document.body)}
       </>
     );
   }
 
-  return renderMapContent(false);
+  return renderInlineMap();
 }

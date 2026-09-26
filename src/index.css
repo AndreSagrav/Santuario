@@ -269,7 +269,7 @@ body {
   width: 100vw !important;
   height: 100vh !important;
   background: #070a13 !important;
-  overflow-y: auto !important;
+  overflow: hidden !important;
   box-sizing: border-box !important;
 }
 
