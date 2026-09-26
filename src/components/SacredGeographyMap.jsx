@@ -1308,10 +1308,10 @@ export default function SacredGeographyMap({ bookName = '', chapter = 1, verseRe
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', fontSize: '0.76rem' }}>
-            {isGenesis && (
+            {activeTrail && (
               <span style={{ color: '#ffd700', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <span style={{ display: 'inline-block', width: '18px', height: '3px', background: '#ffd700', borderRadius: '2px' }}></span>
-                Ruta de Abraham (~2.000 km)
+                <span style={{ display: 'inline-block', width: '18px', height: '3px', background: '#dc2626', borderRadius: '2px' }}></span>
+                {trailName.split('(')[0].trim()}
               </span>
             )}
             <span style={{ color: '#94a3b8' }}>
